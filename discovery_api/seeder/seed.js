@@ -51,6 +51,7 @@ async function seed() {
   const permissions = await Permission.bulkCreate([
     { name: "Roel Manage", action: "manage_roles" },
     { name: "Permission Manage", action: "manage_permissions" },
+    { name: "Dashboard Manage", action: "manage_dashboard" },
 
     { name: "User Manage", action: "manage_users" },
     { name: "User Create", action: "create_users" },

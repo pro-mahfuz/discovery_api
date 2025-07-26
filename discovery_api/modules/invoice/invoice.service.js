@@ -57,6 +57,7 @@ export const createInvoice = async (req) => {
             debitAmount = invoice.totalAmount;
         }
         
+        // Step 3: create ledger
         await Ledger.create(
             {
                 categoryId: invoice.categoryId,
@@ -130,7 +131,7 @@ export const updateInvoice = async (req) => {
 
         // Step 3: Remove old items and stocks
         await InvoiceItem.destroy({ where: { invoiceId: id }, transaction: t });
-        await Stock.destroy({ where: { refInvoiceId: id }, transaction: t });
+        await Stock.destroy({ where: { invoiceId: id }, transaction: t });
 
         // Step 4: Re-create Invoice Items and Stocks
         if (items && Array.isArray(items)) {
@@ -151,6 +152,36 @@ export const updateInvoice = async (req) => {
             }));
 
             await Stock.bulkCreate(stockEntries, { transaction: t });
+        }
+
+        // Step 5: update ledger
+        let debitAmount = 0;
+        let creditAmount = 0;
+        if (invoice.invoiceType === 'purchase'){
+            creditAmount = invoice.totalAmount;
+        }
+        else if (invoice.invoiceType === 'sale'){
+            debitAmount = invoice.totalAmount;
+        }
+
+        const ledger = await Ledger.findOne({
+            where: { referenceId: invoice.id },
+            transaction: t,
+        });
+
+        if (ledger) {
+            await ledger.update(
+                {
+                    categoryId: invoice.categoryId,
+                    transactionType: invoice.invoiceType,
+                    partyId: invoice.partyId,
+                    date: invoice.date,
+                    referenceId: invoice.id,
+                    debit: debitAmount,
+                    credit: creditAmount,
+                },
+                { transaction: t }
+            );
         }
 
         await t.commit();
@@ -190,6 +221,12 @@ export const deleteInvoice = async (req) => {
     if (!invoice) {
       throw new Error("Invoice not found");
     }
+
+    // Delete the ledger
+    await Ledger.destroy({
+      where: { referenceId: id },
+      transaction: t,
+    });
 
     // Delete the stock
     await Stock.destroy({

@@ -9,7 +9,7 @@ export default (sequelize, DataTypes) => {
       },
     },
     paymentType: {
-      type: DataTypes.ENUM('purchase', 'sale', 'payment_in', 'payment_out'),
+      type: DataTypes.ENUM('payment_in', 'payment_out'),
       allowNull: false,
     },
     invoiceId: {
