@@ -1,0 +1,277 @@
+import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
+import PageMeta from "../../../components/common/PageMeta.tsx";
+import { ChangeEvent, useState, useEffect } from "react";
+import ComponentCard from "../../../components/common/ComponentCard.tsx";
+import Label from "../../../components/form/Label.tsx";
+import Input from "../../../components/form/input/InputField.tsx";
+import Select from "../../../components/form/Select.tsx";
+import PhoneInput from "../../../components/form/group-input/PhoneInput.tsx";
+import Button from "../../../components/ui/button/Button.tsx";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+
+import { partyTypeOptions, statusOptions, countries, Party } from "../features/partyTypes.tsx";
+import { fetchPartyById, updateParty } from "../features/partyThunks.ts";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "../../../store/store.ts";
+import { selectAllParties } from "../features/partySelectors.ts";
+
+export default function PartyEditForm() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+
+  const parties = useSelector(selectAllParties);
+
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  
+  const [formData, setFormData] = useState<Party>({
+    type: 'customer',
+    name: '',
+    email: '',
+    countryCode: 'AE',
+    phoneCode: '+971',
+    phoneNumber: '',
+    address: '',
+    city: '',
+    country: '',
+    nationalId: '',
+    tradeLicense: '',
+    openingBalance: 0,
+    isActive: true,
+  });
+
+  useEffect(() => {
+    const party = parties.find((p) => p.id === Number(id));
+    console.log("party found:", party);
+    
+    if (!party) {
+        dispatch(fetchPartyById(Number(id)));
+    } else {
+        setFormData({
+            type: party.type,
+            name: party.name,
+            email: party.email,
+            countryCode: party.countryCode,
+            phoneCode: party.phoneCode,
+            phoneNumber: party.phoneNumber,
+            address: party.address,
+            city: party.city,
+            country: party.country,
+            nationalId: party.nationalId,
+            tradeLicense: party.tradeLicense,
+            openingBalance: party.openingBalance,
+            isActive: party.isActive,
+        });
+    }
+  }, [parties, id, dispatch]);
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === "openingBalance" ? parseFloat(value) || 0 : value,
+    }));
+  };
+
+  const handlePartyTypeChange = (value: string) => {
+    if (value === "customer" || value === "supplier") {
+      setFormData((prev) => ({ ...prev, type: value }));
+    }
+  };
+
+  const handleStatusChange = (value: boolean) => {
+    setFormData((prev) => ({ ...prev, isActive: value }));
+  };
+
+  const handlePhoneNumberChange = (countryCode: string, phoneCode: string, phoneNumber: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      countryCode,
+      phoneCode,
+      phoneNumber,
+    }));
+  };
+
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.phoneNumber.trim()) newErrors.phoneNumber = "Phone number is required";
+    if (!formData.type) newErrors.type = "Party type is required";
+    if (!formData.address.trim()) newErrors.address = "Address is required";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      toast.error("Please fix the errors in the form.");
+      return;
+    }
+
+    try {
+      await dispatch(updateParty({
+        ...formData,
+        id: Number(id)
+      }));
+      toast.success("Party updated successfully!");
+      formData.type === 'supplier' ? navigate("/party/supplier/list") : navigate("/party/customer/list");
+    } catch (err) {
+      toast.error("Failed to create party.");
+      console.error("Submit error:", err);
+    }
+  };
+
+  return (
+    <div>
+      <PageMeta title="Supplier/Customer Edit" description="Form to edit new supplier or customer" />
+      <PageBreadcrumb pageTitle="Supplier/Customer Edit" />
+
+      <ComponentCard title="Fill up all fields to edit a supplier or customer">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <Label>Select Party Type</Label>
+              <Select
+                options={partyTypeOptions}
+                placeholder="Select type"
+                value={formData.type}
+                onChange={handlePartyTypeChange}
+                className="dark:bg-dark-900"
+              />
+              {errors.type && <p className="text-red-500 text-sm">{errors.type}</p>}
+            </div>
+
+            <div>
+              <Label>Supplier/Customer Name</Label>
+              <Input
+                type="text"
+                name="name"
+                placeholder="Enter full name"
+                value={formData.name}
+                onChange={handleChange}
+              />
+              {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+            </div>
+
+            <div>
+              <Label>Email</Label>
+              <Input
+                type="email"
+                name="email"
+                placeholder="Enter email"
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <Label>Phone</Label>
+              <PhoneInput
+                selectPosition="start"
+                countries={countries}
+                placeholder="50 000 0000"
+                value={{
+                  countryCode: formData.countryCode,
+                  phoneCode: formData.phoneCode,
+                  phoneNumber: formData.phoneNumber,
+                }}
+                onChange={handlePhoneNumberChange}
+              />
+              {errors.phoneNumber && <p className="text-red-500 text-sm">{errors.phoneNumber}</p>}
+            </div>
+
+            <div className="col-span-2">
+              <Label>Address</Label>
+              <Input
+                type="text"
+                name="address"
+                placeholder="Full address"
+                value={formData.address}
+                onChange={handleChange}
+              />
+              {errors.address && <p className="text-red-500 text-sm">{errors.address}</p>}
+            </div>
+
+            <div>
+              <Label>City</Label>
+              <Input
+                type="text"
+                name="city"
+                placeholder="City name"
+                value={formData.city}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <Label>Country</Label>
+              <Input
+                type="text"
+                name="country"
+                placeholder="Country name"
+                value={formData.country}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <Label>EID / Passport No</Label>
+              <Input
+                type="text"
+                name="nationalId"
+                placeholder="ID / Passport Number"
+                value={formData.nationalId}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <Label>Trade License</Label>
+              <Input
+                type="text"
+                name="tradeLicense"
+                placeholder="Trade license number"
+                value={formData.tradeLicense}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <Label>Opening Balance</Label>
+              <Input
+                type="number"
+                name="openingBalance"
+                placeholder="0.00"
+                value={formData.openingBalance}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <Label>Status</Label>
+              <Select
+                options={statusOptions}
+                placeholder="Select status"
+                value={formData.isActive}
+                onChange={handleStatusChange}
+                className="dark:bg-dark-900"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end">
+            <Button variant="success">Submit</Button>
+          </div>
+        </form>
+      </ComponentCard>
+    </div>
+  );
+}
+
+
+
