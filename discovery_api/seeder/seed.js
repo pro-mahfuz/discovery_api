@@ -49,7 +49,7 @@ async function seed() {
   }
 
   const permissions = await Permission.bulkCreate([
-    { name: "Roel Manage", action: "manage_roles" },
+    { name: "Role Manage", action: "manage_roles" },
     { name: "Permission Manage", action: "manage_permissions" },
     { name: "Dashboard Manage", action: "manage_dashboard" },
 
@@ -63,7 +63,7 @@ async function seed() {
     { name: "Profile Edit", action: "edit_profile" },
     { name: "Profile View", action: "view_profile" },
 
-    { name: "Party Manager", action: "manage_party" },
+    { name: "Party Manage", action: "manage_party" },
     { name: "Party Create", action: "create_party" },
     { name: "Party Edit", action: "edit_party" },
     { name: "Party View", action: "view_party" },
@@ -86,6 +86,24 @@ async function seed() {
     { name: "Invoice Edit", action: "edit_invoice" },
     { name: "Invoice View", action: "view_invoice" },
     { name: "Invoice Delete", action: "delete_invoice" },
+
+    { name: "Payment Manage", action: "manage_payment" },
+    { name: "Payment Create", action: "create_payment" },
+    { name: "Payment Edit", action: "edit_payment" },
+    { name: "Payment View", action: "view_payment" },
+    { name: "Payment Delete", action: "delete_payment" },
+
+    { name: "Warehouse Manage", action: "manage_warehouse" },
+    { name: "Warehouse Create", action: "create_warehouse" },
+    { name: "Warehouse Edit", action: "edit_warehouse" },
+    { name: "Warehouse View", action: "view_warehouse" },
+    { name: "Warehouse Delete", action: "delete_warehouse" },
+
+    { name: "Stock Manage", action: "manage_stock" },
+    { name: "Stock Create", action: "create_stock" },
+    { name: "Stock Edit", action: "edit_stock" },
+    { name: "Stock View", action: "view_stock" },
+    { name: "Stock Delete", action: "delete_stock" },
   ]);
 
   await admin.setPermissions(permissions); // Admin gets all
@@ -122,13 +140,17 @@ async function seed() {
   await Item.bulkCreate([
     {
       code: "001",
+      name: "Orange",
+      categoryId: 1,
+      isActive: true,
+    },
+    {
+      code: "002",
       name: "Carrot",
       categoryId: 2,
       isActive: true,
     }
   ]);
-  
-
 
   console.log("Seed complete");
   process.exit();

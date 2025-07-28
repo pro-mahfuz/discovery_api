@@ -23,7 +23,7 @@ import { toast } from "react-toastify";
 import { useModal } from "../../../hooks/useModal.ts";
 import ConfirmationModal from "../../../components/ui/modal/ConfirmationModal.tsx";
 
-import { Party } from "../features/partyTypes.tsx";
+import { Party } from "../features/partyTypes.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
 import { selectAllCustomers } from "../features/partySelectors.ts";

@@ -40,6 +40,14 @@ const navItems: NavItem[] = [
     ],
   },
   {
+    name: "Invoice",
+    icon: <ListIcon />,
+    subItems: [
+      { name: "Invoice List", path: "/invoice/list", pro: false },
+      { name: "Invoice Add", path: "/invoice/create", pro: false }
+    ],
+  },
+  {
     name: "Customer Ledger",
     icon: <ListIcon />,
     path: "/customers/ledger",

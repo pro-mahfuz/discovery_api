@@ -21,3 +21,12 @@ export const selectPartyError = (state: RootState) => state.party.error;
 
 
 export const selectPartyById = (id: number) => (state: RootState) => state.party.parties.find(party => party.id === id);
+export const searchPartyByText = (text: string) => (state: RootState) => {
+  const search = text.toLowerCase();
+
+  return state.party.parties.filter(party =>
+    party.name.toLowerCase().includes(search) ||
+    (party.phoneNumber && party.phoneNumber.toLowerCase().includes(search)) ||
+    (party.email && party.email.toLowerCase().includes(search))
+  );
+};

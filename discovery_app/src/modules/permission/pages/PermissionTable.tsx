@@ -37,7 +37,7 @@ export default function PermissionTable() {
             {/* Search Input */}
 
             {/* Table */}
-            <div className="grid grid-flow-col grid-rows-4 gap-4 p-4">
+            <div className="grid grid-flow-row grid-cols-4 gap-4 p-4">
               {
                 status === 'loading' ? (
                   "Loading users..."

@@ -8,6 +8,9 @@ import { partySchema } from "../modules/party/party.validator.js";
 import { categorySchema } from "../modules/category/category.validator.js";
 import { itemSchema } from "../modules/item/item.validator.js";
 import { invoiceSchema } from "../modules/invoice/invoice.validator.js";
+import { paymentSchema } from "../modules/payment/payment.validator.js";
+import { stockSchema } from "../modules/stock/stock.validator.js";
+import { warehouseSchema } from "../modules/warehouse/warehouse.validator.js";
 
 import * as UserController from "../modules/user/user.controller.js";
 import * as ProfileController from "../modules/profile/profile.controller.js";
@@ -18,6 +21,9 @@ import * as PartyController from "../modules/party/party.controller.js";
 import * as CategoryController from "../modules/category/category.controller.js";
 import * as ItemController from "../modules/Item/item.controller.js";
 import * as InvoiceController from "../modules/invoice/invoice.controller.js";
+import * as PaymentController from "../modules/payment/payment.controller.js";
+import * as StockController from "../modules/stock/stock.controller.js";
+import * as WarehouseController from "../modules/warehouse/warehouse.controller.js";
 
 const router = Router();
 
@@ -78,6 +84,29 @@ router.post("/invoice/create", authorize("create_invoice"), validate(invoiceSche
 router.get("/invoice/:id/view", authorize("view_invoice"), InvoiceController.getInvoiceById);
 router.put("/invoice/update", authorize("edit_invoice"), validate(invoiceSchema), InvoiceController.updateInvoice);
 router.post("/invoice/:id/delete", authorize("delete_invoice"), InvoiceController.deleteInvoice);
+
+/*---Payment---*/
+router.get("/payment/list", authorize("manage_payment"), PaymentController.getAllPayment);
+router.post("/payment/create", authorize("create_payment"), validate(paymentSchema), PaymentController.createPayment);
+router.get("/payment/:id/view", authorize("view_payment"), PaymentController.getPaymentById);
+router.put("/payment/update", authorize("edit_payment"), validate(paymentSchema), PaymentController.updatePayment);
+router.post("/payment/:id/delete", authorize("delete_payment"), PaymentController.deletePayment);
+
+/*---Warehouse---*/
+router.get("/warehouse/list", authorize("manage_warehouse"), WarehouseController.getAllWarehouse);
+router.post("/warehouse/create", authorize("create_warehouse"), validate(warehouseSchema), WarehouseController.createWarehouse);
+router.get("/warehouse/:id/view", authorize("view_warehouse"), WarehouseController.getWarehouseById);
+router.put("/warehouse/update", authorize("edit_warehouse"), validate(warehouseSchema), WarehouseController.updateWarehouse);
+router.post("/warehouse/:id/active", authorize("manage_warehouse"), WarehouseController.activeWarehouse);
+router.post("/warehouse/:id/deactive", authorize("manage_warehouse"), WarehouseController.deactiveWarehouse);
+router.post("/warehouse/:id/delete", authorize("delete_warehouse"), WarehouseController.deleteWarehouse);
+
+/*---Stock---*/
+router.get("/stock/list", authorize("manage_stock"), StockController.getAllStock);
+router.post("/stock/create", authorize("create_stock"), validate(stockSchema), StockController.createStock);
+router.get("/stock/:id/view", authorize("view_stock"), StockController.getStockById);
+router.put("/stock/update", authorize("edit_stock"), validate(stockSchema), StockController.updateStock);
+router.post("/stock/:id/delete", authorize("delete_stock"), StockController.deleteStock);
 
 
 export default router;

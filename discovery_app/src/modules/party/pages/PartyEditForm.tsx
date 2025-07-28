@@ -10,7 +10,7 @@ import Button from "../../../components/ui/button/Button.tsx";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import { partyTypeOptions, statusOptions, countries, Party } from "../features/partyTypes.tsx";
+import { partyTypeOptions, statusOptions, countries, Party } from "../features/partyTypes.ts";
 import { fetchPartyById, updateParty } from "../features/partyThunks.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";

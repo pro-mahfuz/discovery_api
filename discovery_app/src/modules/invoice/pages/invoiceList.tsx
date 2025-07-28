@@ -23,75 +23,73 @@ import { toast } from "react-toastify";
 import { useModal } from "../../../hooks/useModal.ts";
 import ConfirmationModal from "../../../components/ui/modal/ConfirmationModal.tsx";
 
-import { Party } from "../features/partyTypes.ts";
+import { Invoice } from "../features/invoiceTypes.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
 import {
-  selectAllSuppliers,
-  selectPartyStatus
-} from "../features/partySelectors.ts";
-import { fetchParty, deleteParty } from "../features/partyThunks.ts";
+  selectInvoiceStatus,
+  selectInvoiceError,
+  selectAllInvoice,
 
-export default function PartySupplierList() {
+} from "../features/invoiceSelectors.ts";
+import { fetchAll, destroy } from "../features/invoiceThunks.ts";
+
+export default function InvoiceList() {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const suppliers = useSelector(selectAllSuppliers);
-  const status = useSelector(selectPartyStatus);
+  const invoices = useSelector(selectAllInvoice);
+  const status = useSelector(selectInvoiceStatus);
 
   const [filterText, setFilterText] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
 
   const { isOpen, openModal, closeModal } = useModal();
-  const [selectedParty, setSelectedParty] = useState<Party | null>(null);
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
 
   useEffect(() => {
-    dispatch(fetchParty());
+    dispatch(fetchAll());
   }, [dispatch]);
 
-  const filteredParties = useMemo(() => {
-    return suppliers.filter(
-      (s) =>
-        s.name.toLowerCase().includes(filterText.toLowerCase()) ||
-        s.phoneNumber.includes(filterText) ||
-        s.address.toLowerCase().includes(filterText.toLowerCase())
+  const filteredData = useMemo(() => {
+    return invoices.filter(
+      (i) =>
+        i.categoryId
     );
-  }, [suppliers, filterText]);
+  }, [invoices, filterText]);
 
-  const totalPages = Math.ceil(filteredParties.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
-  const paginatedParties = useMemo(() => {
+  const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
-    return filteredParties.slice(start, start + itemsPerPage);
-  }, [filteredParties, currentPage, itemsPerPage]);
+    return filteredData.slice(start, start + itemsPerPage);
+  }, [filteredData, currentPage, itemsPerPage]);
 
-  const handleView = (supplier: Party) => {
-    navigate(`/party/view/${supplier.id}`);
+  const handleView = (supplier: Invoice) => {
+    navigate(`/invoice/view/${supplier.id}`);
   };
 
-  const handleEdit = (supplier: Party) => {
+  const handleEdit = (supplier: Invoice) => {
 
-    navigate(`/party/edit/${supplier.id}`);
+    navigate(`/invoice/edit/${supplier.id}`);
   };
 
   const handleDelete = async () => {
-    if (!selectedParty) return;
+    if (!selectedInvoice) return;
 
     try {
       // You can implement a deleteSupplier thunk and use it here:
-      await dispatch(deleteParty(selectedParty.id!)).unwrap();
-      console.log("Deleting supplier:", selectedParty);
-      toast.success("Supplier deleted successfully");
+      await dispatch(destroy(selectedInvoice.id!)).unwrap();
+      toast.success("Invoice deleted successfully");
       closeAndResetModal();
     } catch (error) {
-      console.error("Failed to delete supplier:", error);
-      toast.error("Failed to delete supplier");
+      toast.error("Failed to delete invoice");
     }
   };
 
   const closeAndResetModal = () => {
-    setSelectedParty(null);
+    setSelectedInvoice(null);
     closeModal();
   };
 
@@ -104,10 +102,10 @@ export default function PartySupplierList() {
   return (
     <>
       <PageMeta
-        title="Supplier List Table"
-        description="Suppliers Table with Search, Sort, Pagination"
+        title="Invoice List Table"
+        description="Invoice Table with Search, Sort, Pagination"
       />
-      <PageBreadcrumb pageTitle="Supplier List" />
+      <PageBreadcrumb pageTitle="Invoice List" />
 
       <div className="space-y-6">
         <div className="rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
@@ -118,10 +116,11 @@ export default function PartySupplierList() {
               <TableHeader className="border-b border-t border-gray-100 dark:border-white/[0.05] bg-gray-200 text-black text-sm dark:bg-gray-800 dark:text-gray-400">
                 <TableRow>
                   <TableCell isHeader className="text-center px-4 py-2">Sl</TableCell>
-                  <TableCell isHeader className="text-center px-4 py-2">Supplier/Company Name</TableCell>
-                  <TableCell isHeader className="text-center px-4 py-2">Phone</TableCell>
-                  <TableCell isHeader className="text-center px-4 py-2">Email</TableCell>
-                  <TableCell isHeader className="text-center px-4 py-2">isActive</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Category</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Type</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Date</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Supplier/Customer Name</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Total Amount</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Action</TableCell>
                 </TableRow>
               </TableHeader>
@@ -133,29 +132,32 @@ export default function PartySupplierList() {
                       Loading data...
                     </TableCell>
                   </TableRow>
-                ) : paginatedParties.length === 0 ? (
+                ) : paginatedData.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center py-4 text-gray-500 dark:text-gray-300">
                       No data found.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  paginatedParties.map((supplier, index) => (
-                    <TableRow key={supplier.id} className="border-b border-gray-100 dark:border-white/[0.05]">
+                  paginatedData.map((invoice, index) => (
+                    <TableRow key={invoice.id} className="border-b border-gray-100 dark:border-white/[0.05]">
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {(currentPage - 1) * itemsPerPage + index + 1}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {supplier.name}
+                        {invoice.categoryId}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {supplier.phoneCode + supplier.phoneNumber}
+                        {invoice.invoiceType}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {supplier.email}
+                        {invoice.date}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {supplier.isActive === true ? "Yes" : "No"}
+                        {invoice.partyId}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {invoice.totalAmount}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm overflow-visible">
                         <Menu as="div" className="relative inline-block text-left">
@@ -169,7 +171,7 @@ export default function PartySupplierList() {
                               <MenuItem>
                                 {({ active }) => (
                                   <button
-                                    onClick={() => handleView(supplier)}
+                                    onClick={() => handleView(invoice)}
                                     className={`${active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'} flex w-full items-center gap-2 px-4 py-2 text-sm`}
                                   >
                                     <EyeIcon className="h-4 w-4" />
@@ -180,7 +182,7 @@ export default function PartySupplierList() {
                               <MenuItem>
                                 {({ active }) => (
                                   <button
-                                    onClick={() => handleEdit(supplier)}
+                                    onClick={() => handleEdit(invoice)}
                                     className={`${active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'} flex w-full items-center gap-2 px-4 py-2 text-sm`}
                                   >
                                     <PencilIcon className="h-4 w-4" />
@@ -192,7 +194,7 @@ export default function PartySupplierList() {
                                 {({ active }) => (
                                   <button
                                     onClick={() => {
-                                      setSelectedParty(supplier);
+                                      setSelectedInvoice(invoice);
                                       openModal();
                                     }}
                                     className={`${active ? 'bg-red-100 text-red-700' : 'text-red-600'} flex w-full items-center gap-2 px-4 py-2 text-sm`}

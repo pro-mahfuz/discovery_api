@@ -36,6 +36,8 @@ import PartySupplierList from "./modules/party/pages/PartySupplierList";
 import PartyCustomerList from "./modules/party/pages/PartyCustomerList";
 import PartyEditForm from "./modules/party/pages/PartyEditForm";
 import PartyView from "./modules/party/pages/PartyView";
+import InvoiceCreateForm from "./modules/invoice/pages/InvoiceCreateForm";
+import InvoiceList from "./modules/invoice/pages/invoiceList";
 
 
 export default function App() {
@@ -82,6 +84,17 @@ export default function App() {
             <Route index path="/party/edit/:id" element={
               <PrivateRoute permissions={['edit_party']}>
                 <PartyEditForm />
+              </PrivateRoute>} 
+            />
+
+            <Route index path="/invoice/create" element={
+              <PrivateRoute permissions={['create_invoice']}>
+                <InvoiceCreateForm />
+              </PrivateRoute>} 
+            />
+            <Route index path="/invoice/list" element={
+              <PrivateRoute permissions={['manage_invoice']}>
+                <InvoiceList />
               </PrivateRoute>} 
             />
             
