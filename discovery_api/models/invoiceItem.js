@@ -7,7 +7,6 @@ export default (sequelize, DataTypes) => {
         model: 'Invoices', // Ensure this matches your actual table name
         key: 'id',
       },
-      onDelete: 'CASCADE',
     },
     itemId: {
       type: DataTypes.INTEGER,
@@ -16,7 +15,10 @@ export default (sequelize, DataTypes) => {
         model: 'Items', // Ensure this matches your actual table name
         key: 'id',
       },
-      onDelete: 'CASCADE',
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     quantity: {
       type: DataTypes.INTEGER,

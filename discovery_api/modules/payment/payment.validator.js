@@ -11,11 +11,11 @@ export const paymentSchema = yup.object({
     .string()
     .required("Payment type is required"),
 
-  invoiceId: yup
-    .number()
-    .typeError("Invoice ID must be a number")
-    .integer("Invoice ID must be an integer")
-    .required("Invoice ID is required"),
+  // invoiceId: yup
+  //   .number()
+  //   .typeError("Invoice ID must be a number")
+  //   .integer("Invoice ID must be an integer")
+  //   .required("Invoice ID is required"),
 
   paymentDate: yup
     .date()

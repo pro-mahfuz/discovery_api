@@ -1,4 +1,4 @@
-import { Payment } from "../../models/model.js";
+import { Payment, Ledger, sequelize } from "../../models/model.js";
 
 export const getAllPayment = async () => {
     const data = await Payment.findAll();
@@ -7,7 +7,35 @@ export const getAllPayment = async () => {
 }
 
 export const createPayment = async (req) => {
-    const data = await Payment.create(req.body);
+
+    const t = await sequelize.transaction();
+
+    const data = await Payment.create(req.body, { transaction: t });
+
+    let debitAmount = 0;
+    let creditAmount = 0;
+    if (req.body.paymentType === 'payment_in'){
+        creditAmount = req.body.amountPaid;
+    }
+    else if (req.body.paymentType === 'payment_out'){
+        debitAmount = req.body.amountPaid;
+    }
+
+    await Ledger.create(
+        {
+            categoryId: req.body.categoryId,
+            transactionType: req.body.paymentType,
+            partyId: req.body.partyId,
+            date: req.body.date,
+            referenceId: data.id,
+            description: req.body.note,
+            debit: debitAmount,
+            credit: creditAmount,
+        }, 
+        { transaction: t }
+    );
+
+    await t.commit();
     console.log("Payment response body:", data);
     
     return data;

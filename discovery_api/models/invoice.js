@@ -20,7 +20,6 @@ export default (sequelize, DataTypes) => {
         model: 'Parties', // Correct model name — assuming your Party table is named 'Parties'
         key: 'id',
       },
-      onDelete: 'CASCADE',
     },
     date: {
       type: DataTypes.DATE,

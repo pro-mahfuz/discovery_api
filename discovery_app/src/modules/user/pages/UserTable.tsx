@@ -58,7 +58,7 @@ export default function UserTable() {
     );
   }, [users, filterText, status]);
 
-  // Sort users by ID
+  // Sort by ID
   const sortedUsers = useMemo(() => {
     return [...filteredUsers].sort((a, b) => a.id - b.id);
   }, [filteredUsers]);
@@ -66,7 +66,7 @@ export default function UserTable() {
   // Calculate total pages
   const totalPages = Math.ceil(sortedUsers.length / itemsPerPage) || 1;
 
-  // Paginate users
+  // Paginate
   const paginatedUsers = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
     return sortedUsers.slice(start, start + itemsPerPage);

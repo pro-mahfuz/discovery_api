@@ -233,7 +233,7 @@ export default function PartyCreateForm() {
           </div>
 
           <div className="flex justify-end">
-            <Button variant="success">Submit</Button>
+            <Button type="submit" variant="success">Submit</Button>
           </div>
         </form>
       </ComponentCard>

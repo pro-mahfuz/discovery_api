@@ -31,13 +31,18 @@ const navItems: NavItem[] = [
     path: "/",
   },
   {
-    name: "Supplier/Customer",
+    name: "Party",
     icon: <ListIcon />,
     subItems: [
       { name: "Supplier List", path: "/party/supplier/list", pro: false },
       { name: "Customer List", path: "/party/customer/list", pro: false },
       { name: "Supplier/Customer Add", path: "/party/create", pro: false }
     ],
+  },
+  {
+    name: "Currency Ledger",
+    icon: <ListIcon />,
+    path: "/currency/ledger",
   },
   {
     name: "Invoice",
@@ -47,11 +52,7 @@ const navItems: NavItem[] = [
       { name: "Invoice Add", path: "/invoice/create", pro: false }
     ],
   },
-  {
-    name: "Customer Ledger",
-    icon: <ListIcon />,
-    path: "/customers/ledger",
-  },
+  
   
   // {
   //   icon: <CalenderIcon />,

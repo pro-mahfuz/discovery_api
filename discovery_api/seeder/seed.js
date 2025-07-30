@@ -104,6 +104,12 @@ async function seed() {
     { name: "Stock Edit", action: "edit_stock" },
     { name: "Stock View", action: "view_stock" },
     { name: "Stock Delete", action: "delete_stock" },
+
+    { name: "Ledger Manage", action: "manage_ledger" },
+    { name: "Ledger Create", action: "create_ledger" },
+    { name: "Ledger Edit", action: "edit_ledger" },
+    { name: "Ledger View", action: "view_ledger" },
+    { name: "Ledger Delete", action: "delete_ledger" },
   ]);
 
   await admin.setPermissions(permissions); // Admin gets all

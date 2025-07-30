@@ -133,7 +133,7 @@ export default function SignIn() {
                       </Link>
                     </div>
                     <div>
-                      <Button className="w-full" size="sm">
+                      <Button type="submit" className="w-full" size="sm">
                         Sign in
                       </Button>
                     </div>

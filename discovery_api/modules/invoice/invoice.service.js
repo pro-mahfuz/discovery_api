@@ -17,6 +17,8 @@ export const createInvoice = async (req) => {
 
     const t = await sequelize.transaction();
     try {
+
+        
         // Step 1: Create Invoice
         const invoice = await Invoice.create(invoiceData, { transaction: t });
 
@@ -29,8 +31,12 @@ export const createInvoice = async (req) => {
         // Step 2: Create Invoice Items and Stocks
         if (items && Array.isArray(items)) {
             const invoiceItems = items.map((item) => ({
-                ...item,
                 invoiceId: invoice.id,
+                itemId: item.itemId,
+                name: item.name,
+                quantity: item.quantity,
+                price: item.price,
+                subTotal: item.subTotal
             }));
 
             await InvoiceItem.bulkCreate(invoiceItems, { transaction: t });
@@ -65,6 +71,11 @@ export const createInvoice = async (req) => {
                 partyId: invoice.partyId,
                 date: invoice.date,
                 referenceId: invoice.id,
+                description: Array.isArray(items)
+                ? `${items
+                    .map((item) => `${item.name} x${item.quantity} @${item.price}`)
+                    .join(', ')}${invoice.note ? `<br />Note: ${invoice.note}` : ''}`
+                : '',
                 debit: debitAmount,
                 credit: creditAmount,
             }, 
@@ -136,8 +147,12 @@ export const updateInvoice = async (req) => {
         // Step 4: Re-create Invoice Items and Stocks
         if (items && Array.isArray(items)) {
             const invoiceItems = items.map((item) => ({
-                ...item,
                 invoiceId: invoice.id,
+                itemId: item.itemId,
+                name: item.name,
+                quantity: item.quantity,
+                price: item.price,
+                subTotal: item.subTotal
             }));
 
             await InvoiceItem.bulkCreate(invoiceItems, { transaction: t });
@@ -147,7 +162,7 @@ export const updateInvoice = async (req) => {
                 invoiceId: invoice.id,
                 movementType: movementType,
                 quantity: item.quantity,
-                warehouseId: item.warehouseId || null,
+                warehouseId: item.warehouseId || null, // allow null
                 itemId: item.itemId,
             }));
 
@@ -177,6 +192,11 @@ export const updateInvoice = async (req) => {
                     partyId: invoice.partyId,
                     date: invoice.date,
                     referenceId: invoice.id,
+                    description: Array.isArray(items)
+                    ? `${items
+                        .map((item) => `${item.name} x${item.quantity} @${item.price}`)
+                        .join(', ')}${invoice.note ? `<br />Note: ${invoice.note}` : ''}`
+                    : '',
                     debit: debitAmount,
                     credit: creditAmount,
                 },

@@ -30,7 +30,7 @@ import PermissionTable from "./modules/permission/pages/PermissionTable";
 import RoleTable from "./modules/role/pages/RoleTable";
 import RoleEditForm from "./modules/role/pages/RoleEditForm";
 import RoleCreateForm from "./modules/role/pages/RoleCreateForm";
-import CustomerLedger from "./modules/customer/pages/CustomerLedger";
+import CustomerLedger from "./modules/ledger/pages/CustomerLedger";
 import PartyCreateForm from "./modules/party/pages/PartyCreateForm";
 import PartySupplierList from "./modules/party/pages/PartySupplierList";
 import PartyCustomerList from "./modules/party/pages/PartyCustomerList";
@@ -98,7 +98,7 @@ export default function App() {
               </PrivateRoute>} 
             />
             
-            <Route index path="/customers/ledger/" element={
+            <Route index path="/currency/ledger/" element={
               <PrivateRoute permissions={['manage_users']}>
                 <CustomerLedger />
               </PrivateRoute>} 

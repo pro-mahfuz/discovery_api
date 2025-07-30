@@ -1,5 +1,9 @@
 export default (sequelize, DataTypes) => {
   const Payment = sequelize.define("Payment", {
+    partyId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
     categoryId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -46,6 +50,11 @@ export default (sequelize, DataTypes) => {
   });
 
   Payment.associate = (models) => {
+    Payment.belongsTo(models.Category, {
+      foreignKey: "partyId",
+      as: "party",
+    });
+
     Payment.belongsTo(models.Category, {
       foreignKey: "categoryId",
       as: "category",

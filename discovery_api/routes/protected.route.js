@@ -24,6 +24,7 @@ import * as InvoiceController from "../modules/invoice/invoice.controller.js";
 import * as PaymentController from "../modules/payment/payment.controller.js";
 import * as StockController from "../modules/stock/stock.controller.js";
 import * as WarehouseController from "../modules/warehouse/warehouse.controller.js";
+import * as LedgerController from "../modules/ledger/ledger.controller.js";
 
 const router = Router();
 
@@ -107,6 +108,9 @@ router.post("/stock/create", authorize("create_stock"), validate(stockSchema), S
 router.get("/stock/:id/view", authorize("view_stock"), StockController.getStockById);
 router.put("/stock/update", authorize("edit_stock"), validate(stockSchema), StockController.updateStock);
 router.post("/stock/:id/delete", authorize("delete_stock"), StockController.deleteStock);
+
+/*---Currency ledger---*/
+router.get("/ledger/list", authorize("manage_ledger"), LedgerController.getAllLedger);
 
 
 export default router;

@@ -1,6 +1,10 @@
 
+export type OptionType = {
+  label: string;
+  value: string;
+};
 
-export const categoryOptions = [
+export const categoryOptions:  OptionType[] = [
   { value: "1", label: "Fruit" },
   { value: "2", label: "Vegetable" },
 ];
@@ -20,9 +24,11 @@ export const invoiceTypeOptions: { value: InvoiceType; label: string }[] = [
 
 // Item interface
 export interface Item {
-  itemId: number;
-  quantity: number;
+  id?: number;
+  itemId?: number;
+  name?: string;
   price: number;
+  quantity: number;
   subTotal: number;
 }
 
@@ -30,13 +36,13 @@ export interface Item {
 // Invoice interface
 export interface Invoice {
   id?: number;                  // Optional for creation
-  categoryId: number;           // Reference to invoice category
+  categoryId: number | string;
   invoiceType: "purchase" | "sale" | "return" | "damaged";
-  partyId: number;              // Vendor or customer
-  date: string;                 // ISO string or date format (e.g. "2025-07-28")
-  totalAmount: number;          // Total calculated from items
-  note?: string;                // Optional note
-  items: Item[];                // List of invoice line items
+  partyId: number | string;
+  date: string;
+  note: string;
+  totalAmount: number;
+  items: Item[];            // List of invoice line items
 }
 
 export interface InvoiceState {

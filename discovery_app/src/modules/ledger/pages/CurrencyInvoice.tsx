@@ -1,0 +1,346 @@
+import Label from "../../../components/form/Label.tsx";
+import Input from "../../../components/form/input/InputField.tsx";
+import Select from "react-select";
+import { toast } from "react-toastify";
+
+import { FormEvent, ChangeEvent, useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+// import { useNavigate } from "react-router-dom";
+
+import {
+  Invoice,
+  // categoryOptions,
+  invoiceTypeOptions,
+  OptionType,
+  Item,
+} from "../../invoice/features/invoiceTypes.ts";
+import { AppDispatch } from "../../../store/store.ts";
+import { create, fetchById, update } from "../../invoice/features/invoiceThunks.ts";
+import { fetchAll } from "../../item/features/itemThunks.ts";
+import { fetchParty } from "../../party/features/partyThunks.ts";
+import { selectAllParties } from "../../party/features/partySelectors.ts";
+import { selectAllItem } from "../../item/features/itemSelectors.ts";
+import { selectInvoiceById } from "../../invoice/features/invoiceSelectors.ts";
+
+interface CurrencyPurchaseProps {
+  editingLedgerId: number;
+}
+
+export default function CurrencyPurchase({ editingLedgerId }: CurrencyPurchaseProps) {
+  // const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+
+  const matchingParties = useSelector(selectAllParties);
+  const items = useSelector(selectAllItem);
+  const selectedInvoice = useSelector(selectInvoiceById(Number(editingLedgerId)));
+
+  const [form, setForm] = useState<Invoice | null>({
+    categoryId: 1,
+    invoiceType: "purchase",
+    partyId: 0,
+    date: '',
+    note: '',
+    totalAmount: 0,
+    items: [],
+  });
+
+  const [currentItem, setCurrentItem] = useState<Item>({
+    id: 0,
+    itemId: 0,
+    name: '',
+    price: 0,
+    quantity: 0,
+    subTotal: 0,
+  });
+
+  useEffect(() => {
+    dispatch(fetchParty());
+    dispatch(fetchAll());
+    if (editingLedgerId) {
+      dispatch(fetchById(editingLedgerId));
+    }
+  }, [editingLedgerId, dispatch]);
+
+  // Allowed invoice types
+  const allowedInvoiceTypes = ["purchase", "sale", "return", "damaged"] as const;
+  type InvoiceType = typeof allowedInvoiceTypes[number];
+
+  // Type guard to check valid invoiceType
+  const isValidInvoiceType = (type: string): type is InvoiceType =>
+    allowedInvoiceTypes.includes(type as InvoiceType);
+
+  useEffect(() => {
+    console.log("selectedInvoice", selectedInvoice);
+    if (!selectedInvoice) return;
+
+    const validInvoiceType: InvoiceType = isValidInvoiceType(selectedInvoice.invoiceType)
+      ? selectedInvoice.invoiceType
+      : "purchase"; // fallback default
+
+    setForm({
+      categoryId: selectedInvoice.categoryId ?? 1,
+      invoiceType: validInvoiceType,
+      partyId: selectedInvoice.partyId ?? '',
+      date: selectedInvoice.date
+        ? new Date(selectedInvoice.date).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+      note: selectedInvoice.note ?? '',
+      totalAmount: selectedInvoice.totalAmount ?? 0,
+      items: [],
+    });
+
+    if (selectedInvoice.items && selectedInvoice.items.length > 0) {
+      const firstItem = selectedInvoice.items[0];
+      setCurrentItem({
+        id: firstItem.id ?? 0,
+        itemId: firstItem.itemId ?? 0,
+        name: firstItem.name ?? '',
+        price: firstItem.price ?? 0,
+        quantity: firstItem.quantity ?? 0,
+        subTotal: firstItem.subTotal ?? 0,
+      });
+    } else {
+      setCurrentItem({
+        id: 0,
+        itemId: 0,
+        name: '',
+        price: 0,
+        quantity: 0,
+        subTotal: 0,
+      });
+    }
+  }, [selectedInvoice]);
+
+  
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    if (!form) return;
+
+    setForm((prev) => ({
+      ...prev!,
+      [name]: name === "partyId" || name === "categoryId" ? Number(value) : value,
+    }));
+  };
+
+  const handleCurrentItemChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCurrentItem((prev) => ({
+      ...prev,
+      [name]: name === "price" || name === "quantity" ? Number(value) : value,
+    }));
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!form) return;
+
+    const newItem: Item = {
+      ...currentItem,
+      subTotal: currentItem.price * currentItem.quantity,
+    };
+
+    console.log("newItem", newItem);
+    const updatedItems = [...form.items, newItem];
+
+    const updatedForm: Invoice = {
+      ...form,
+      items: updatedItems,
+      totalAmount: updatedItems.reduce((total, item) => total + item.subTotal, 0),
+    };
+
+    setForm(updatedForm);
+    setCurrentItem({ id: 0, itemId: 0, name: "", price: 0, quantity: 1, subTotal: 0 });
+
+    if (editingLedgerId) {
+      const updatedForm: Invoice = {
+        ...form,
+        id: selectedInvoice?.id,
+        items: updatedItems,
+        totalAmount: updatedItems.reduce((total, item) => total + item.subTotal, 0),
+      };
+      console.log("Updated formData: ", updatedForm);
+      await dispatch(update(updatedForm));
+    }else{
+      await dispatch(create(updatedForm));
+    }
+    toast.success("Invoice created successfully!");
+    window.location.reload();
+    //navigate("/currency/ledger");
+  };
+
+  const selectStyles = {
+    control: (base: any, state: any) => ({
+      ...base,
+      borderColor: state.isFocused ? "#72a4f5ff" : "#d1d5db",
+      boxShadow: state.isFocused ? "0 0 0 1px #8eb8fcff" : "none",
+      padding: "0.25rem 0.5rem",
+      borderRadius: "0.375rem",
+      minHeight: "38px",
+      fontSize: "0.875rem",
+      "&:hover": {
+        borderColor: "#3b82f6",
+      },
+    }),
+    menu: (base: any) => ({
+      ...base,
+      zIndex: 20,
+    }),
+    option: (base: any, state: any) => ({
+      ...base,
+      backgroundColor: state.isFocused ? "#e0f2fe" : "white",
+      color: "#1f2937",
+      fontSize: "0.875rem",
+      padding: "0.5rem 0.75rem",
+    }),
+  };
+
+  return (
+    <div className="flex">
+      <div className="w-full">
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div>
+              <Label>Select Party</Label>
+              <Select
+                options={matchingParties.map((p) => ({
+                  label: p.name,
+                  value: p.id,
+                }))}
+                placeholder="Search and select party"
+                value={
+                  form
+                    ? matchingParties
+                        .filter((p) => p.id === form.partyId)
+                        .map((p) => ({ label: p.name, value: p.id }))[0] || null
+                    : null
+                }
+                onChange={(selectedOption) =>
+                  setForm((prev) => ({
+                    ...prev!,
+                    partyId: selectedOption?.value ?? 0,
+                  }))
+                }
+                isClearable
+                styles={selectStyles}
+                classNamePrefix="react-select"
+              />
+            </div>
+
+            <div>
+              <Label>Date</Label>
+              <Input
+                type="date"
+                name="date"
+                value={form?.date ?? ""}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Select Invoice Type</Label>
+              <Select<OptionType>
+                options={invoiceTypeOptions}
+                placeholder="Select Transaction type"
+                value={
+                  form
+                    ? invoiceTypeOptions.find((option) => option.value === form.invoiceType)
+                    : null
+                }
+                onChange={(selectedOption) => {
+                  setForm((prev) => ({
+                    ...prev!,
+                    invoiceType: selectedOption!.value as InvoiceType,
+                  }));
+                }}
+                styles={selectStyles}
+                classNamePrefix="react-select"
+              />
+            </div>
+
+            <div>
+              <Label>Search Item Name</Label>
+              <Select
+                options={items.map((i) => ({
+                  label: i.name,
+                  value: i.id,
+                }))}
+                placeholder="Search and select item"
+                value={
+                  items
+                    .filter((i) => i.id === currentItem.itemId)
+                    .map((i) => ({ label: i.name, value: i.id }))[0] || null
+                }
+                onChange={(selectedOption) =>
+                  setCurrentItem((prev) => ({
+                    ...prev,
+                    itemId: selectedOption?.value ?? 0,
+                    name: selectedOption?.label ?? "",
+                  }))
+                }
+                isClearable
+                styles={selectStyles}
+                classNamePrefix="react-select"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mt-4">
+            <div>
+              <Label>BDT Rate</Label>
+              <Input
+                type="text"
+                name="price"
+                value={currentItem.price}
+                onChange={handleCurrentItemChange}
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Quantity</Label>
+              <Input
+                type="text"
+                name="quantity"
+                value={currentItem.quantity}
+                onChange={handleCurrentItemChange}
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Total Amount</Label>
+              <Input
+                type="text"
+                name="subTotal"
+                value={currentItem.quantity * currentItem.price}
+                readonly
+              />
+            </div>
+
+            <div className="col-span-2">
+              <Label>Description / Note</Label>
+              <Input
+                type="text"
+                name="note"
+                value={form?.note ?? ""}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end mt-6">
+            <button
+              type="submit"
+              className="rounded-full bg-sky-500 text-white px-4 py-2 hover:bg-sky-700"
+            >
+              Submit Purchase/Sale
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
