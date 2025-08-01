@@ -4,11 +4,10 @@ import { Role, SetRoleRequest, CreateRoleRequest } from './roleTypes';
 import * as roleAPI from '../features/roleAPI';
 
 export const fetchRole = createAsyncThunk<Role[], void, { rejectValue: string }>(
-  'role/list', async (_, thunkAPI) => {
+  'roles', async (_, thunkAPI) => {
     try {
 
       const roles = await roleAPI.fetchRole();
-      console.log("roles-", roles);
       return roles;
       
     } catch (err) {

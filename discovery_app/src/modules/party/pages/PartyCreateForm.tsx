@@ -10,19 +10,23 @@ import Button from "../../../components/ui/button/Button.tsx";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import { partyTypeOptions, statusOptions, countries, Party } from "../features/partyTypes.ts";
+import { statusOptions, countries, Party } from "../features/partyTypes.ts";
 import { createParty } from "../features/partyThunks.ts";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
+import { selectUser } from "../../auth/features/authSelectors.ts";
 
 export default function PartyCreateForm() {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
+  const authUser = useSelector(selectUser);
+
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   
   const [formData, setFormData] = useState<Party>({
-    type: 'customer',
+    businessId: Number(authUser?.business?.id),
+    type: 'party',
     name: '',
     email: '',
     countryCode: 'AE',
@@ -43,12 +47,6 @@ export default function PartyCreateForm() {
       ...prev,
       [name]: name === "openingBalance" ? parseFloat(value) || 0 : value,
     }));
-  };
-
-  const handlePartyTypeChange = (value: string) => {
-    if (value === "customer" || value === "supplier") {
-      setFormData((prev) => ({ ...prev, type: value }));
-    }
   };
 
   const handleStatusChange = (value: boolean) => {
@@ -101,21 +99,10 @@ export default function PartyCreateForm() {
 
       <ComponentCard title="Fill up all fields to create a new supplier or customer">
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <Label>Select Party Type</Label>
-              <Select
-                options={partyTypeOptions}
-                placeholder="Select type"
-                value={formData.type}
-                onChange={handlePartyTypeChange}
-                className="dark:bg-dark-900"
-              />
-              {errors.type && <p className="text-red-500 text-sm">{errors.type}</p>}
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-            <div>
-              <Label>Supplier/Customer Name</Label>
+            <div className="md:col-span-1">
+              <Label>Party Name</Label>
               <Input
                 type="text"
                 name="name"
@@ -126,7 +113,7 @@ export default function PartyCreateForm() {
               {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
             </div>
 
-            <div>
+            <div className="md:col-span-1">
               <Label>Email</Label>
               <Input
                 type="email"
@@ -153,7 +140,7 @@ export default function PartyCreateForm() {
               {errors.phoneNumber && <p className="text-red-500 text-sm">{errors.phoneNumber}</p>}
             </div>
 
-            <div className="col-span-2">
+            <div className="md:col-span-2">
               <Label>Address</Label>
               <Input
                 type="text"

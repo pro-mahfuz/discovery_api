@@ -2,10 +2,10 @@
 import axiosInstance from "../../../api/axios";
 import { Party } from './partyTypes';
 
-export const fetchParty = async () => {
+export const fetchParty = async (type: string) => {
   try {
 
-    const res = await axiosInstance.get('protected/party/list');
+    const res = await axiosInstance.get(`protected/party/${type}/list`);
     
     console.log('Fetched parties:', res.data.data);
     

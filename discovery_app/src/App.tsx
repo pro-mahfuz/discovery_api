@@ -38,6 +38,11 @@ import PartyEditForm from "./modules/party/pages/PartyEditForm";
 import PartyView from "./modules/party/pages/PartyView";
 import InvoiceCreateForm from "./modules/invoice/pages/InvoiceCreateForm";
 import InvoiceList from "./modules/invoice/pages/invoiceList";
+import PartyList from "./modules/party/pages/PartyList";
+import PartyLedger from "./modules/ledger/pages/PartyLedger";
+import BusinessCreateForm from "./modules/business/pages/BusinessCreateForm";
+import BusinessList from "./modules/business/pages/BusinessList";
+import BusinessEditForm from "./modules/business/pages/BusinessEditForm";
 
 
 export default function App() {
@@ -59,7 +64,14 @@ export default function App() {
               </PrivateRoute>} 
             />
 
-            <Route index path="/party/supplier/list" element={
+            {/* Party */}
+            <Route index path="/party/:partyType/list" element={
+              <PrivateRoute permissions={['manage_users']}>
+                <PartyList />
+              </PrivateRoute>} 
+            />
+
+            {/* <Route index path="/party/supplier/list" element={
               <PrivateRoute permissions={['manage_users']}>
                 <PartySupplierList />
               </PrivateRoute>} 
@@ -68,7 +80,8 @@ export default function App() {
               <PrivateRoute permissions={['manage_users']}>
                 <PartyCustomerList />
               </PrivateRoute>} 
-            />
+            /> */}
+
             <Route index path="/party/create" element={
               <PrivateRoute permissions={['manage_users']}>
                 <PartyCreateForm />
@@ -87,24 +100,53 @@ export default function App() {
               </PrivateRoute>} 
             />
 
+            {/* Invoice */}
             <Route index path="/invoice/create" element={
               <PrivateRoute permissions={['create_invoice']}>
                 <InvoiceCreateForm />
               </PrivateRoute>} 
             />
-            <Route index path="/invoice/list" element={
+            <Route index path="/invoice/:categoryId/list" element={
               <PrivateRoute permissions={['manage_invoice']}>
                 <InvoiceList />
               </PrivateRoute>} 
             />
             
-            <Route index path="/currency/ledger/" element={
+            {/* Ledger */}
+            <Route index path="/ledger/:categoryId/list" element={
               <PrivateRoute permissions={['manage_users']}>
                 <CustomerLedger />
               </PrivateRoute>} 
             />
-            
+            <Route index path="/party/:id/ledger" element={
+              <PrivateRoute permissions={['manage_party']}>
+                <PartyLedger />
+              </PrivateRoute>} 
+            />
 
+            {/* Business */}
+            <Route index path="/business/create" element={
+              <PrivateRoute permissions={['create_business']}>
+                <BusinessCreateForm />
+              </PrivateRoute>
+            }
+            />
+
+            <Route index path="/business/list" element={
+              <PrivateRoute permissions={['manage_business']}>
+                <BusinessList />
+              </PrivateRoute>
+            }
+            />
+
+            <Route index path="/business/edit/:id" element={
+              <PrivateRoute permissions={['manage_business']}>
+                <BusinessEditForm />
+              </PrivateRoute>
+            }
+            />
+            
+            {/* User */}
             <Route index path="/user/list" element={
               <PrivateRoute permissions={['manage_users']}>
                 <UserTable />
@@ -136,13 +178,14 @@ export default function App() {
             />
 
 
-
+            {/* Permission */}
             <Route index path="/permission/list" element={
               <PrivateRoute permissions={['manage_permissions']}>
                 <PermissionTable />
               </PrivateRoute>} 
             />
 
+            {/* Role */}
             <Route index path="/role/list" element={
               <PrivateRoute permissions={['manage_roles']}>
                 <RoleTable />

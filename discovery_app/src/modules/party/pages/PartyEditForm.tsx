@@ -15,17 +15,21 @@ import { fetchPartyById, updateParty } from "../features/partyThunks.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
 import { selectAllParties } from "../features/partySelectors.ts";
+import { selectUser } from "../../auth/features/authSelectors.ts";
 
 export default function PartyEditForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
+  const authUser = useSelector(selectUser);
   const parties = useSelector(selectAllParties);
+  console.log("authUser:", authUser);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   
   const [formData, setFormData] = useState<Party>({
+    businessId: Number(authUser?.business?.id),
     type: 'customer',
     name: '',
     email: '',
@@ -49,19 +53,20 @@ export default function PartyEditForm() {
         dispatch(fetchPartyById(Number(id)));
     } else {
         setFormData({
-            type: party.type,
-            name: party.name,
-            email: party.email,
-            countryCode: party.countryCode,
-            phoneCode: party.phoneCode,
-            phoneNumber: party.phoneNumber,
-            address: party.address,
-            city: party.city,
-            country: party.country,
-            nationalId: party.nationalId,
-            tradeLicense: party.tradeLicense,
-            openingBalance: party.openingBalance,
-            isActive: party.isActive,
+          businessId: Number(authUser?.business?.id),
+          type: party.type,
+          name: party.name,
+          email: party.email,
+          countryCode: party.countryCode,
+          phoneCode: party.phoneCode,
+          phoneNumber: party.phoneNumber,
+          address: party.address,
+          city: party.city,
+          country: party.country,
+          nationalId: party.nationalId,
+          tradeLicense: party.tradeLicense,
+          openingBalance: party.openingBalance,
+          isActive: party.isActive,
         });
     }
   }, [parties, id, dispatch]);
@@ -114,12 +119,13 @@ export default function PartyEditForm() {
     }
 
     try {
+      console.log("updateFormData: ", formData);
       await dispatch(updateParty({
         ...formData,
         id: Number(id)
       }));
       toast.success("Party updated successfully!");
-      formData.type === 'supplier' ? navigate("/party/supplier/list") : navigate("/party/customer/list");
+      // formData.type === 'supplier' ? navigate("/party/supplier/list") : navigate("/party/customer/list");
     } catch (err) {
       toast.error("Failed to create party.");
       console.error("Submit error:", err);
@@ -265,7 +271,7 @@ export default function PartyEditForm() {
           </div>
 
           <div className="flex justify-end">
-            <Button variant="success">Submit</Button>
+            <Button type="submit" variant="success">Submit</Button>
           </div>
         </form>
       </ComponentCard>

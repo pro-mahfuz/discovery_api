@@ -1,5 +1,12 @@
 export default (sequelize, DataTypes) => {
   const Payment = sequelize.define("Payment", {
+    businessId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Businesses', // name of Target model
+        key: 'id' // key in Target model that we're referencing
+      }
+    },
     partyId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -63,6 +70,11 @@ export default (sequelize, DataTypes) => {
     Payment.belongsTo(models.Invoice, {
       foreignKey: "invoiceId",
       as: "invoice",
+    });
+
+    Payment.belongsTo(models.Business, {
+      foreignKey: "businessId",
+      as: "business"
     });
   };
 

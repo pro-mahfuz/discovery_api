@@ -1,5 +1,6 @@
 import Label from "../../../components/form/Label.tsx";
 import Input from "../../../components/form/input/InputField.tsx";
+import DatePicker from "../../../components/form/date-picker.tsx";
 import Select from "react-select";
 import { toast } from "react-toastify";
 
@@ -7,13 +8,8 @@ import { FormEvent, ChangeEvent, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 // import { useNavigate } from "react-router-dom";
 
-import {
-  Invoice,
-  // categoryOptions,
-  invoiceTypeOptions,
-  OptionType,
-  Item,
-} from "../../invoice/features/invoiceTypes.ts";
+import { OptionStringType, InvoiceTypeOptions } from "../../types.ts";
+import { Invoice, Item } from "../../invoice/features/invoiceTypes.ts";
 import { AppDispatch } from "../../../store/store.ts";
 import { create, fetchById, update } from "../../invoice/features/invoiceThunks.ts";
 import { fetchAll } from "../../item/features/itemThunks.ts";
@@ -21,23 +17,27 @@ import { fetchParty } from "../../party/features/partyThunks.ts";
 import { selectAllParties } from "../../party/features/partySelectors.ts";
 import { selectAllItem } from "../../item/features/itemSelectors.ts";
 import { selectInvoiceById } from "../../invoice/features/invoiceSelectors.ts";
+import { selectUser } from "../../auth/features/authSelectors.ts";
 
 interface CurrencyPurchaseProps {
   editingLedgerId: number;
+  ledgerPartyId: number;
 }
 
-export default function CurrencyPurchase({ editingLedgerId }: CurrencyPurchaseProps) {
+export default function CurrencyPurchase({ editingLedgerId, ledgerPartyId }: CurrencyPurchaseProps) {
   // const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
+  const authUser = useSelector(selectUser);
   const matchingParties = useSelector(selectAllParties);
   const items = useSelector(selectAllItem);
   const selectedInvoice = useSelector(selectInvoiceById(Number(editingLedgerId)));
 
-  const [form, setForm] = useState<Invoice | null>({
+  const [form, setForm] = useState<Invoice>({
+    businessId: Number(authUser?.business?.id),
     categoryId: 1,
     invoiceType: "purchase",
-    partyId: 0,
+    partyId: ledgerPartyId ?? 0,
     date: '',
     note: '',
     totalAmount: 0,
@@ -54,7 +54,7 @@ export default function CurrencyPurchase({ editingLedgerId }: CurrencyPurchasePr
   });
 
   useEffect(() => {
-    dispatch(fetchParty());
+    dispatch(fetchParty('all'));
     dispatch(fetchAll());
     if (editingLedgerId) {
       dispatch(fetchById(editingLedgerId));
@@ -71,6 +71,7 @@ export default function CurrencyPurchase({ editingLedgerId }: CurrencyPurchasePr
 
   useEffect(() => {
     console.log("selectedInvoice", selectedInvoice);
+    console.log("ledgerPartyId", ledgerPartyId);
     if (!selectedInvoice) return;
 
     const validInvoiceType: InvoiceType = isValidInvoiceType(selectedInvoice.invoiceType)
@@ -78,12 +79,11 @@ export default function CurrencyPurchase({ editingLedgerId }: CurrencyPurchasePr
       : "purchase"; // fallback default
 
     setForm({
+      businessId: Number(authUser?.business?.id),
       categoryId: selectedInvoice.categoryId ?? 1,
       invoiceType: validInvoiceType,
-      partyId: selectedInvoice.partyId ?? '',
-      date: selectedInvoice.date
-        ? new Date(selectedInvoice.date).toISOString().split("T")[0]
-        : new Date().toISOString().split("T")[0],
+      partyId: selectedInvoice.partyId ?? 0,
+      date: selectedInvoice.date,
       note: selectedInvoice.note ?? '',
       totalAmount: selectedInvoice.totalAmount ?? 0,
       items: [],
@@ -201,52 +201,62 @@ export default function CurrencyPurchase({ editingLedgerId }: CurrencyPurchasePr
       <div className="w-full">
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div>
-              <Label>Select Party</Label>
-              <Select
-                options={matchingParties.map((p) => ({
-                  label: p.name,
-                  value: p.id,
-                }))}
-                placeholder="Search and select party"
-                value={
-                  form
-                    ? matchingParties
-                        .filter((p) => p.id === form.partyId)
-                        .map((p) => ({ label: p.name, value: p.id }))[0] || null
-                    : null
-                }
-                onChange={(selectedOption) =>
-                  setForm((prev) => ({
-                    ...prev!,
-                    partyId: selectedOption?.value ?? 0,
-                  }))
-                }
-                isClearable
-                styles={selectStyles}
-                classNamePrefix="react-select"
-              />
-            </div>
+            {!ledgerPartyId && (
+              <div>
+                <Label>Select Party</Label>
+                <Select
+                  options={matchingParties.map((p) => ({
+                    label: p.name,
+                    value: p.id,
+                  }))}
+                  placeholder="Search and select party"
+                  value={
+                    form
+                      ? matchingParties
+                          .filter((p) => p.id === form.partyId)
+                          .map((p) => ({ label: p.name, value: p.id }))[0] || null
+                      : null
+                  }
+                  onChange={(selectedOption) =>
+                    setForm((prev) => ({
+                      ...prev!,
+                      partyId: selectedOption?.value ?? 0,
+                    }))
+                  }
+                  isClearable
+                  styles={selectStyles}
+                  classNamePrefix="react-select"
+                />
+              </div>
+            )}
+
+            
 
             <div>
-              <Label>Date</Label>
-              <Input
-                type="date"
-                name="date"
-                value={form?.date ?? ""}
-                onChange={handleChange}
-                required
+              <DatePicker
+                id="date-picker"
+                label="Date"
+                placeholder="Select a date"
+                defaultDate={form.date}
+                onChange={(dates, currentDateString) => {
+                  // Handle your logic
+                  console.log({ dates, currentDateString });
+                  setForm((prev) => ({
+                    ...prev!,
+                    date: currentDateString,
+                  }))
+                }}
               />
             </div>
 
             <div>
               <Label>Select Invoice Type</Label>
-              <Select<OptionType>
-                options={invoiceTypeOptions}
+              <Select<OptionStringType>
+                options={InvoiceTypeOptions}
                 placeholder="Select Transaction type"
                 value={
                   form
-                    ? invoiceTypeOptions.find((option) => option.value === form.invoiceType)
+                    ? InvoiceTypeOptions.find((option) => option.value === form.invoiceType)
                     : null
                 }
                 onChange={(selectedOption) => {

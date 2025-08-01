@@ -1,5 +1,12 @@
 export default (sequelize, DataTypes) => {
   const Stock = sequelize.define("Stock", {
+    businessId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Businesses', // name of Target model
+        key: 'id' // key in Target model that we're referencing
+      }
+    },
     invoiceType: {
       type: DataTypes.STRING(20), // e.g. 'purchase', 'sale'
       allowNull: true,
@@ -47,6 +54,11 @@ export default (sequelize, DataTypes) => {
     Stock.belongsTo(models.Warehouse, {
       foreignKey: 'warehouseId',
       as: 'warehouse',
+    });
+
+    Stock.belongsTo(models.Business, {
+      foreignKey: "businessId",
+      as: "business"
     });
   };
 

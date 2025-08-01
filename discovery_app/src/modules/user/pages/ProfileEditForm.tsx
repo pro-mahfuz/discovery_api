@@ -15,12 +15,12 @@ import { Profile } from "../features/userTypes.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
 import { updateProfileWithFile } from "../features/userThunks.ts";
-import { selectUserProfile } from "../features/userSelectors.ts";
+import { selectUserById } from "../features/userSelectors.ts";
 
 
 export default function ProfileEditForm() {
   const { id } = useParams();
-  const userProfile = useSelector(selectUserProfile);
+  const userProfile = useSelector(selectUserById(Number(id)));
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
@@ -54,21 +54,21 @@ export default function ProfileEditForm() {
   });
 
   useEffect(() => {
-    if (userProfile?.Profile) {
+    if (userProfile?.profile) {
       setFormData({
-        fullName: userProfile.Profile.fullName || "",
-        birthDate: userProfile.Profile.birthDate || "",
-        gender: userProfile.Profile.gender || "",
-        nationality: userProfile.Profile.nationality || "",
-        contactEmail: userProfile.Profile.contactEmail || "",
-        countryCode: userProfile.Profile.countryCode || "",
-        phoneCode: userProfile.Profile.phoneCode || "",
-        phoneNumber: userProfile.Profile.phoneNumber || "",
-        address: userProfile.Profile.address || "",
-        city: userProfile.Profile.city || "",
-        country: userProfile.Profile.country || "",
-        postalCode: userProfile.Profile.postalCode || "",
-        profilePicture: userProfile.Profile.profilePicture || "",
+        fullName: userProfile.profile.fullName || "",
+        birthDate: userProfile.profile.birthDate || "",
+        gender: userProfile.profile.gender || "",
+        nationality: userProfile.profile.nationality || "",
+        contactEmail: userProfile.profile.contactEmail || "",
+        countryCode: userProfile.profile.countryCode || "",
+        phoneCode: userProfile.profile.phoneCode || "",
+        phoneNumber: userProfile.profile.phoneNumber || "",
+        address: userProfile.profile.address || "",
+        city: userProfile.profile.city || "",
+        country: userProfile.profile.country || "",
+        postalCode: userProfile.profile.postalCode || "",
+        profilePicture: userProfile.profile.profilePicture || "",
       });
     }
   }, [userProfile]);
@@ -155,7 +155,7 @@ export default function ProfileEditForm() {
                     {userProfile?.name}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400 text-center xl:text-left">
-                    {userProfile?.Role?.name?.toUpperCase() ?? "USER"}
+                    {userProfile?.role?.name?.toUpperCase() ?? "USER"}
                   </p>
                 </div>
               </div>
@@ -231,21 +231,21 @@ export default function ProfileEditForm() {
                 />
               </div>
 
-                <div>
-                  <Label>Profile Picture Preview</Label>
+              <div>
+                <Label>Profile Picture Preview</Label>
+            
+                <img
+                  src={formData.profilePicture instanceof File
+                    ? URL.createObjectURL(formData.profilePicture)
+                    : formData.profilePicture
+                    ? `http://localhost:5000/api${formData.profilePicture}`
+                    : "http://localhost:5173/public/images/user/owner.jpeg"
+                  }
+                  alt="Preview"
+                  className="mt-2 w-20 h-20 rounded-full object-cover"
+                />
               
-                  <img
-                    src={formData.profilePicture instanceof File
-                      ? URL.createObjectURL(formData.profilePicture)
-                      : formData.profilePicture
-                      ? `http://localhost:5000/api${formData.profilePicture}`
-                      : "http://localhost:5173/public/images/user/owner.jpeg"
-                    }
-                    alt="Preview"
-                    className="mt-2 w-20 h-20 rounded-full object-cover"
-                  />
-               
-                </div>
+              </div>
             </div>
           </div>
 

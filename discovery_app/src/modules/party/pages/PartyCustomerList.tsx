@@ -43,7 +43,7 @@ export default function PartyCustomerList() {
   const [selectedParty, setSelectedParty] = useState<Party | null>(null);
 
   useEffect(() => {
-    dispatch(fetchParty());
+    dispatch(fetchParty('customer'));
   }, [dispatch]);
 
   const filteredParties = useMemo(() => {

@@ -18,13 +18,15 @@ import {
   TableRow,
 } from "../../../components/ui/table/index.tsx";
 
-import { Invoice, categoryOptions, invoiceTypeOptions, OptionType, InvoiceType, Item } from "../features/invoiceTypes";
+import { OptionStringType, OptionNumberType, InvoiceType, InvoiceTypeOptions, CategoryOptions  } from "../../types.ts";
+import { Invoice, Item } from "../features/invoiceTypes";
 import { fetchAll } from "../../item/features/itemThunks.ts";
 import { create } from "../features/invoiceThunks";
 import { fetchParty } from "../../party/features/partyThunks.ts";
 import { AppDispatch } from "../../../store/store";
 import { selectAllParties } from "../../party/features/partySelectors";
 import { selectAllItem } from "../../item/features/itemSelectors";
+import { selectUser } from "../../auth/features/authSelectors.ts";
 
 
 export default function InvoiceCreateForm() {
@@ -32,16 +34,18 @@ export default function InvoiceCreateForm() {
     const dispatch = useDispatch<AppDispatch>();
 
     useEffect(() => {
-        dispatch(fetchParty());
+        dispatch(fetchParty("all"));
         dispatch(fetchAll());
     }, [dispatch]);
 
+    const authUser = useSelector(selectUser);
     const matchingParties = useSelector(selectAllParties);
     const items = useSelector(selectAllItem);
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
     const [formData, setFormData] = useState<Omit<Invoice, "totalAmount">>({
+        businessId: Number(authUser?.business?.id),
         categoryId: 1,
         invoiceType: "purchase",
         partyId: 0,
@@ -99,9 +103,9 @@ export default function InvoiceCreateForm() {
         try {
             // Dispatch create action, including totalAmount
             console.log("formData: ", formData);
-            // await dispatch(create({ ...formData, totalAmount }));
+            await dispatch(create({ ...formData, totalAmount }));
             toast.success("Invoice created successfully!");
-            // navigate("/invoice/list");
+            navigate("/invoice/list");
         } catch (err) {
             toast.error("Failed to create invoice.");
         }
@@ -183,10 +187,10 @@ export default function InvoiceCreateForm() {
                 {/* Category */}
                 <div>
                     <Label>Select Category</Label>
-                    <Select<OptionType>
-                        options={categoryOptions}
+                    <Select<OptionNumberType>
+                        options={CategoryOptions}
                         placeholder="Select category"
-                        value={categoryOptions.find(option => option.value === String(formData.categoryId))}
+                        value={CategoryOptions.find(option => option.value === formData.categoryId)}
                         onChange={(selectedOption) => {
                             setFormData(prev => ({
                                 ...prev,
@@ -203,10 +207,10 @@ export default function InvoiceCreateForm() {
                 {/* Invoice Type */}
                 <div>
                     <Label>Select Invoice Type</Label>
-                    <Select<OptionType>
-                        options={invoiceTypeOptions}
+                    <Select<OptionStringType>
+                        options={InvoiceTypeOptions}
                         placeholder="Select invoice type"
-                        value={invoiceTypeOptions.find(option => option.value === formData.invoiceType)}
+                        value={InvoiceTypeOptions.find(option => option.value === formData.invoiceType)}
                         onChange={(selectedOption) => {
                         setFormData(prev => ({
                             ...prev,

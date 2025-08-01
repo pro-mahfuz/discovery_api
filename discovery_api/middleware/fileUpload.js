@@ -12,6 +12,10 @@ const storage = multer.diskStorage({
       ? "profiles"
       : file.fieldname === "gallery"
       ? "galleries"
+      : file.fieldname === "businessLogo"
+      ? "logo"
+      : file.fieldname === "businessLicenseCopy"
+      ? "license"
       : "misc";
 
     const fullPath = path.join(baseFolder, subFolder);

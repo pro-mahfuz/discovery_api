@@ -47,7 +47,7 @@ export default function PartySupplierList() {
   const [selectedParty, setSelectedParty] = useState<Party | null>(null);
 
   useEffect(() => {
-    dispatch(fetchParty());
+    dispatch(fetchParty('supplier'));
   }, [dispatch]);
 
   const filteredParties = useMemo(() => {

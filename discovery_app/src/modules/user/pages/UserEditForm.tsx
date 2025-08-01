@@ -1,97 +1,77 @@
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
-import { ChangeEvent, useState, useEffect } from "react";
 import ComponentCard from "../../../components/common/ComponentCard.tsx";
 import Label from "../../../components/form/Label.tsx";
 import Input from "../../../components/form/input/InputField.tsx";
-import Select from "../../../components/form/Select.tsx";
+// import Select from "../../../components/form/Select.tsx";
 import PhoneInput from "../../../components/form/group-input/PhoneInput.tsx";
 import { EyeCloseIcon, EyeIcon } from "../../../icons/index.ts";
 import Button from "../../../components/ui/button/Button.tsx";
-import { useParams, useNavigate } from "react-router-dom";
+import Select from "react-select";
+
+import { ChangeEvent, useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { updateUser, fetchUserById, selectAllUsers } from "../features/index.ts"; 
+import { updateUser, fetchUserById } from "../features/userThunks.ts";
+import { fetchRole } from "../../role/features/roleThunks.ts";
+import { fetchAll } from "../../business/features/businessThunks.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
+import { CountryOptions, StatusOptions, OptionIntegerType, OptionBooleanType } from "../../types.ts";
+import { User } from "../features/userTypes.ts";
+import { selectAllBusiness } from "../../business/features/businessSelectors.ts";
+import { selectAllRoles } from "../../role/features/roleSelectors.ts";
+import { selectUserById } from "../features/userSelectors.ts";
 
 export default function UserEditForm() {
     const { id } = useParams();
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
 
-    const users = useSelector(selectAllUsers);
+    const businesses = useSelector(selectAllBusiness);
+    const roles = useSelector(selectAllRoles);
+    const user = useSelector(selectUserById(Number(id)));
+    console.log("user data: ", user);
 
-    const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-        countryCode: "",
-        phoneCode: "",
-        phoneNumber: "",
-        roleId: "", // Assuming roleId is a number
-        password: "",
-        isActive: false,
+    const [formData, setFormData] = useState<User>({
+      businessId: Number(user?.businessId),
+      name: "",
+      email: "",
+      countryCode: "AE",
+      phoneCode: "+971",
+      phoneNumber: "",
+      roleId: Number(user?.roleId), // Assuming roleId is a number
+      password: "",
+      isActive: true,
     });
 
-    const [showPassword, setShowPassword] = useState(false);
-      
-    const roleOptions = [
-        { value: "1", label: "Admin" },
-        { value: "2", label: "Manager" },
-        { value: "3", label: "Sales" },
-        { value: "4", label: "Purchase" },
-    ];
-
-    const statusOptions = [
-        { value: true, label: "Active" },
-        { value: false, label: "Inactive" },
-    ];
-
-    const countries = [
-        { code: "AE", label: "+971" },
-        { code: "US", label: "+1" },
-        { code: "GB", label: "+44" },
-        { code: "CA", label: "+1" },
-        { code: "AU", label: "+61" },
-    ];
-
     useEffect(() => {
-        const user = users.find((u) => u.id === Number(id));
-        console.log("User found:", user);
-        
-        if (!user) {
-            dispatch(fetchUserById(Number(id)));
-        } else {
-            setFormData({
-                name: user.name,
-                email: user.email,
-                countryCode: user.countryCode,
-                phoneCode: user.phoneCode,
-                phoneNumber: user.phoneNumber,
-                roleId: user?.Role?.id.toString() || "", // Convert number to string for Select
-                password: "",
-                isActive: !!user.isActive,
-            });
-        }
-    }, [users, id, dispatch]);
-    
+      dispatch(fetchAll());
+      dispatch(fetchRole());
+
+      if (!user) {
+          dispatch(fetchUserById(Number(id)));
+      } else {
+          setFormData({
+              businessId: user.businessId,
+              name: user.name,
+              email: user.email,
+              countryCode: user.countryCode,
+              phoneCode: user.phoneCode,
+              phoneNumber: user.phoneNumber,
+              roleId: Number(user.role?.id), 
+              isActive: user.isActive,
+          });
+      }
+    }, [user, id, dispatch]);
+
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
-
-    const handleRoleChange = (roleId: string) => {
-        setFormData((prev) => ({
-            ...prev,
-            roleId: roleId, // Convert string to number
-        }));
-    };
-
-    const handleStatusChange = (value: boolean) => {
-        setFormData((prev) => ({
-        ...prev,
-        isActive: value,
-        }));
+        setFormData({
+        ...formData,
+        [e.target.name]: e.target.value,
+        });
     };
 
     const handlePhoneNumberChange = (countryCode: string, phoneCode: string, phoneNumber: string) => {
@@ -99,40 +79,85 @@ export default function UserEditForm() {
             ...prev,
             countryCode: countryCode,
             phoneCode: phoneCode,
-            phoneNumber: phoneNumber,
+            phoneNumber: phoneNumber
         }));
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            await dispatch(updateUser({
-                ...formData,
-                id: Number(id),
-                roleId: Number(formData.roleId), // Ensure roleId is a number
-                 
-            }));
-            toast.success("User updated successfully!");
+            await dispatch(updateUser(formData));
+            toast.success("User created successfully!");
 
-            // Redirect to user list after short delay
             navigate("/user/list"); // Change route to your user list route
         } catch (err) {
-            toast.error("Failed to update user.");
+            toast.error("Failed to create user.");
             console.error("Submit error:", err);
         }
+    };
+
+    const selectStyles = {
+        control: (base: any, state: any) => ({
+        ...base,
+        borderColor: state.isFocused ? "#72a4f5ff" : "#d1d5db",
+        boxShadow: state.isFocused ? "0 0 0 1px #8eb8fcff" : "none",
+        padding: "0.25rem 0.5rem",
+        borderRadius: "0.375rem",
+        minHeight: "38px",
+        fontSize: "0.875rem",
+        "&:hover": {
+            borderColor: "#3b82f6",
+        },
+        }),
+        menu: (base: any) => ({
+        ...base,
+        zIndex: 20,
+        }),
+        option: (base: any, state: any) => ({
+        ...base,
+        backgroundColor: state.isFocused ? "#e0f2fe" : "white",
+        color: "#1f2937",
+        fontSize: "0.875rem",
+        padding: "0.5rem 0.75rem",
+        }),
     };
 
   return (
     <div>
       <PageMeta
-        title="User Edit"
+        title="User Update"
         description="Form to update user"
       />
-      <PageBreadcrumb pageTitle="User Edit" />
+      <PageBreadcrumb pageTitle="User Update" />
 
-      <ComponentCard title="Edit all fields to update the user!">
+      <ComponentCard title="Fill up all fields to update a user!">
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <Label>Select Business</Label>
+              <Select
+                  options={businesses.map((b) => ({
+                      label: b.businessName,
+                      value: b.id,
+                  }))}
+                  placeholder="Search and select party"
+                  value={
+                      businesses
+                          .filter((b) => b.id === formData.businessId)
+                          .map((b) => ({ label: b.businessName, value: b.id }))[0] || null
+                  }
+                  onChange={(selectedOption) =>
+                      setFormData((prev) => ({
+                          ...prev,
+                          businessId: selectedOption?.value ?? 0 ,
+                      }))
+                  }
+                  isClearable
+                  styles={selectStyles}
+                  classNamePrefix="react-select"
+              />
+            </div>
+
             <div>
               <Label>User Name</Label>
               <Input
@@ -161,8 +186,8 @@ export default function UserEditForm() {
               <Label>Phone</Label>
               <PhoneInput
                 selectPosition="start"
-                countries={countries}
-                placeholder="(555) 000-0000"
+                countries={CountryOptions}
+                placeholder="+1 (555) 000-0000"
                 value={{
                   countryCode: formData.countryCode,
                   phoneCode: formData.phoneCode,
@@ -174,14 +199,29 @@ export default function UserEditForm() {
 
             <div>
               <Label>Select Role</Label>
-              <Select
-                options={roleOptions}
-                placeholder="Select a role"
-                value={formData.roleId.toString()} // Convert number to string for Select
-                onChange={handleRoleChange}
-                className="dark:bg-dark-900"
+              <Select<OptionIntegerType>
+                  options={roles.map((r) => ({
+                      label: r.name,
+                      value: r.id,
+                  }))}
+                  placeholder="Select role"
+                  value={
+                    roles
+                      .filter((r) => r.id === formData.roleId)
+                      .map((r) => ({ label: r.name, value: r.id }))[0] || null
+                  }
+                  onChange={(selectedOption) => {
+                      setFormData(prev => ({
+                          ...prev,
+                          roleId: selectedOption?.value ?? 0,
+                      }));
+                  }}
+                  isClearable
+                  styles={selectStyles}
+                  classNamePrefix="react-select"
               />
             </div>
+            
 
             <div>
               <Label>Password</Label>
@@ -192,7 +232,6 @@ export default function UserEditForm() {
                   placeholder="Enter your password"
                   value={formData.password}
                   onChange={handleChange}
-                  required={false} // Password is optional for update
                 />
                 <button
                   type="button"
@@ -210,14 +249,22 @@ export default function UserEditForm() {
 
             <div>
               <Label>Select Status</Label>
-              <Select
-                options={statusOptions}
-                placeholder="Select status"
-                value={formData.isActive}
-                onChange={handleStatusChange}
-                className="dark:bg-dark-900"
+              <Select<OptionBooleanType>
+                  options={StatusOptions}
+                  placeholder="Select category"
+                  value={StatusOptions.find((option) => option.value === formData.isActive)}
+                  onChange={(selectedOption) => {
+                      setFormData(prev => ({
+                          ...prev,
+                          isActive: selectedOption?.value ?? true,
+                      }));
+                  }}
+                  isClearable
+                  styles={selectStyles}
+                  classNamePrefix="react-select"
               />
             </div>
+
           </div>
 
           <div className="flex justify-end">

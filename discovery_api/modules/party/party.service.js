@@ -1,11 +1,34 @@
 
 import { Party } from "../../models/model.js";
 
-export const getAllParty = async () => {
-    const party = await Party.findAll();
-    if (!party || party.length === 0) throw { status: 400, message: "No Partys found" };
-    return party;
-}
+export const getAllParty = async (req) => {
+  try {
+    const { type } = req.params;
+
+    if (!type) {
+      throw { status: 400, message: "Type parameter is required" };
+    }
+
+    let party;
+
+    if(type == "all"){
+        party = await Party.findAll();
+    }else{
+        party = await Party.findAll({ where: { type } });
+    }
+
+    
+
+    if (!party || party.length === 0) {
+      throw { status: 404, message: "No parties found" };
+    }
+
+    return await Party.findAll();
+  } catch (err) {
+    // Optional: add logging here
+    throw err;
+  }
+};
 
 export const createParty = async (req) => {
     const party = await Party.create(req.body);

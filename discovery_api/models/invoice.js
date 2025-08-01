@@ -1,5 +1,12 @@
 export default (sequelize, DataTypes) => {
   const Invoice = sequelize.define("Invoice", {
+    businessId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Businesses', // name of Target model
+        key: 'id' // key in Target model that we're referencing
+      }
+    },
     categoryId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -57,6 +64,11 @@ export default (sequelize, DataTypes) => {
       foreignKey: 'invoiceId',
       as: 'items',
       onDelete: 'CASCADE',
+    });
+
+    Invoice.belongsTo(models.Business, {
+      foreignKey: "businessId",
+      as: "business"
     });
   };
 

@@ -43,6 +43,7 @@ export const createInvoice = async (req) => {
 
             // Create Stock entries
             const stockEntries = items.map((item) => ({
+                businessId: invoice.businessId,
                 invoiceType: invoice.invoiceType,
                 invoiceId: invoice.id,
                 movementType: movementType,
@@ -66,6 +67,7 @@ export const createInvoice = async (req) => {
         // Step 3: create ledger
         await Ledger.create(
             {
+                businessId: invoice.businessId,
                 categoryId: invoice.categoryId,
                 transactionType: invoice.invoiceType,
                 partyId: invoice.partyId,
@@ -158,6 +160,7 @@ export const updateInvoice = async (req) => {
             await InvoiceItem.bulkCreate(invoiceItems, { transaction: t });
 
             const stockEntries = items.map((item) => ({
+                businessId: invoice.businessId,
                 invoiceType: invoice.invoiceType,
                 invoiceId: invoice.id,
                 movementType: movementType,
@@ -187,6 +190,7 @@ export const updateInvoice = async (req) => {
         if (ledger) {
             await ledger.update(
                 {
+                    businessId: invoice.businessId,
                     categoryId: invoice.categoryId,
                     transactionType: invoice.invoiceType,
                     partyId: invoice.partyId,

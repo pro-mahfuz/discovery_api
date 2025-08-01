@@ -3,11 +3,11 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { Party } from './partyTypes';
 import * as partyAPI from '../features/partyAPI';
 
-export const fetchParty = createAsyncThunk<Party[], void, { rejectValue: string }>(
-  'party/fetch', async (_, thunkAPI) => {
+export const fetchParty = createAsyncThunk<Party[], string, { rejectValue: string }>(
+  'party/fetch', async (type, thunkAPI) => {
     try {
 
-      const parties = await partyAPI.fetchParty();
+      const parties = await partyAPI.fetchParty(type);
       return parties;
       
     } catch (err) {

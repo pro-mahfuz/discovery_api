@@ -5,6 +5,7 @@ dotenv.config();
 const sequelize = new Sequelize(process.env.DB_URI);
 
 // import your model here...
+import defineBusiness from './business.js';
 import defineUser from './user.js';
 import defineProfile from './profile.js';
 import defineRole from './role.js';
@@ -22,6 +23,7 @@ import defineWarehouse from './warehouse.js';
 import defineStock from './stock.js';
 
 // define your model here...
+const Business = defineBusiness(sequelize, Sequelize.DataTypes);
 const User = defineUser(sequelize, Sequelize.DataTypes);
 const Profile = defineProfile(sequelize, Sequelize.DataTypes);
 const Role = defineRole(sequelize, Sequelize.DataTypes);
@@ -39,7 +41,7 @@ const Warehouse = defineWarehouse(sequelize, Sequelize.DataTypes);
 const Stock = defineStock(sequelize, Sequelize.DataTypes);
 
 // define your model for associate relations here...
-const models = { User, Profile, Role, Permission, RolePermission, TokenStore, Party, Category, Item, Invoice, InvoiceItem, Payment, Ledger, Warehouse, Stock };
+const models = { Business, User, Profile, Role, Permission, RolePermission, TokenStore, Party, Category, Item, Invoice, InvoiceItem, Payment, Ledger, Warehouse, Stock };
 // Call associate on each model if defined
 Object.values(models).forEach((model) => {
   if (model.associate) {
@@ -50,6 +52,7 @@ Object.values(models).forEach((model) => {
 // export your model here...
 export {
   sequelize,
+  Business,
   User,
   Profile,
   Role,

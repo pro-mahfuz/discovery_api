@@ -1,6 +1,6 @@
 import { AxiosError } from 'axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { CreateUserRequest, UpdateUserRequest, User, UserProfile } from './userTypes';
+import { User } from './userTypes';
 import * as userAPI from '../features/userAPI';
 
 export const fetchUsers = createAsyncThunk<User[], void, { rejectValue: string }>(
@@ -20,7 +20,7 @@ export const fetchUsers = createAsyncThunk<User[], void, { rejectValue: string }
   }
 );
 
-export const createUser = createAsyncThunk<User, CreateUserRequest, { rejectValue: string }>(
+export const createUser = createAsyncThunk<User, User, { rejectValue: string }>(
   'users/create', async (userData, thunkAPI) => {
     try {
 
@@ -55,11 +55,11 @@ export const fetchUserById = createAsyncThunk<User, number, { rejectValue: strin
   }
 );
 
-export const updateUser = createAsyncThunk<User, UpdateUserRequest, { rejectValue: string }>(
+export const updateUser = createAsyncThunk<User, User, { rejectValue: string }>(
   'users/update', async (updatedUser, thunkAPI) => {
     try {
 
-      const user = await userAPI.updateUser(updatedUser.id, updatedUser);
+      const user = await userAPI.updateUser(updatedUser);
       return user;
 
     } catch (err) {
@@ -91,7 +91,7 @@ export const deleteUser = createAsyncThunk<number, number, { rejectValue: string
   }
 );
 
-export const fetchProfile = createAsyncThunk<UserProfile, number, { rejectValue: string }>(
+export const fetchProfile = createAsyncThunk<User, number, { rejectValue: string }>(
   'users/profile', async (id, thunkAPI) => {
     try {
 
@@ -110,7 +110,7 @@ export const fetchProfile = createAsyncThunk<UserProfile, number, { rejectValue:
 );
 
 export const updateProfileWithFile = createAsyncThunk<
-  UserProfile,                                        // Return type
+  User,                                        // Return type
   { id: number; updateData: FormData },               // Payload type
   { rejectValue: string }                             // ThunkAPI config
 >(

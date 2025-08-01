@@ -1,6 +1,7 @@
 
 import Label from "../../../components/form/Label.tsx";
 import Input from "../../../components/form/input/InputField.tsx";
+import DatePicker from "../../../components/form/date-picker.tsx";
 
 import Select from "react-select";
 import { toast } from "react-toastify";
@@ -9,54 +10,57 @@ import { FormEvent, ChangeEvent, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
 import { fetchParty } from "../../party/features/partyThunks.ts";
-import { fetchAll, create, update, fetchById } from "../../payment/features/paymentThunks.ts";
+import { create, update, fetchById } from "../../payment/features/paymentThunks.ts";
 import { selectAllParties } from "../../party/features/partySelectors.ts";
 import { selectPaymentById } from "../../payment/features/paymentSelectors.ts";
 import { Payment, paymentOptions, paymentMethodOptions, OptionType } from "../../payment/features/paymentTypes.ts";
+import { selectUser } from "../../auth/features/authSelectors.ts";
 // import { useNavigate } from "react-router-dom";
 
 interface CurrencyPaymentProps {
   editingPaymentId: number;
+  paymentPartyId: number;
 }
 
-export default function CurrencyPayment({ editingPaymentId }: CurrencyPaymentProps) {
+export default function CurrencyPayment({ editingPaymentId, paymentPartyId }: CurrencyPaymentProps) {
   // const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
+  const authUser = useSelector(selectUser);
   const matchingParties = useSelector(selectAllParties);
   const selectedPayment = useSelector(selectPaymentById(Number(editingPaymentId)));
 
   const [form, setForm] = useState<Payment>({
-      categoryId: 1,
-      paymentType: "payment_in",
-      invoiceId: null,
-      partyId: 0,
-      paymentDate: '',
-      note: "",
-      amountPaid: 0,
-      paymentMethod: "cash",
-      paymentDetails: ''
+    businessId: Number(authUser?.business?.id),
+    categoryId: 1,
+    paymentType: "payment_in",
+    invoiceId: null,
+    partyId: paymentPartyId ?? 0,
+    paymentDate: '',
+    note: "",
+    amountPaid: 0,
+    paymentMethod: "cash",
+    paymentDetails: ''
   });
 
   useEffect(() => {
-    console.log("editingPaymentId", editingPaymentId);
-     dispatch(fetchParty());
+    
+     dispatch(fetchParty('all'));
      if (editingPaymentId) {
        dispatch(fetchById(editingPaymentId));
      }
-  }, [editingPaymentId, dispatch]);
+  }, [editingPaymentId, dispatch]); 
 
   useEffect(() => {
     console.log("selectedPayment", selectedPayment);
     if (!selectedPayment) return;
 
     setForm({
+      businessId: Number(authUser?.business?.id),
       categoryId: selectedPayment.categoryId ?? 1,
       paymentType: selectedPayment.paymentType ?? '',
       partyId: selectedPayment.partyId ?? 0,
-      paymentDate: selectedPayment.paymentDate
-        ? new Date(selectedPayment.paymentDate).toISOString().split("T")[0]
-        : new Date().toISOString().split("T")[0],
+      paymentDate: selectedPayment.paymentDate,
       note: selectedPayment.note ?? '',
       amountPaid: selectedPayment.amountPaid ?? 0,
       paymentMethod: selectedPayment.paymentMethod,
@@ -130,32 +134,51 @@ export default function CurrencyPayment({ editingPaymentId }: CurrencyPaymentPro
       <div className="w-full">
         <form onSubmit={handlePaymentSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            {!paymentPartyId && (
+              <div>
+                <Label>Select Party</Label>
+                <Select
+                  options={matchingParties.map((p) => ({
+                      label: p.name,
+                      value: p.id,
+                  }))}
+                  placeholder="Search and select party"
+                  value={
+                      matchingParties
+                          .filter((p) => p.id === form.partyId)
+                          .map((p) => ({ label: p.name, value: p.id }))[0] || null
+                  }
+                  onChange={(selectedOption) =>
+                      setForm((prev) => ({
+                          ...prev,
+                          partyId: selectedOption?.value ?? 0,
+                      }))
+                  }
+                  isClearable
+                  styles={selectStyles}
+                  classNamePrefix="react-select"
+                />
+              </div>
+            )}
+            
             <div>
-              <Label>Select Party</Label>
-              <Select
-                options={matchingParties.map((p) => ({
-                    label: p.name,
-                    value: p.id,
-                }))}
-                placeholder="Search and select party"
-                value={
-                    matchingParties
-                        .filter((p) => p.id === form.partyId)
-                        .map((p) => ({ label: p.name, value: p.id }))[0] || null
-                }
-                onChange={(selectedOption) =>
-                    setForm((prev) => ({
-                        ...prev,
-                        partyId: selectedOption?.value ?? 0,
-                    }))
-                }
-                isClearable
-                styles={selectStyles}
-                classNamePrefix="react-select"
+              <DatePicker
+                id="date-picker"
+                label="Date"
+                placeholder="Select a date"
+                defaultDate={form.paymentDate}
+                onChange={(dates, currentDateString) => {
+                  // Handle your logic
+                  console.log({ dates, currentDateString });
+                  setForm((prev) => ({
+                    ...prev!,
+                    paymentDate: currentDateString,
+                  }))
+                }}
               />
             </div>
 
-            <div>
+            {/* <div>
               <Label>Date</Label>
               <Input
                   type="date"
@@ -164,7 +187,7 @@ export default function CurrencyPayment({ editingPaymentId }: CurrencyPaymentPro
                   onChange={handlePaymentChange}
                   required
               />
-            </div>
+            </div> */}
 
             {/* <div>
                 <Label>Select Category</Label>

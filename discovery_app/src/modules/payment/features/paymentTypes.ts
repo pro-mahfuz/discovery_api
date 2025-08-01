@@ -14,7 +14,8 @@ export  const paymentMethodOptions:  OptionType[] = [
 ];
 
 export interface Payment {
-  id?: number;                  // Optional for creation
+  id?: number;   
+  businessId: number;        
   partyId: number;
   categoryId: number;
   paymentType: "payment_in" | "payment_out";

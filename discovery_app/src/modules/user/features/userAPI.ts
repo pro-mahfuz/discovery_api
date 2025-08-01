@@ -1,27 +1,25 @@
 import type { AxiosRequestConfig } from 'axios';
 import axiosInstance from "../../../api/axios";
-import { CreateUserRequest, UpdateUserRequest, User } from './userTypes';
+import { User } from './userTypes';
 
 export const fetchUser = async () => {
   try {
 
-    const res = await axiosInstance.get('protected/users');
-    
-    console.log('Fetched users:', res.data.data);
+    const res = await axiosInstance.get('protected/user/list');
     
     return res.data.data.map((user: User): User => (
       {
         id: user.id,
+        businessId: user.businessId,
         name: user.name,
         email: user.email,
         countryCode: user.countryCode || '',
         phoneCode: user.phoneCode || '',
         phoneNumber: user.phoneNumber || '',
-        Role: {
-          id: user.Role?.id || 0,
-          name: user.Role?.name || '',
-          action: user.Role?.action || '',
-        },
+        roleId: user.roleId,
+        business: user.business,
+        role: user.role,
+        profile: user.profile,
         isActive: user.isActive ?? true,
       }
     ));
@@ -31,9 +29,9 @@ export const fetchUser = async () => {
   }
 };
 
-export const createUser = async (userData: CreateUserRequest) => {
+export const createUser = async (userData: User) => {
   try {
-    const res = await axiosInstance.post('protected/users', userData);
+    const res = await axiosInstance.post('protected/user/create', userData);
     return res.data.data;
   } catch {
       throw new Error('No data available');
@@ -42,17 +40,17 @@ export const createUser = async (userData: CreateUserRequest) => {
 
 export const fetchUserById = async (id: number) => {
   try {
-    const res = await axiosInstance.get(`protected/users/${id}`);
+    const res = await axiosInstance.get(`protected/user/${id}/view`);
     return res.data.data;
   } catch {
     throw new Error('Failed to fetch user');
   }
 };
 
-export const updateUser = async (id: number, userData: UpdateUserRequest) => {
+export const updateUser = async (userData: User) => {
   try {
 
-    const res = await axiosInstance.put(`protected/users/${id}`, userData);
+    const res = await axiosInstance.put(`protected/user/update`, userData);
     return res.data.data;
 
   } catch {
@@ -65,7 +63,7 @@ export const updateUser = async (id: number, userData: UpdateUserRequest) => {
 export const deleteUser = async (id: number) => {
   try {
 
-    const res = await axiosInstance.post(`protected/users/${id}/deactive`);
+    const res = await axiosInstance.post(`protected/user/${id}/deactive`);
     console.log("User deleted successfully:", res.data);
     return res.data.data;
 

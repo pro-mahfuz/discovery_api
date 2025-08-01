@@ -5,6 +5,8 @@ import { createSelector } from 'reselect';
 
 export const selectAllParties = (state: RootState): Party[] => state.party.parties || [];
 
+export const selectParties = (partyType: string) => (state: RootState): Party[] => state.party.parties.filter(party => party.type === partyType);
+
 export const selectAllSuppliers = createSelector(
   [selectAllParties],
   (parties) => parties.filter(party => party.type === 'supplier')
@@ -21,6 +23,7 @@ export const selectPartyError = (state: RootState) => state.party.error;
 
 
 export const selectPartyById = (id: number) => (state: RootState) => state.party.parties.find(party => party.id === id);
+
 export const searchPartyByText = (text: string) => (state: RootState) => {
   const search = text.toLowerCase();
 

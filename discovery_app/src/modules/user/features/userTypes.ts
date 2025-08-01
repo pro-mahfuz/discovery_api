@@ -1,3 +1,5 @@
+import { Business } from "../../business/features/businessTypes";
+
 export interface Permission {
   id: string;
   name: string;
@@ -5,7 +7,6 @@ export interface Permission {
   createdAt: string;
   updatedAt: string;
 }
-
 
 export interface Role {
   id: number;
@@ -31,44 +32,26 @@ export interface Profile {
 }
 
 export interface BaseUser {
+  id?: number;
+  businessId: number;
   name: string;
   email: string;
   countryCode: string;
   phoneCode: string;
   phoneNumber: string;
-  isActive?: boolean;
+  roleId: number;
+  password?: string;
+  isActive: boolean;
 }
 
 export interface User extends BaseUser {
-  id: number;
-  Role?: Role;
-}
-
-export interface UpdateUser extends BaseUser {
-  id: number;
-  Role?: Role;
-}
-
-interface BaseUserRequest extends BaseUser {
-  roleId: number;
-}
-
-export interface CreateUserRequest extends BaseUserRequest {
-  password: string;
-}
-
-export interface UpdateUserRequest extends BaseUserRequest {
-  id: number;
-  password?: string;
-}
-
-export interface UserProfile extends User {
-  Profile?: Profile;
+  business?: Business;
+  role?: Role;
+  profile?: Profile;
 }
 
 export interface UserState {
   users: User[];
-  profile: UserProfile | null;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }

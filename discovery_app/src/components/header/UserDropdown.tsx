@@ -6,14 +6,14 @@ import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../store/store";
 import { logout } from "../../modules/auth/features/authSlice";
 import { useNavigate  } from 'react-router-dom';
-import { selectUserProfile } from "../../modules/user/features/userSelectors";
+import { selectUserById } from "../../modules/user/features/userSelectors";
 
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
 
   const auth = useSelector((state: RootState) => state.auth);
-  const userProfile = useSelector(selectUserProfile);
+  const user = useSelector(selectUserById(Number(auth.user?.id)));
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
@@ -26,7 +26,7 @@ export default function UserDropdown() {
     if (!auth.accessToken && !auth.user) {
       navigate("/signin", { replace: true });
     }
-  }, [auth, userProfile, navigate]);
+  }, [auth, user, navigate]);
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -46,17 +46,17 @@ export default function UserDropdown() {
         <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
           <img
             src={
-              auth.user?.Profile?.profilePicture instanceof File
-                ? URL.createObjectURL(auth.user?.Profile?.profilePicture)
-                : auth.user?.Profile?.profilePicture
-                ? `http://localhost:5000/api${auth.user?.Profile?.profilePicture}`
+              user?.profile?.profilePicture instanceof File
+                ? URL.createObjectURL(user?.profile?.profilePicture)
+                : user?.profile?.profilePicture
+                ? `http://localhost:5000/api${user?.profile?.profilePicture}`
                 : "http://localhost:5173/public/images/user/owner.jpeg"
             }
             alt="user"
           />
         </span>
 
-        <span className="block mr-1 font-medium text-theme-sm">{auth.user?.name}</span>
+        <span className="block mr-1 font-medium text-theme-sm">{user?.name}</span>
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
@@ -96,7 +96,7 @@ export default function UserDropdown() {
             <DropdownItem
               onItemClick={closeDropdown}
               tag="a"
-              to="/profile"
+              to={`user/profile/view/${user?.id}`}
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
               <svg
@@ -114,7 +114,7 @@ export default function UserDropdown() {
                   fill=""
                 />
               </svg>
-              Edit profile
+              profile
             </DropdownItem>
           </li>
           <li>

@@ -1,6 +1,13 @@
 export default (sequelize, DataTypes) => {
   const User = sequelize.define("User", 
     {
+      businessId: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: 'Businesses', // name of Target model
+          key: 'id' // key in Target model that we're referencing
+        }
+      },
       name: DataTypes.STRING,
       email: { 
         type: DataTypes.STRING,
@@ -39,10 +46,16 @@ export default (sequelize, DataTypes) => {
 
   User.associate = (models) => {
     User.hasOne(models.Profile, {
-      foreignKey: "userId"
+      foreignKey: "userId",
+      as: "profile"
     });
     User.belongsTo(models.Role, {
-      foreignKey: "roleId"
+      foreignKey: "roleId",
+      as: "role"
+    });
+    User.belongsTo(models.Business, {
+      foreignKey: "businessId",
+      as: "business"
     });
   };
 

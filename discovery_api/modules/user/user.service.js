@@ -1,11 +1,22 @@
 import { hash, compare } from "bcryptjs";
-import { User, Role } from "../../models/model.js";
+import { User, Role, Business, Profile } from "../../models/model.js";
 
 export const getAllUser = async () => {
-    const users = await User.findAll({ include: Role });
-    if (!users || users.length === 0) throw { status: 400, message: "No users found" };
-    return users;
-}
+  const users = await User.findAll({
+    include: [
+      { model: Business, as: 'business' },
+      { model: Role, as: 'role' },
+      { model: Profile, as: 'profile' }
+    ]
+  });
+
+  if (!users || users.length === 0) {
+    throw { status: 400, message: "No users found" };
+  }
+
+  return users;
+};
+
 
 export const createUser = async (req) => {
     const { name, email, phone, roleId, password } = req.body;
@@ -27,15 +38,22 @@ export const createUser = async (req) => {
 }
 
 export const getUserById = async (id) => {
-    const user = await User.findByPk(id, { include: Role });
+    const user = await User.findByPk(id, { 
+        include: [
+            { model: Business, as: 'business' },
+            { model: Role, as: 'role' },
+            { model: Profile, as: 'profile' }
+        ]
+    });
+
     if (!user) {
         throw { status: 404, message: "User not found" };
     }
     return user;
 }
 
-export const updateUser = async (id, req) => {
-    const user = await User.findByPk(id);
+export const updateUser = async (req) => {
+    const user = await User.findByPk(req.body.id);
     if (!user) {
         throw { status: 404, message: "User not found" };
     }

@@ -1,5 +1,12 @@
 export default (sequelize, DataTypes) => {
   const Ledger = sequelize.define("Ledger", {
+    businessId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Businesses', // name of Target model
+        key: 'id' // key in Target model that we're referencing
+      }
+    },
     categoryId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -60,6 +67,11 @@ export default (sequelize, DataTypes) => {
     Ledger.belongsTo(models.Party, {
       foreignKey: 'partyId',
       as: 'party',
+    });
+
+    Ledger.belongsTo(models.Business, {
+      foreignKey: "businessId",
+      as: "business"
     });
 
     // Optional associations depending on transactionType

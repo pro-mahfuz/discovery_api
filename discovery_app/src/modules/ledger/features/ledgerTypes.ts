@@ -7,7 +7,8 @@ export interface Category {
 }
 
 export interface Ledger {
-  id?: number;                  // Optional for creation
+  id?: number;
+  businessId: number;                  // Optional for creation
   categoryId: number;           // Reference to invoice category
   transactionType: "purchase" | "sale" | "return" | "payment_in" | "payment_out";
   partyId: number;              // Vendor or customer

@@ -3,7 +3,8 @@ import PageMeta from "../../../components/common/PageMeta.tsx";
 
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { fetchProfile, selectUserProfile } from "../features/index.ts";
+import { fetchProfile } from "../../user/features/userThunks.ts";
+import { selectUserById } from "../../user/features/userSelectors.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
 
@@ -13,7 +14,7 @@ export default function ProfileView() {
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
 
-    const userProfile = useSelector(selectUserProfile);
+    const user = useSelector(selectUserById(Number(id)));
     
     useEffect(() => {
       dispatch(fetchProfile(Number(id)));
@@ -43,8 +44,8 @@ export default function ProfileView() {
             <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
             <div className="flex flex-col items-center w-full gap-6 xl:flex-row">
                 <div className="w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
-                <img src={userProfile?.Profile?.profilePicture
-                      ? `http://localhost:5000/api${userProfile?.Profile?.profilePicture}`
+                <img src={user?.profile?.profilePicture
+                      ? `http://localhost:5000/api${user?.profile?.profilePicture}`
                       : "http://localhost:5173/public/images/user/owner.jpeg"
                     }
                     alt="user" 
@@ -53,11 +54,11 @@ export default function ProfileView() {
                 </div>
                 <div className="order-3 xl:order-2">
                 <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
-                    {userProfile?.name}
+                    {user?.name}
                 </h4>
                 <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {userProfile?.Role?.name.toUpperCase()}
+                    {user?.role?.name.toUpperCase()}
                     </p>
                     {/* <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -105,7 +106,7 @@ export default function ProfileView() {
                         User Name
                       </p>
                       <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                        {userProfile?.Profile?.fullName}
+                        {user?.profile?.fullName}
                       </p>
                     </div>
         
@@ -114,8 +115,8 @@ export default function ProfileView() {
                         Birth Date
                       </p>
                       <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                        {userProfile?.Profile?.birthDate
-                        ? new Date(userProfile.Profile.birthDate).toLocaleDateString('en-GB').replace(/\//g, '-')
+                        {user?.profile?.birthDate
+                        ? new Date(user.profile.birthDate).toLocaleDateString('en-GB').replace(/\//g, '-')
                         : 'N/A'}
                       </p>
                     </div>
@@ -125,7 +126,7 @@ export default function ProfileView() {
                         Gender
                       </p>
                       <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                        {userProfile?.Profile?.gender.toUpperCase()}
+                        {user?.profile?.gender.toUpperCase()}
                       </p>
                     </div>
 
@@ -134,7 +135,7 @@ export default function ProfileView() {
                         Nationality
                       </p>
                       <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                        {userProfile?.Profile?.nationality}
+                        {user?.profile?.nationality}
                       </p>
                     </div>
         
@@ -143,7 +144,7 @@ export default function ProfileView() {
                         Contact Email
                       </p>
                       <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                        {userProfile?.Profile?.contactEmail}
+                        {user?.profile?.contactEmail}
                       </p>
                     </div>
         
@@ -152,7 +153,7 @@ export default function ProfileView() {
                         Phone
                       </p>
                       <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                        {userProfile?.phoneCode} {userProfile?.Profile?.phoneNumber}
+                        {user?.phoneCode} {user?.profile?.phoneNumber}
                       </p>
                     </div>
         
@@ -182,7 +183,7 @@ export default function ProfileView() {
                                     Address
                                 </p>
                                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                                    {userProfile?.Profile?.address}
+                                    {user?.profile?.address}
                                 </p>
                             </div>
 
@@ -191,7 +192,7 @@ export default function ProfileView() {
                                     City/State
                                 </p>
                                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                                    {userProfile?.Profile?.city}
+                                    {user?.profile?.city}
                                 </p>
                             </div>
 
@@ -200,7 +201,7 @@ export default function ProfileView() {
                                     Country
                                 </p>
                                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                                    {userProfile?.Profile?.country}
+                                    {user?.profile?.country}
                                 </p>
                             </div>
 
@@ -211,7 +212,7 @@ export default function ProfileView() {
                                     Postal Code
                                 </p>
                                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                                    {userProfile?.Profile?.postalCode}
+                                    {user?.profile?.postalCode}
                                 </p>
                             </div>
 

@@ -14,11 +14,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children, permissions = [] 
   const { user } = useSelector((state: RootState) => state.auth);
   const accessToken = localStorage.getItem('accessToken');
 
-  console.log("permissions: ", permissions);
-  console.log("user: ", user);
-
-  const userPermissions: string[] = user?.Role?.Permission?.map((p: Permission) => p.action) || [];
-  console.log("userPermissions: ", userPermissions);
+  const userPermissions: string[] = user?.role?.Permission?.map((p: Permission) => p.action) || [];
 
   // Not logged in
   // if (!accessToken || !user) {

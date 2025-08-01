@@ -1,24 +1,36 @@
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
-import { ChangeEvent, useState } from "react";
 import ComponentCard from "../../../components/common/ComponentCard.tsx";
 import Label from "../../../components/form/Label.tsx";
 import Input from "../../../components/form/input/InputField.tsx";
-import Select from "../../../components/form/Select.tsx";
+// import Select from "../../../components/form/Select.tsx";
 import PhoneInput from "../../../components/form/group-input/PhoneInput.tsx";
 import { EyeCloseIcon, EyeIcon } from "../../../icons/index.ts";
 import Button from "../../../components/ui/button/Button.tsx";
+import Select from "react-select";
+
+import { ChangeEvent, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { createUser } from "../features/index.ts";
-import { useDispatch } from "react-redux";
+import { createUser } from "../features/userThunks.ts";
+import { fetchRole } from "../../role/features/roleThunks.ts";
+import { fetchAll } from "../../business/features/businessThunks.ts";
+import { User } from "../features/userTypes.ts";
+import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
+import { CountryOptions, OptionIntegerType, OptionBooleanType, StatusOptions } from "../../types.ts";
+import { selectAllBusiness } from "../../business/features/businessSelectors.ts";
+import { selectAllRoles } from "../../role/features/roleSelectors.ts";
 
 export default function UserForm() {
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
 
-    const [formData, setFormData] = useState({
+    const businesses = useSelector(selectAllBusiness);
+    const roles = useSelector(selectAllRoles);
+
+    const [formData, setFormData] = useState<User>({
+        businessId: 0,
         name: "",
         email: "",
         countryCode: "AE",
@@ -29,47 +41,18 @@ export default function UserForm() {
         isActive: true,
     });
 
+    useEffect(() => {
+      dispatch(fetchAll());
+      dispatch(fetchRole());
+    }, [dispatch]);
+
     const [showPassword, setShowPassword] = useState(false);
-
-    const roleOptions = [
-        { value: "1", label: "Admin" },
-        { value: "2", label: "Manager" },
-        { value: "3", label: "Sales" },
-        { value: "4", label: "Purchase" },
-    ];
-
-    const statusOptions = [
-        { value: true, label: "Active" },
-        { value: false, label: "Inactive" },
-    ];
-
-    const countries = [
-        { code: "AE", label: "+971" },
-        { code: "US", label: "+1" },
-        { code: "GB", label: "+44" },
-        { code: "CA", label: "+1" },
-        { code: "AU", label: "+61" },
-    ];
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         setFormData({
         ...formData,
         [e.target.name]: e.target.value,
         });
-    };
-
-    const handleRoleChange = (roleId: string) => {
-        setFormData((prev) => ({
-            ...prev,
-            roleId: Number(roleId), // Convert string to number
-        }));
-    };
-
-    const handleStatusChange = (value: boolean) => {
-        setFormData((prev) => ({
-        ...prev,
-        status: value,
-        }));
     };
 
     const handlePhoneNumberChange = (countryCode: string, phoneCode: string, phoneNumber: string) => {
@@ -94,6 +77,32 @@ export default function UserForm() {
         }
     };
 
+    const selectStyles = {
+        control: (base: any, state: any) => ({
+        ...base,
+        borderColor: state.isFocused ? "#72a4f5ff" : "#d1d5db",
+        boxShadow: state.isFocused ? "0 0 0 1px #8eb8fcff" : "none",
+        padding: "0.25rem 0.5rem",
+        borderRadius: "0.375rem",
+        minHeight: "38px",
+        fontSize: "0.875rem",
+        "&:hover": {
+            borderColor: "#3b82f6",
+        },
+        }),
+        menu: (base: any) => ({
+        ...base,
+        zIndex: 20,
+        }),
+        option: (base: any, state: any) => ({
+        ...base,
+        backgroundColor: state.isFocused ? "#e0f2fe" : "white",
+        color: "#1f2937",
+        fontSize: "0.875rem",
+        padding: "0.5rem 0.75rem",
+        }),
+    };
+
   return (
     <div>
       <PageMeta
@@ -104,7 +113,32 @@ export default function UserForm() {
 
       <ComponentCard title="Fill up all fields to create a new user!">
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <Label>Select Business</Label>
+              <Select
+                  options={businesses.map((b) => ({
+                      label: b.businessName,
+                      value: b.id,
+                  }))}
+                  placeholder="Search and select party"
+                  value={
+                      businesses
+                          .filter((b) => b.id === formData.businessId)
+                          .map((b) => ({ label: b.businessName, value: b.id }))[0] || null
+                  }
+                  onChange={(selectedOption) =>
+                      setFormData((prev) => ({
+                          ...prev,
+                          businessId: selectedOption?.value ?? 0 ,
+                      }))
+                  }
+                  isClearable
+                  styles={selectStyles}
+                  classNamePrefix="react-select"
+              />
+            </div>
+
             <div>
               <Label>User Name</Label>
               <Input
@@ -133,7 +167,7 @@ export default function UserForm() {
               <Label>Phone</Label>
               <PhoneInput
                 selectPosition="start"
-                countries={countries}
+                countries={CountryOptions}
                 placeholder="+1 (555) 000-0000"
                 value={{
                   countryCode: formData.countryCode,
@@ -146,13 +180,29 @@ export default function UserForm() {
 
             <div>
               <Label>Select Role</Label>
-              <Select
-                options={roleOptions}
-                placeholder="Select a role"
-                onChange={handleRoleChange}
-                className="dark:bg-dark-900"
+              <Select<OptionIntegerType>
+                  options={roles.map((r) => ({
+                      label: r.name,
+                      value: r.id,
+                  }))}
+                  placeholder="Select category"
+                  value={
+                    roles
+                      .filter((r) => r.id === formData.roleId)
+                      .map((r) => ({ label: r.name, value: r.id }))[0] || null
+                  }
+                  onChange={(selectedOption) => {
+                      setFormData(prev => ({
+                          ...prev,
+                          roleId: selectedOption?.value ?? 0,
+                      }));
+                  }}
+                  isClearable
+                  styles={selectStyles}
+                  classNamePrefix="react-select"
               />
             </div>
+            
 
             <div>
               <Label>Password</Label>
@@ -180,13 +230,22 @@ export default function UserForm() {
 
             <div>
               <Label>Select Status</Label>
-              <Select
-                options={statusOptions}
-                placeholder="Select status"
-                onChange={handleStatusChange}
-                className="dark:bg-dark-900"
+              <Select<OptionBooleanType>
+                  options={StatusOptions}
+                  placeholder="Select category"
+                  value={StatusOptions.find((option) => option.value === formData.isActive)}
+                  onChange={(selectedOption) => {
+                      setFormData(prev => ({
+                          ...prev,
+                          isActive: selectedOption?.value ?? true,
+                      }));
+                  }}
+                  isClearable
+                  styles={selectStyles}
+                  classNamePrefix="react-select"
               />
             </div>
+
           </div>
 
           <div className="flex justify-end">

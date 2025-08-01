@@ -24,7 +24,7 @@ import ConfirmationModal from "../../../components/ui/modal/ConfirmationModal.ts
 import { useNavigate } from "react-router-dom";
 import { useModal } from "../../../hooks/useModal.ts";
 
-import { UpdateUser } from "../features/userTypes.ts";
+import { User } from "../features/userTypes.ts";
 import { fetchUsers, deleteUser, selectAllUsers, selectUserStatus } from "../features/index.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
@@ -41,7 +41,7 @@ export default function UserTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const { isOpen, openModal, closeModal } = useModal();
-  const [selectedUser, setSelectedUser] = useState<UpdateUser | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   
 
   useEffect(() => {
@@ -58,9 +58,8 @@ export default function UserTable() {
     );
   }, [users, filterText, status]);
 
-  // Sort by ID
   const sortedUsers = useMemo(() => {
-    return [...filteredUsers].sort((a, b) => a.id - b.id);
+    return [...(filteredUsers ?? [])].sort((a, b) => (b.id ?? 0) - (a.id ?? 0));
   }, [filteredUsers]);
 
   // Calculate total pages
@@ -72,13 +71,11 @@ export default function UserTable() {
     return sortedUsers.slice(start, start + itemsPerPage);
   }, [sortedUsers, currentPage, itemsPerPage]);
 
-  const handleView = (user: UpdateUser) => {
-    console.log("Viewing user:", user);
+  const handleView = (user: User) => {
     navigate(`/user/profile/view/${user.id}`);
   };
 
-  const handleEdit = (user: UpdateUser) => {
-    console.log("Editing user:", user);
+  const handleEdit = (user: User) => {
     navigate(`/user/edit/${user.id}`);
   };
 
@@ -86,7 +83,7 @@ export default function UserTable() {
     if (!selectedUser) return;
     console.log("Deleting user ID:", selectedUser);
     try {
-      await dispatch(deleteUser(selectedUser.id)).unwrap();
+      await dispatch(deleteUser(selectedUser.id!)).unwrap();
       toast.success("User deleted successfully");
       closeAndResetModal();
     } catch (error) {
@@ -129,6 +126,7 @@ export default function UserTable() {
               <TableHeader className="border-b border-t border-gray-100 dark:border-white/[0.05] bg-gray-200 text-black text-sm dark:bg-gray-800 dark:text-gray-400">
                 <TableRow>
                   <TableCell isHeader className="text-center px-4 py-2">Sl</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Business Name</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">User Name</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Email</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Role</TableCell>
@@ -157,13 +155,16 @@ export default function UserTable() {
                         {(currentPage - 1) * itemsPerPage + index + 1}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {user.business?.businessName}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {user.name}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {user.email}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {user.Role?.name ?? 'N/A'}
+                        {user.role?.name ?? 'N/A'}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {user.isActive ? 'Yes' : 'No'}

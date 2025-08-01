@@ -3,7 +3,7 @@ import { success, error } from "../../utils/responseHandler.js";
 
 export const getAllParty = async (req, res, next) =>{
     try {
-        const parties = await PartyService.getAllParty();
+        const parties = await PartyService.getAllParty(req);
         return success(res, parties, "Response successful");
 
     } catch (err) {

@@ -1,6 +1,6 @@
 import { hash, compare } from "bcryptjs";
 import { generateAccessToken, generateRefreshToken, isValidRefreshToken, isTokenExpired } from "../../utils/token.js";
-import { User, Role, Permission, Profile, TokenStore } from "../../models/model.js";
+import { Business, User, Role, Permission, Profile, TokenStore } from "../../models/model.js";
 import { errorResponse } from "../../utils/errors.js";
 
 export const register = async ({ name, email, password, roleId }) => {
@@ -23,19 +23,23 @@ export const login = async ({ email, password }) => {
     const user = await User.scope("withPassword").findOne({
         where: { email },
         include: [
-            {
-            model: Role,
-            include: [Permission], // ✅ Ensure Role includes its permissions
+            { model: Business, as: 'business' },
+            { 
+                model: Role,
+                include: [Permission], 
+                as: 'role' 
             },
-            Profile,
+            { model: Profile, as: 'profile' }
         ],
     });
+
+    console.log("user data: ", user);
     
     if (!user) throw errorResponse("User not found", { userId: "No user found with the given ID" }, 404);
     if (!user.isActive)  throw errorResponse("Your account is not active. Please contact support.", { account: "Account is not active." }, 403);
     if (!(await compare(password, user.password))) throw errorResponse("Invalid Credentials", { email: "Invalid email or password" }, 401);
 
-    const payload = { id: user.id, roleId: user.Role.id, role: user.Role.name };
+    const payload = { id: user.id, roleId: user.role.id, role: user.role.name };
     const accessToken = generateAccessToken(payload);
     const refreshToken = generateRefreshToken(payload);
     
@@ -55,31 +59,18 @@ export const login = async ({ email, password }) => {
             countryCode: user.countryCode,
             phoneCode: user.phoneCode,
             phoneNumber: user.phoneNumber,
-            Role: {
-                id: user.Role.id,
-                name: user.Role.name,
-                action: user.Role.action,
-                Permission: user.Role.Permissions.map(p => ({
+            business: user.business,
+            role: {
+                id: user.role.id,
+                name: user.role.name,
+                action: user.role.action,
+                Permission: user.role.Permissions.map(p => ({
                     id: p.id,
                     name: p.name,
                     action: p.action
                 }))
             },
-            Profile: {
-                fullName: user.Profile?.fullName,
-                birthDate: user.Profile?.birthDate,
-                gender: user.Profile?.gender,
-                nationality: user.Profile?.nationality,
-                contactEmail: user.Profile?.contactEmail,
-                countryCode: user.Profile?.countryCode,
-                phoneCode: user.Profile?.phoneCode,
-                phoneNumber: user.Profile?.phoneNumber,
-                address: user.Profile?.address,
-                city: user.Profile?.city,
-                country: user.Profile?.country,
-                postalCode: user.Profile?.postalCode,
-                profilePicture: user.Profile?.profilePicture
-            },
+            profile: user.profile,
             isActive: user.isActive,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt,

@@ -1,10 +1,9 @@
-import { User, UserProfile } from './userTypes.ts';
+import { User } from './userTypes.ts';
 import { RootState } from "../../../store/store.ts";
 
 export const selectAllUsers = (state: RootState): User[] => state.user.users;
 export const selectUserStatus = (state: RootState) => state.user.status;
 export const selectUserError = (state: RootState) => state.user.error;
-export const selectUserProfile = (state: RootState): UserProfile | null => state.user.profile;
 
 
 export const selectUserById = (id: number) => (state: RootState) =>

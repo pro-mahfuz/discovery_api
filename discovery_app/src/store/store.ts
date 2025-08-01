@@ -1,6 +1,7 @@
 // src/store/store.ts
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from "../modules/auth/features/authSlice";
+import businessReducer from "../modules/business/features/businessSlice";
 import userReducer from "../modules/user/features/userSlice";
 import permissionReducer from "../modules/permission/features/permissionSlice";
 import roleReducer from "../modules/role/features/roleSlice";
@@ -14,6 +15,7 @@ export const store = configureStore({
   reducer: {
     auth: authReducer,
     user: userReducer,
+    business: businessReducer,
     permission: permissionReducer,
     role: roleReducer,
     party: partyReducer,

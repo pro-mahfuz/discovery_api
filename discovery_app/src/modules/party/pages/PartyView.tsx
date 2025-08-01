@@ -10,24 +10,20 @@ import { selectPartyById } from "../features/partySelectors.ts";
 
 
 export default function PartyView() {
-    const { id } = useParams();
-    const dispatch = useDispatch<AppDispatch>();
-    const navigate = useNavigate();
+  const { id } = useParams();
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
 
-    const party = useSelector(selectPartyById(Number(id)));
-    
-    useEffect(() => {
-      dispatch(fetchPartyById(Number(id)));
-    }, [id, dispatch]);
+  const party = useSelector(selectPartyById(Number(id)));
+  
+  useEffect(() => {
+    dispatch(fetchPartyById(Number(id)));
+  }, [id, dispatch]);
 
-
-    const handleEdit = () => {
-        console.log("Editing profile:", id);
-        navigate(`/party/edit/${Number(id)}`);
-    };
-    
-
-    
+  const handleEdit = () => {
+    console.log("Editing profile:", id);
+    navigate(`/party/edit/${Number(id)}`);
+  };
 
   return (
     <>
@@ -38,7 +34,6 @@ export default function PartyView() {
       <PageBreadcrumb pageTitle="Profile" />
       
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-        
         <div className="space-y-6">
           <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
             <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">

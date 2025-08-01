@@ -53,6 +53,12 @@ async function seed() {
     { name: "Permission Manage", action: "manage_permissions" },
     { name: "Dashboard Manage", action: "manage_dashboard" },
 
+    { name: "Business Manage", action: "manage_business" },
+    { name: "Business Create", action: "create_business" },
+    { name: "Business Edit", action: "edit_business" },
+    { name: "Business View", action: "view_business" },
+    { name: "Business Delete", action: "delete_business" },
+
     { name: "User Manage", action: "manage_users" },
     { name: "User Create", action: "create_users" },
     { name: "User Edit", action: "edit_users" },

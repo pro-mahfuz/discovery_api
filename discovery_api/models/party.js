@@ -1,5 +1,12 @@
 export default (sequelize, DataTypes) => {
   const Party = sequelize.define("Party", {
+    businessId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Businesses', // name of Target model
+        key: 'id' // key in Target model that we're referencing
+      }
+    },
     type: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -64,6 +71,10 @@ export default (sequelize, DataTypes) => {
 
   Party.associate = (models) => {
     // Example: Party.hasMany(models.Invoice);
+    Party.belongsTo(models.Business, {
+      foreignKey: "businessId",
+      as: "business"
+    });
   };
 
   return Party;

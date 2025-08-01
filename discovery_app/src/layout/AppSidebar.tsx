@@ -34,21 +34,22 @@ const navItems: NavItem[] = [
     name: "Party",
     icon: <ListIcon />,
     subItems: [
-      { name: "Supplier List", path: "/party/supplier/list", pro: false },
-      { name: "Customer List", path: "/party/customer/list", pro: false },
-      { name: "Supplier/Customer Add", path: "/party/create", pro: false }
+      { name: "Party List", path: "/party/all/list", pro: false },
+      { name: "Party Add", path: "/party/create", pro: false },
+      // { name: "Supplier List", path: "/party/supplier/list", pro: false },
+      // { name: "Customer List", path: "/party/customer/list", pro: false },
     ],
   },
   {
-    name: "Currency Ledger",
+    name: "Voucher & Ledger",
     icon: <ListIcon />,
-    path: "/currency/ledger",
+    path: "/ledger/1/list",
   },
   {
     name: "Invoice",
     icon: <ListIcon />,
     subItems: [
-      { name: "Invoice List", path: "/invoice/list", pro: false },
+      { name: "Invoice List", path: "/invoice/0/list", pro: false },
       { name: "Invoice Add", path: "/invoice/create", pro: false }
     ],
   },
@@ -86,7 +87,15 @@ const navItems: NavItem[] = [
 
 const othersItems: NavItem[] = [
   {
-    name: "Users",
+    name: "Business",
+    icon: <ListIcon />,
+    subItems: [
+      { name: "Business List", path: "/business/list", pro: false },
+      { name: "Business Add", path: "/business/create", pro: false }
+    ],
+  },
+  {
+    name: "User",
     icon: <ListIcon />,
     subItems: [
       { name: "User List", path: "/user/list", pro: false },
