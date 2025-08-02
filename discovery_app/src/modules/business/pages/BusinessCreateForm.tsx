@@ -69,17 +69,17 @@ export default function BusinessCreateForm() {
 
         const data = new FormData();
 
-        data.append("businessName", formData.businessName);
-        data.append("ownerName", formData.ownerName);
-        data.append("email", formData.email);
-        data.append("countryCode", formData.countryCode);
-        data.append("phoneCode", formData.phoneCode);
-        data.append("phoneNumber", formData.phoneNumber);
-        data.append("address", formData.address);
-        data.append("city", formData.city);
-        data.append("country", formData.country);
-        data.append("postalCode", formData.postalCode);
-        data.append("isActive", String(formData.isActive)); // convert boolean to string
+        data.append("businessName", formData.businessName ?? '');
+        data.append("ownerName", formData.ownerName ?? '');
+        data.append("email", formData.email ?? '');
+        data.append("countryCode", formData.countryCode ?? '');
+        data.append("phoneCode", formData.phoneCode ?? '');
+        data.append("phoneNumber", formData.phoneNumber ?? '');
+        data.append("address", formData.address ?? '');
+        data.append("city", formData.city ?? '');
+        data.append("country", formData.country ?? '');
+        data.append("postalCode", formData.postalCode ?? '');
+        data.append("isActive", String(formData.isActive) ?? ''); // convert boolean to string
 
         formData.businessLicenseNo && data.append("businessLicenseNo", formData.businessLicenseNo);
         formData.businessLogo instanceof File && data.append("businessLogo", formData.businessLogo);
@@ -189,9 +189,9 @@ export default function BusinessCreateForm() {
                 countries={CountryOptions}
                 placeholder="+1 (555) 000-0000"
                 value={{
-                  countryCode: formData.countryCode,
-                  phoneCode: formData.phoneCode,
-                  phoneNumber: formData.phoneNumber,
+                  countryCode: formData.countryCode ?? '',
+                  phoneCode: formData.phoneCode ?? '',
+                  phoneNumber: formData.phoneNumber ?? '',
                 }}
                 onChange={handlePhoneNumberChange}
               />

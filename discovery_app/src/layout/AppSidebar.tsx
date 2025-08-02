@@ -24,10 +24,17 @@ type NavItem = {
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
 };
 
+import { selectUserById } from "../modules/user/features/userSelectors";
+import { selectAuth } from "../modules/auth/features/authSelectors";
+import { useSelector } from "react-redux";
 
 
 
-const AppSidebar: React.FC<any> = ({authUser}) => {
+
+const AppSidebar: React.FC<any> = () => {
+  const authUser = useSelector(selectAuth);
+  const user = useSelector(selectUserById(Number(authUser.user?.id)));
+
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
 
@@ -97,7 +104,7 @@ const AppSidebar: React.FC<any> = ({authUser}) => {
   const othersItems: NavItem[] = [
     
     
-    ...(authUser.user.role.id === 1
+    ...(user?.role?.id === 1
     ? [
         {
           name: "Business",
@@ -112,7 +119,7 @@ const AppSidebar: React.FC<any> = ({authUser}) => {
       {
         icon: <ListIcon />,
         name: "Business Profile",
-        path: `/business/edit/${authUser.user?.business?.id}`,
+        path: `/business/edit/${user?.business?.id}`,
       }
     ]),
     
@@ -379,10 +386,10 @@ const AppSidebar: React.FC<any> = ({authUser}) => {
               <img
                 className="dark:hidden"
                 src={
-                  authUser.user?.business?.businessLogo instanceof File
-                    ? URL.createObjectURL(authUser.user?.business?.businessLogo)
-                    : authUser.user?.business?.businessLogo
-                    ? `http://localhost:5000/api${authUser.user?.business?.businessLogo}`
+                  user?.business?.businessLogo instanceof File
+                    ? URL.createObjectURL(user?.business?.businessLogo)
+                    : user?.business?.businessLogo
+                    ? `http://localhost:5000/api${user?.business?.businessLogo}`
                     : "http://localhost:5173/public/images/logo/logo.svg"
                 }
                 alt="Logo"
@@ -392,10 +399,10 @@ const AppSidebar: React.FC<any> = ({authUser}) => {
               <img
                 className="hidden dark:block"
                 src={
-                  authUser.user?.business?.businessLogo instanceof File
-                    ? URL.createObjectURL(authUser.user?.business?.businessLogo)
-                    : authUser.user?.business?.businessLogo
-                    ? `http://localhost:5000/api${authUser.user?.business?.businessLogo}`
+                  user?.business?.businessLogo instanceof File
+                    ? URL.createObjectURL(user?.business?.businessLogo)
+                    : user?.business?.businessLogo
+                    ? `http://localhost:5000/api${user?.business?.businessLogo}`
                     : "http://localhost:5173/public/images/logo/logo.svg"
                 }
                 alt="Logo"

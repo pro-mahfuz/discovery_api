@@ -32,8 +32,6 @@ export const login = async ({ email, password }) => {
             { model: Profile, as: 'profile' }
         ],
     });
-
-    console.log("user data: ", user);
     
     if (!user) throw errorResponse("User not found", { userId: "No user found with the given ID" }, 404);
     if (!user.isActive)  throw errorResponse("Your account is not active. Please contact support.", { account: "Account is not active." }, 403);

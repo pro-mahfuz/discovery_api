@@ -51,12 +51,11 @@ export default function BusinessList() {
   // Filter users by name/email
   const filteredBusinesses = useMemo(() => {
     if (status !== 'succeeded') return [];
-    return businesses.filter(
-      (business) =>
-        business.businessName.toLowerCase().includes(filterText.toLowerCase()) ||
-        business.ownerName.toLowerCase().includes(filterText.toLowerCase()) ||
-        business.phoneNumber.toLowerCase().includes(filterText.toLowerCase()) ||
-        business.email.toLowerCase().includes(filterText.toLowerCase())
+    return businesses.filter((business) =>
+      (business.businessName ?? '').toLowerCase().includes(filterText.toLowerCase()) ||
+      (business.ownerName ?? '').toLowerCase().includes(filterText.toLowerCase()) ||
+      (business.phoneNumber ?? '').toLowerCase().includes(filterText.toLowerCase()) ||
+      (business.email ?? '').toLowerCase().includes(filterText.toLowerCase())
     );
   }, [businesses, filterText, status]);
 
@@ -171,7 +170,7 @@ export default function BusinessList() {
                         {business.email}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {business.phoneCode + business.phoneNumber}
+                        {business.phoneCode ?? '' + business.phoneNumber ?? ''}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {business.isActive ? 'Yes' : 'No'}

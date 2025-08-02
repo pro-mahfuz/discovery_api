@@ -3,17 +3,27 @@ import { Outlet } from "react-router";
 import AppHeader from "./AppHeader";
 import Backdrop from "./Backdrop";
 import AppSidebar from "./AppSidebar";
-import { useSelector } from "react-redux";
 import { selectAuth } from "../modules/auth/features/authSelectors";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "../store/store";
+import { fetchUserById } from "../modules/user/features/userThunks";
+
 
 const LayoutContent: React.FC = () => {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
+  const dispatch = useDispatch<AppDispatch>();
   const authUser = useSelector(selectAuth);
+ 
+
+  useEffect(() => {
+    dispatch(fetchUserById(Number(authUser.user?.id)));
+  }, [dispatch])
 
   return (
     <div className="min-h-screen xl:flex">
       <div>
-        <AppSidebar authUser={authUser}/>
+        <AppSidebar/>
         <Backdrop />
       </div>
       <div
