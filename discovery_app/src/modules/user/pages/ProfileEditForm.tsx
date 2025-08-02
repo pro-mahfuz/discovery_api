@@ -120,7 +120,7 @@ export default function ProfileEditForm() {
     try {
       await dispatch(updateProfileWithFile({ id: Number(id), updateData: data })).unwrap();
       toast.success("User updated successfully!");
-      navigate("/user/list");
+      navigate(`/user/profile/view/${userProfile?.id}`);
     } catch (err) {
       toast.error("Failed to update user.");
       console.error("Submit error:", err);
