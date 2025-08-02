@@ -17,30 +17,32 @@ import { fetchRole } from "../../role/features/roleThunks.ts";
 import { fetchAll } from "../../business/features/businessThunks.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
-import { CountryOptions, StatusOptions, OptionIntegerType, OptionBooleanType } from "../../types.ts";
+import { CountryOptions, StatusOptions, OptionNumberType, OptionBooleanType } from "../../types.ts";
 import { User } from "../features/userTypes.ts";
 import { selectAllBusiness } from "../../business/features/businessSelectors.ts";
 import { selectAllRoles } from "../../role/features/roleSelectors.ts";
 import { selectUserById } from "../features/userSelectors.ts";
+import { selectUser } from "../../auth/features/authSelectors.ts";
 
 export default function UserEditForm() {
     const { id } = useParams();
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
 
+    const authUser = useSelector(selectUser);
     const businesses = useSelector(selectAllBusiness);
     const roles = useSelector(selectAllRoles);
     const user = useSelector(selectUserById(Number(id)));
-    console.log("user data: ", user);
 
     const [formData, setFormData] = useState<User>({
-      businessId: Number(user?.businessId),
+      id: user?.id,
+      businessId: Number(authUser?.business?.id),
       name: "",
       email: "",
       countryCode: "AE",
       phoneCode: "+971",
       phoneNumber: "",
-      roleId: Number(user?.roleId), // Assuming roleId is a number
+      roleId: Number(user?.roleId),
       password: "",
       isActive: true,
     });
@@ -53,6 +55,7 @@ export default function UserEditForm() {
           dispatch(fetchUserById(Number(id)));
       } else {
           setFormData({
+              id: user.id,
               businessId: user.businessId,
               name: user.name,
               email: user.email,
@@ -86,10 +89,11 @@ export default function UserEditForm() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
+            console.log("formData: ", formData);
             await dispatch(updateUser(formData));
             toast.success("User created successfully!");
 
-            navigate("/user/list"); // Change route to your user list route
+            navigate("/user/list"); 
         } catch (err) {
             toast.error("Failed to create user.");
             console.error("Submit error:", err);
@@ -199,7 +203,7 @@ export default function UserEditForm() {
 
             <div>
               <Label>Select Role</Label>
-              <Select<OptionIntegerType>
+              <Select<OptionNumberType>
                   options={roles.map((r) => ({
                       label: r.name,
                       value: r.id,
@@ -268,7 +272,7 @@ export default function UserEditForm() {
           </div>
 
           <div className="flex justify-end">
-            <Button variant="success">Submit</Button>
+            <Button type="submit" variant="success">Submit</Button>
           </div>
         </form>
       </ComponentCard>

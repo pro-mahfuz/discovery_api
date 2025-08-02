@@ -1,3 +1,5 @@
+import { Category } from "../../category/features/categoryTypes";
+import { Party } from "../../party/features/partyTypes";
 
 // Item interface
 export interface Item {
@@ -13,14 +15,16 @@ export interface Item {
 // Invoice interface
 export interface Invoice {
   id?: number; 
-  businessId: number;                 // Optional for creation
+  businessId: number;                 
   categoryId: number | string;
   invoiceType: "purchase" | "sale" | "return" | "damaged";
   partyId: number | string;
+  party?: Party;
   date: string;
   note: string;
   totalAmount: number;
-  items: Item[];            // List of invoice line items
+  category?: Category;
+  items: Item[];            
 }
 
 export interface InvoiceState {

@@ -25,7 +25,8 @@ import { useNavigate } from "react-router-dom";
 import { useModal } from "../../../hooks/useModal.ts";
 
 import { User } from "../features/userTypes.ts";
-import { fetchUsers, deleteUser, selectAllUsers, selectUserStatus } from "../features/index.ts";
+import { selectUsers, selectUserStatus } from "../features/userSelectors.ts";
+import { fetchUsers, deleteUser } from "../features/userThunks.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
 import { selectUser } from "../../auth/features/authSelectors.ts";
@@ -33,9 +34,10 @@ import { selectUser } from "../../auth/features/authSelectors.ts";
 export default function UserTable() {
   const dispatch = useDispatch<AppDispatch>(); // Use the typed dispatch hook
   const navigate = useNavigate();
-  const users = useSelector(selectAllUsers);
-  const status = useSelector(selectUserStatus);
+
   const authUser = useSelector(selectUser);
+  const users = useSelector(selectUsers(Number(authUser?.business?.id)));
+  const status = useSelector(selectUserStatus);
 
   const [filterText, setFilterText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);

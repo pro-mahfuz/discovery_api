@@ -1,12 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { UserState } from './userTypes';
-import { fetchUsers, createUser, fetchUserById, updateUser, deleteUser, fetchProfile } from './userThunks';
+import { fetchUsers, createUser, fetchUserById, updateUser, deleteUser, updateProfileWithFile } from './userThunks';
 
 
 
 const initialState: UserState = {
-  users: [],
-  profile: null,
+  data: [],
   status: 'idle',
   error: null,
 };
@@ -24,7 +23,7 @@ const userSlice = createSlice({
       })
       .addCase(fetchUsers.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.users = action.payload;
+        state.data = action.payload;
       })
       .addCase(fetchUsers.rejected, (state, action) => {
         state.status = 'failed';
@@ -34,7 +33,7 @@ const userSlice = createSlice({
       // createUser
       .addCase(createUser.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.users.push(action.payload);
+        state.data.push(action.payload);
       })
       .addCase(createUser.rejected, (state, action) => {
         state.status = 'failed';
@@ -47,11 +46,11 @@ const userSlice = createSlice({
       })
       .addCase(fetchUserById.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        const existingUserIndex = state.users.findIndex(user => user.id === action.payload.id);
+        const existingUserIndex = state.data.findIndex(user => user.id === action.payload.id);
         if (existingUserIndex >= 0) {
-          state.users[existingUserIndex] = action.payload;
+          state.data[existingUserIndex] = action.payload;
         } else {
-          state.users.push(action.payload);
+          state.data.push(action.payload);
         }
       })
       .addCase(fetchUserById.rejected, (state, action) => {
@@ -62,11 +61,11 @@ const userSlice = createSlice({
       // updateUser
       .addCase(updateUser.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        const existingUserIndex = state.users.findIndex(user => user.id === action.payload.id);
+        const existingUserIndex = state.data.findIndex(user => user.id === action.payload.id);
         if (existingUserIndex >= 0) {
-          state.users[existingUserIndex] = action.payload;
+          state.data[existingUserIndex] = action.payload;
         } else {
-          state.users.push(action.payload);
+          state.data.push(action.payload);
         }
       })
       .addCase(updateUser.rejected, (state, action) => {
@@ -77,22 +76,37 @@ const userSlice = createSlice({
       // deleteUser
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.users = state.users.filter(user => user.id !== action.payload);
+        state.data = state.data.filter(user => user.id !== action.payload);
       })
       .addCase(deleteUser.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload || action.error.message || 'Failed to delete user';
       })
 
-      // fetchProfileById
-      .addCase(fetchProfile.fulfilled, (state, action) => {
+      .addCase(updateProfileWithFile.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.profile = action.payload;
+        const existingUserIndex = state.data.findIndex(user => user.id === action.payload.profile?.userId);
+        if (existingUserIndex >= 0) {
+          state.data[existingUserIndex].profile = action.payload.profile;
+        } else {
+          state.data.push(action.payload);
+        }
+        console.log("action.payment: ", action.payload);
       })
-      .addCase(fetchProfile.rejected, (state, action) => {
+      .addCase(updateProfileWithFile.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload || action.error.message || 'Failed to update user';
+        state.error = action.payload || action.error.message || 'Failed to delete user';
       })
+
+      // fetchProfileById
+      // .addCase(fetchProfile.fulfilled, (state, action) => {
+      //   state.status = 'succeeded';
+      //   state.profile = action.payload;
+      // })
+      // .addCase(fetchProfile.rejected, (state, action) => {
+      //   state.status = 'failed';
+      //   state.error = action.payload || action.error.message || 'Failed to update user';
+      // })
       
   },
 });

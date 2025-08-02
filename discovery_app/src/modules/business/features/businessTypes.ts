@@ -1,19 +1,19 @@
 export interface Business {
   id?: number;
-  businessName:string;
+  businessName?:string;
   businessLogo?: string | File;
-  businessLicenseNo: string;
+  businessLicenseNo?: string;
   businessLicenseCopy?: string | File;
-  ownerName: string;
-  email: string;
-  countryCode: string;
-  phoneCode: string;
-  phoneNumber: string;
-  address: string;
-  city: string;
-  country: string;
-  postalCode: string;
-  isActive: boolean;
+  ownerName?: string;
+  email?: string;
+  countryCode?: string;
+  phoneCode?: string;
+  phoneNumber?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  postalCode?: string;
+  isActive?: boolean;
 }
 
 export interface BusinessState {

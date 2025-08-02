@@ -10,6 +10,7 @@ export const fetchRole = async () => {
     return res.data.data.map((role: Role): Role => (
       {
         id: role.id,
+        businessId: role.businessId,
         name: role.name,
         action: role.action,
         isActive: role.isActive,

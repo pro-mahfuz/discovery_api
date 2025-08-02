@@ -18,25 +18,27 @@ import { fetchAll } from "../../business/features/businessThunks.ts";
 import { User } from "../features/userTypes.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
-import { CountryOptions, OptionIntegerType, OptionBooleanType, StatusOptions } from "../../types.ts";
+import { CountryOptions, OptionNumberType, OptionBooleanType, StatusOptions } from "../../types.ts";
 import { selectAllBusiness } from "../../business/features/businessSelectors.ts";
 import { selectAllRoles } from "../../role/features/roleSelectors.ts";
+import { selectUser } from "../../auth/features/authSelectors.ts";
 
 export default function UserForm() {
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
 
+    const authUser = useSelector(selectUser);
     const businesses = useSelector(selectAllBusiness);
     const roles = useSelector(selectAllRoles);
 
     const [formData, setFormData] = useState<User>({
-        businessId: 0,
+        businessId: Number(authUser?.business?.id),
         name: "",
         email: "",
         countryCode: "AE",
         phoneCode: "+971",
         phoneNumber: "",
-        roleId: 0, // Assuming roleId is a number
+        roleId: 0, 
         password: "",
         isActive: true,
     });
@@ -67,10 +69,11 @@ export default function UserForm() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
+            console.log("formData: ", formData);
             await dispatch(createUser(formData));
             toast.success("User created successfully!");
 
-            navigate("/user/list"); // Change route to your user list route
+            //navigate("/user/list"); // Change route to your user list route
         } catch (err) {
             toast.error("Failed to create user.");
             console.error("Submit error:", err);
@@ -180,7 +183,7 @@ export default function UserForm() {
 
             <div>
               <Label>Select Role</Label>
-              <Select<OptionIntegerType>
+              <Select<OptionNumberType>
                   options={roles.map((r) => ({
                       label: r.name,
                       value: r.id,
@@ -249,7 +252,7 @@ export default function UserForm() {
           </div>
 
           <div className="flex justify-end">
-            <Button variant="success">Submit</Button>
+            <Button type="submit" variant="success">Submit</Button>
           </div>
         </form>
       </ComponentCard>

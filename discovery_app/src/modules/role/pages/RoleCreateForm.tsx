@@ -9,23 +9,30 @@ import Label from "../../../components/form/Label.tsx";
 import Input from "../../../components/form/input/InputField.tsx";
 import Button from "../../../components/ui/button/Button.tsx";
 import Checkbox from "../../../components/form/input/Checkbox.tsx";
+import Select from "../../../components/form/Select.tsx";
 import { toast } from "react-toastify";
 
 import { createRole } from "../features/roleThunks.ts";
 import { selectAllPermissions } from "../../permission/features/permissionSelectors.ts";
 import { fetchPermission } from "../../permission/features/permissionThunks.ts";
 import { AppDispatch } from "../../../store/store.ts";
+import { selectUser } from "../../auth/features/authSelectors.ts";
+import { StatusOptions } from "../../types.ts";
 
 export default function RoleCreateForm() {
   
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
+  const authUser = useSelector(selectUser);
   const permissions = useSelector(selectAllPermissions);
 
   const [formData, setFormData] = useState({
-    roleId: Number(),
+    businessId: Number(authUser?.business?.id),
+    roleId: 0,
     name: "",
+    action: "",
+    isActive: true,
     permissionIds: [] as number[],
   });
 
@@ -40,6 +47,13 @@ export default function RoleCreateForm() {
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleStatusChange = (value: boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      isActive: value,
+    }));
   };
 
   const handleCheckboxChange = (permissionId: number) => {
@@ -72,8 +86,8 @@ export default function RoleCreateForm() {
 
       <ComponentCard title="Fill up all fields to create a new role!">
         <form onSubmit={handleSubmit} className="space-y-5">
-          
-            <div className="md:w-1/2">
+          <div className="grid grid-cols-2 gap-2">
+            <div>
               <Label>Role Name</Label>
               <Input
                 type="text"
@@ -86,23 +100,35 @@ export default function RoleCreateForm() {
             </div>
 
             <div>
-              <Label>Permissions</Label>
-              <div className="grid grid-cols-4 gap-2">
-                {permissions.map((permission) => (
-                  <Checkbox
-                    key={permission.id}
-                    id={`perm-${permission.id}`}
-                    label={permission.name}
-                    checked={formData.permissionIds.includes(Number(permission.id))}
-                    onChange={() => handleCheckboxChange(Number(permission.id))}
-                  />
-                ))}
-              </div>
+              <Label>Select Status</Label>
+              <Select
+                options={StatusOptions}
+                placeholder="Select status"
+                value={formData.isActive}
+                onChange={handleStatusChange}
+                className="dark:bg-dark-900"
+              />
             </div>
+          </div>
+
+          <div>
+            <Label>Permissions</Label>
+            <div className="grid grid-cols-4 gap-2">
+              {permissions.map((permission) => (
+                <Checkbox
+                  key={permission.id}
+                  id={`perm-${permission.id}`}
+                  label={permission.name}
+                  checked={formData.permissionIds.includes(Number(permission.id))}
+                  onChange={() => handleCheckboxChange(Number(permission.id))}
+                />
+              ))}
+            </div>
+          </div>
           
 
           <div className="flex justify-end">
-            <Button variant="success">
+            <Button type="submit" variant="success">
               Submit
             </Button>
           </div>

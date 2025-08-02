@@ -5,8 +5,10 @@ export const selectLedgerStatus = (state: RootState) => state.ledger.status;
 export const selectLedgerError = (state: RootState) => state.ledger.error;
 
 export const selectAllLedger = (state: RootState): Ledger[] => state.ledger.data || [];
-export const selectLedgers = (categoryId: number) => (state: RootState): Ledger[] => state.ledger.data.filter(ledger => ledger.categoryId === categoryId);
-
-export const selectLedgerById = (id: number) => (state: RootState) => state.ledger.data.find(ledger => ledger.id === id);
-export const selectLedgerByPartyId = (id: number) => (state: RootState): Ledger[] => state.ledger.data.filter(ledger => ledger.partyId === id);
+export const selectLedgers = (businessId: number, categoryId: number, partyId: number) => (state: RootState): Ledger[] => 
+    businessId === 0 ? state.ledger.data :
+    businessId > 0 && categoryId === 0 && partyId === 0 ? state.ledger.data.filter(ledger => ledger.businessId === businessId) :
+    businessId > 0 && categoryId > 0 && partyId === 0 ? state.ledger.data.filter(ledger => ledger.categoryId === categoryId && ledger.businessId === businessId) :
+    businessId > 0 && categoryId > 0 && partyId > 0 ? state.ledger.data.filter(ledger => ledger.categoryId === categoryId && ledger.partyId === partyId  && ledger.businessId === businessId) :
+    [];
 

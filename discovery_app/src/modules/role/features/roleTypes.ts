@@ -2,6 +2,7 @@ import { Permission } from "../../permission/features/permissionTypes";
 
 export interface Role {
   id: number;
+  businessId: number;
   name: string;
   action: string;
   Permissions: Permission[],
@@ -11,18 +12,21 @@ export interface Role {
 }
 
 export interface RoleState {
-  roles: Role[],
+  data: Role[],
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }
 
 export interface SetRoleRequest {
+  businessId: number;
   roleId: number;
   name: string;
   permissionIds: number[]
 }
 
 export interface CreateRoleRequest {
+  businessId: number;
   name: string;
+  action: string;
   permissionIds: number[]
 }

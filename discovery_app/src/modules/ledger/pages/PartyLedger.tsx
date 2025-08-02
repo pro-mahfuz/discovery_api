@@ -13,8 +13,8 @@ import Button from "../../../components/ui/button/Button.tsx";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
-import CurrencyInvoice from "./CurrencyInvoice.tsx";
-import CurrencyPayment from "./CurrencyPayment.tsx";
+import CurrencyInvoice from "./VoucherInvoice.tsx";
+import CurrencyPayment from "./VoucherPaymen.tsx";
 import ConfirmationModal from "../../../components/ui/modal/ConfirmationModal.tsx";
 import { useModal } from "../../../hooks/useModal.ts";
 
@@ -22,7 +22,8 @@ import { Ledger } from "../features/ledgerTypes.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
 import { fetchAll } from "../features/ledgerThunks.ts";
-import { selectLedgerByPartyId } from "../features/ledgerSelectors.ts";
+import { selectUser } from "../../auth/features/authSelectors.ts";
+import { selectLedgers } from "../features/ledgerSelectors.ts";
 import { selectPartyById } from "../../party/features/partySelectors.ts";
 import { destroy } from "../../invoice/features/invoiceThunks.ts";
 import { destroy as PaymentDestroy } from "../../payment/features/paymentThunks.ts";
@@ -30,12 +31,14 @@ import { useNavigate, useParams } from "react-router-dom";
 
 
 export default function PartyLedger() {
-  const { id } = useParams();
+  const { partyId, categoryId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const ledgers = useSelector(selectLedgerByPartyId(Number(id)));
-  const party = useSelector(selectPartyById(Number(id)));
+
+  const authUser = useSelector(selectUser);
+  const ledgers = useSelector(selectLedgers(Number(authUser?.business?.id), Number(categoryId), Number(partyId)));
+  const party = useSelector(selectPartyById(Number(partyId)));
   console.log("party data: ", party);
   
   const [selectedTab, setSelectedTab] = useState(0);
@@ -183,7 +186,7 @@ export default function PartyLedger() {
           <TabPanel className="space-y-6">
             <div className="p-4 mb-4 border border-gray-300 rounded-lg bg-white dark:bg-gray-800 space-y-4">
               <h2 className="text-lg font-semibold">Add Purchase/Sale</h2>
-              <CurrencyInvoice editingLedgerId={editingLedgerId ?? 0} ledgerPartyId={Number(id)}/>
+              <CurrencyInvoice editingLedgerId={editingLedgerId ?? 0} ledgerPartyId={Number(partyId)}/>
             </div>
           </TabPanel>
 
@@ -191,7 +194,7 @@ export default function PartyLedger() {
           <TabPanel>
             <div className="p-4 mb-4 border border-gray-300 rounded-lg bg-white dark:bg-gray-800 space-y-4">
               <h2 className="text-lg font-semibold">Add Payment</h2>
-              <CurrencyPayment editingPaymentId={editingPaymentId ?? 0} paymentPartyId={Number(id)}/>
+              <CurrencyPayment editingPaymentId={editingPaymentId ?? 0} paymentPartyId={Number(partyId)}/>
             </div>
           </TabPanel>
         </TabPanels>

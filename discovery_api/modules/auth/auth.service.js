@@ -59,7 +59,13 @@ export const login = async ({ email, password }) => {
             countryCode: user.countryCode,
             phoneCode: user.phoneCode,
             phoneNumber: user.phoneNumber,
-            business: user.business,
+            business: {
+                id: user.role.id === 1 ? 0 : user.business?.id ?? 0,
+                businessName: user.business?.businessName,
+                businessLogo: user.business?.businessLogo,
+                businessLiceseNo: user.business?.businessLiceseNo,
+                businessLiceseCopy: user.business?.businessLiceseCopy
+            },
             role: {
                 id: user.role.id,
                 name: user.role.name,

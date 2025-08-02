@@ -8,6 +8,7 @@ interface LoginCredentials {
 export const login = async (credentials: LoginCredentials) => {
   try {
     const res = await axiosInstance.post('/auth/login', credentials);
+    console.log("res", res);
     return res.data.data;
   } catch {
       throw new Error('Login failed');

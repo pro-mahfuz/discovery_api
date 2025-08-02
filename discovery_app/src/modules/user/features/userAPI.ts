@@ -93,7 +93,7 @@ export const updateProfileById = async (
 ) => {
   try {
     const res = await axiosInstance.put(`protected/profile/${id}`, updateData, config);
-    console.log("User profile updated successfully:", res.data);
+    console.log("User profile updated successfully:", res.data.data);
     return res.data.data;
   } catch (error) {
     console.error("Profile update failed", error);

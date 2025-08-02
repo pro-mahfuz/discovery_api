@@ -24,134 +24,154 @@ type NavItem = {
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
 };
 
-const navItems: NavItem[] = [
-  {
-    icon: <GridIcon />,
-    name: "Dashboard",
-    path: "/",
-  },
-  {
-    name: "Party",
-    icon: <ListIcon />,
-    subItems: [
-      { name: "Party List", path: "/party/all/list", pro: false },
-      { name: "Party Add", path: "/party/create", pro: false },
-      // { name: "Supplier List", path: "/party/supplier/list", pro: false },
-      // { name: "Customer List", path: "/party/customer/list", pro: false },
-    ],
-  },
-  {
-    name: "Voucher & Ledger",
-    icon: <ListIcon />,
-    path: "/ledger/1/list",
-  },
-  {
-    name: "Invoice",
-    icon: <ListIcon />,
-    subItems: [
-      { name: "Invoice List", path: "/invoice/0/list", pro: false },
-      { name: "Invoice Add", path: "/invoice/create", pro: false }
-    ],
-  },
-  
-  
-  // {
-  //   icon: <CalenderIcon />,
-  //   name: "Calendar",
-  //   path: "/calendar",
-  // },
-  // {
-  //   icon: <UserCircleIcon />,
-  //   name: "User Profile",
-  //   path: "/profile",
-  // },
-  // {
-  //   name: "Forms",
-  //   icon: <ListIcon />,
-  //   subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
-  // },
-  // {
-  //   name: "Tables",
-  //   icon: <TableIcon />,
-  //   subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-  // },
-  // {
-  //   name: "Pages",
-  //   icon: <PageIcon />,
-  //   subItems: [
-  //     { name: "Blank Page", path: "/blank", pro: false },
-  //     { name: "404 Error", path: "/error-404", pro: false },
-  //   ],
-  // },
-];
 
-const othersItems: NavItem[] = [
-  {
-    name: "Business",
-    icon: <ListIcon />,
-    subItems: [
-      { name: "Business List", path: "/business/list", pro: false },
-      { name: "Business Add", path: "/business/create", pro: false }
-    ],
-  },
-  {
-    name: "User",
-    icon: <ListIcon />,
-    subItems: [
-      { name: "User List", path: "/user/list", pro: false },
-      { name: "User Add", path: "/user/create", pro: false }
-    ],
-  },
-  {
-    name: "Access Control",
-    icon: <ListIcon />,
-    subItems: [
-      { name: "Role List", path: "/role/list", pro: false },
-      { name: "Role Add", path: "/role/create", pro: false },
-      { name: "Permission List", path: "/permission/list", pro: false }
-    ],
-  },
-  // {
-  //   icon: <PieChartIcon />,
-  //   name: "Charts",
-  //   subItems: [
-  //     { name: "Line Chart", path: "/line-chart", pro: false },
-  //     { name: "Bar Chart", path: "/bar-chart", pro: false },
-  //   ],
-  // },
-  // {
-  //   icon: <BoxCubeIcon />,
-  //   name: "UI Elements",
-  //   subItems: [
-  //     { name: "Alerts", path: "/alerts", pro: false },
-  //     { name: "Avatar", path: "/avatars", pro: false },
-  //     { name: "Badge", path: "/badge", pro: false },
-  //     { name: "Buttons", path: "/buttons", pro: false },
-  //     { name: "Images", path: "/images", pro: false },
-  //     { name: "Videos", path: "/videos", pro: false },
-  //   ],
-  // },
-  // {
-  //   icon: <PlugInIcon />,
-  //   name: "Authentication",
-  //   subItems: [
-  //     { name: "Sign In", path: "/signin", pro: false },
-  //     { name: "Sign Up", path: "/signup", pro: false },
-  //   ],
-  // },
-];
 
-const AppSidebar: React.FC = () => {
+
+const AppSidebar: React.FC<any> = ({authUser}) => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
+
+
+  const navItems: NavItem[] = [
+    {
+      icon: <GridIcon />,
+      name: "Dashboard",
+      path: "/",
+    },
+    {
+      name: "Party",
+      icon: <ListIcon />,
+      subItems: [
+        { name: "Party List", path: "/party/all/list", pro: false },
+        { name: "Party Add", path: "/party/create", pro: false },
+        // { name: "Supplier List", path: "/party/supplier/list", pro: false },
+        // { name: "Customer List", path: "/party/customer/list", pro: false },
+      ],
+    },
+    {
+      name: "Voucher & Ledger",
+      icon: <ListIcon />,
+      path: "/ledger/1/list",
+    },
+    {
+      name: "Invoice",
+      icon: <ListIcon />,
+      subItems: [
+        { name: "Invoice List", path: "/invoice/0/list", pro: false },
+        { name: "Invoice Add", path: "/invoice/create", pro: false }
+      ],
+    },
+    
+    
+    // {
+    //   icon: <CalenderIcon />,
+    //   name: "Calendar",
+    //   path: "/calendar",
+    // },
+    // {
+    //   icon: <UserCircleIcon />,
+    //   name: "User Profile",
+    //   path: "/profile",
+    // },
+    // {
+    //   name: "Forms",
+    //   icon: <ListIcon />,
+    //   subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
+    // },
+    // {
+    //   name: "Tables",
+    //   icon: <TableIcon />,
+    //   subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
+    // },
+    // {
+    //   name: "Pages",
+    //   icon: <PageIcon />,
+    //   subItems: [
+    //     { name: "Blank Page", path: "/blank", pro: false },
+    //     { name: "404 Error", path: "/error-404", pro: false },
+    //   ],
+    // },
+  ];
+
+
+  const othersItems: NavItem[] = [
+    
+    
+    ...(authUser.user.role.id === 1
+    ? [
+        {
+          name: "Business",
+          icon: <ListIcon />,
+          subItems: [
+            { name: "Business List", path: "/business/list", pro: false },
+            { name: "Business Add", path: "/business/create", pro: false },
+          ],
+        },
+      ]
+    : [
+      {
+        icon: <ListIcon />,
+        name: "Business Profile",
+        path: `/business/edit/${authUser.user?.business?.id}`,
+      }
+    ]),
+    
+    {
+      name: "User",
+      icon: <ListIcon />,
+      subItems: [
+        { name: "User List", path: "/user/list", pro: false },
+        { name: "User Add", path: "/user/create", pro: false }
+      ],
+    },
+    {
+      name: "Access Control",
+      icon: <ListIcon />,
+      subItems: [
+        { name: "Role List", path: "/role/list", pro: false },
+        { name: "Role Add", path: "/role/create", pro: false },
+        { name: "Permission List", path: "/permission/list", pro: false }
+      ],
+    },
+    // {
+    //   icon: <PieChartIcon />,
+    //   name: "Charts",
+    //   subItems: [
+    //     { name: "Line Chart", path: "/line-chart", pro: false },
+    //     { name: "Bar Chart", path: "/bar-chart", pro: false },
+    //   ],
+    // },
+    // {
+    //   icon: <BoxCubeIcon />,
+    //   name: "UI Elements",
+    //   subItems: [
+    //     { name: "Alerts", path: "/alerts", pro: false },
+    //     { name: "Avatar", path: "/avatars", pro: false },
+    //     { name: "Badge", path: "/badge", pro: false },
+    //     { name: "Buttons", path: "/buttons", pro: false },
+    //     { name: "Images", path: "/images", pro: false },
+    //     { name: "Videos", path: "/videos", pro: false },
+    //   ],
+    // },
+    // {
+    //   icon: <PlugInIcon />,
+    //   name: "Authentication",
+    //   subItems: [
+    //     { name: "Sign In", path: "/signin", pro: false },
+    //     { name: "Sign Up", path: "/signup", pro: false },
+    //   ],
+    // },
+  ];
 
   const [openSubmenu, setOpenSubmenu] = useState<{
     type: "main" | "others";
     index: number;
   } | null>(null);
+
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
     {}
   );
+
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // const isActive = (path: string) => location.pathname === path;
@@ -349,22 +369,35 @@ const AppSidebar: React.FC = () => {
     >
       <div
         className={`py-8 flex ${
-          !isExpanded && !isHovered ? "text-center lg:justify-center" : "justify-start"
+          !isExpanded && !isHovered ? "text-center md:justify-center" : "justify-center"
         }`}
       >
+
         <Link to="/">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
               <img
                 className="dark:hidden"
-                src="/images/logo/logo.svg"
+                src={
+                  authUser.user?.business?.businessLogo instanceof File
+                    ? URL.createObjectURL(authUser.user?.business?.businessLogo)
+                    : authUser.user?.business?.businessLogo
+                    ? `http://localhost:5000/api${authUser.user?.business?.businessLogo}`
+                    : "http://localhost:5173/public/images/logo/logo.svg"
+                }
                 alt="Logo"
                 width={150}
                 height={40}
               />
               <img
                 className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
+                src={
+                  authUser.user?.business?.businessLogo instanceof File
+                    ? URL.createObjectURL(authUser.user?.business?.businessLogo)
+                    : authUser.user?.business?.businessLogo
+                    ? `http://localhost:5000/api${authUser.user?.business?.businessLogo}`
+                    : "http://localhost:5173/public/images/logo/logo.svg"
+                }
                 alt="Logo"
                 width={150}
                 height={40}

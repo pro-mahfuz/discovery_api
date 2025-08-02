@@ -16,6 +16,7 @@ export interface Role {
 }
 
 export interface Profile {
+  userId?: number;
   fullName: string;
   birthDate: string;
   gender: string;
@@ -51,7 +52,7 @@ export interface User extends BaseUser {
 }
 
 export interface UserState {
-  users: User[];
+  data: User[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }

@@ -6,6 +6,7 @@ import userReducer from "../modules/user/features/userSlice";
 import permissionReducer from "../modules/permission/features/permissionSlice";
 import roleReducer from "../modules/role/features/roleSlice";
 import partyReducer from "../modules/party/features/partySlice";
+import categoryReducer from "../modules/category/features/categorySlice";
 import itemReducer from "../modules/item/features/itemSlice";
 import invoiceReducer from "../modules/invoice/features/invoiceSlice";
 import paymentReducer from "../modules/payment/features/paymentSlice";
@@ -19,6 +20,7 @@ export const store = configureStore({
     permission: permissionReducer,
     role: roleReducer,
     party: partyReducer,
+    category: categoryReducer,
     item: itemReducer,
     invoice: invoiceReducer,
     ledger: ledgerReducer,

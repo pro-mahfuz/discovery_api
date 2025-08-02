@@ -1,5 +1,12 @@
 export default (sequelize, DataTypes) => {
   const Role = sequelize.define("Role", {
+    businessId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Businesses', // name of Target model
+        key: 'id' // key in Target model that we're referencing
+      }
+    },
     name: {
       type: DataTypes.STRING,
       //unique: true,
@@ -21,6 +28,11 @@ export default (sequelize, DataTypes) => {
       through: models.RolePermission,
       foreignKey: "roleId",
       otherKey: "permissionId",
+    });
+
+    Role.belongsTo(models.Business, {
+      foreignKey: "businessId",
+      as: "business"
     });
   };
 

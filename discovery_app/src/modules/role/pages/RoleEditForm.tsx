@@ -14,27 +14,28 @@ import { toast } from "react-toastify";
 
 import { fetchRoleById, updateRole } from "../features/roleThunks.ts";
 import { selectAllRoles } from "../features/roleSelectors.ts";
+import { selectUser } from "../../auth/features/authSelectors.ts";
 import { selectAllPermissions } from "../../permission/features/permissionSelectors.ts";
 import { fetchPermission } from "../../permission/features/permissionThunks.ts";
 import { AppDispatch } from "../../../store/store.ts";
+import { StatusOptions } from "../../types.ts";
 
 export default function RoleEditForm() {
   const { id } = useParams();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
+  const authUser = useSelector(selectUser);
   const roles = useSelector(selectAllRoles);
   const permissions = useSelector(selectAllPermissions);
 
-  const statusOptions = [
-    { value: true, label: "Active" },
-    { value: false, label: "Inactive" },
-  ];
 
   const [formData, setFormData] = useState({
-    roleId: Number(),
+    businessId: Number(authUser?.business?.id),
+    roleId: 0,
     name: "",
-    isActive: false,
+    action: "",
+    isActive: true,
     permissionIds: [] as number[],
   });
 
@@ -48,8 +49,10 @@ export default function RoleEditForm() {
         console.log("Role found:", role);
     } else {
         setFormData({
+            businessId: role.businessId,
             roleId: role.id,
             name: role.name,
+            action: role.action,
             isActive: !!role.isActive,
             permissionIds: role.Permissions?.map((p) => Number(p.id)) || [],
         });
@@ -118,7 +121,7 @@ export default function RoleEditForm() {
               <div>
                 <Label>Select Status</Label>
                 <Select
-                  options={statusOptions}
+                  options={StatusOptions}
                   placeholder="Select status"
                   value={formData.isActive}
                   onChange={handleStatusChange}
@@ -144,7 +147,7 @@ export default function RoleEditForm() {
           
 
           <div className="flex justify-end">
-            <Button variant="success">
+            <Button type="submit" variant="success">
               Submit
             </Button>
           </div>

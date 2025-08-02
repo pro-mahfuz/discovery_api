@@ -91,23 +91,23 @@ export const deleteUser = createAsyncThunk<number, number, { rejectValue: string
   }
 );
 
-export const fetchProfile = createAsyncThunk<User, number, { rejectValue: string }>(
-  'users/profile', async (id, thunkAPI) => {
-    try {
+// export const fetchProfile = createAsyncThunk<User, number, { rejectValue: string }>(
+//   'users/profile', async (id, thunkAPI) => {
+//     try {
 
-      const profile = await userAPI.fetchProfileById(id);
-      return profile;
+//       const profile = await userAPI.fetchProfileById(id);
+//       return profile;
       
-    } catch (err) {
+//     } catch (err) {
 
-      const error = err as AxiosError<{ message?: string }>;
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message || error.message || 'Failed to delete user'
-      );
+//       const error = err as AxiosError<{ message?: string }>;
+//       return thunkAPI.rejectWithValue(
+//         error.response?.data?.message || error.message || 'Failed to delete user'
+//       );
 
-    }
-  }
-);
+//     }
+//   }
+// );
 
 export const updateProfileWithFile = createAsyncThunk<
   User,                                        // Return type

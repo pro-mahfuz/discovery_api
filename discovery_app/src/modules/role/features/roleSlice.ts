@@ -5,7 +5,7 @@ import { fetchRole, fetchRoleById, updateRole, deleteRole } from './roleThunks';
 
 
 const initialState: RoleState = {
-  roles: [],
+  data: [],
   status: 'idle',
   error: null,
 };
@@ -23,7 +23,7 @@ const roleSlice = createSlice({
       })
       .addCase(fetchRole.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.roles = action.payload;
+        state.data = action.payload;
       })
       .addCase(fetchRole.rejected, (state, action) => {
         state.status = 'failed';
@@ -33,11 +33,11 @@ const roleSlice = createSlice({
       // fetchRoleById
       .addCase(fetchRoleById.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        const existingRoleIndex = state.roles.findIndex(role => role.id === action.payload.id);
+        const existingRoleIndex = state.data.findIndex(role => role.id === action.payload.id);
         if (existingRoleIndex >= 0) {
-          state.roles[existingRoleIndex] = action.payload;
+          state.data[existingRoleIndex] = action.payload;
         } else {
-          state.roles.push(action.payload);
+          state.data.push(action.payload);
         }
       })
       .addCase(fetchRoleById.rejected, (state, action) => {
@@ -48,11 +48,11 @@ const roleSlice = createSlice({
       // updateRole
       .addCase(updateRole.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        const existingRoleIndex = state.roles.findIndex(role => role.id === action.payload.id);
+        const existingRoleIndex = state.data.findIndex(role => role.id === action.payload.id);
         if (existingRoleIndex >= 0) {
-          state.roles[existingRoleIndex] = action.payload;
+          state.data[existingRoleIndex] = action.payload;
         } else {
-          state.roles.push(action.payload);
+          state.data.push(action.payload);
         }
       })
       .addCase(updateRole.rejected, (state, action) => {
@@ -63,7 +63,7 @@ const roleSlice = createSlice({
       // deleteRole
       .addCase(deleteRole.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.roles = state.roles.filter(role => role.id !== action.payload);
+        state.data = state.data.filter(role => role.id !== action.payload);
       })
       .addCase(deleteRole.rejected, (state, action) => {
         state.status = 'failed';

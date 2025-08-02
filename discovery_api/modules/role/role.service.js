@@ -3,6 +3,7 @@ import { Role, Permission } from "../../models/model.js";
 export const getAllRoles = async () => {
     const roles = await Role.findAll({ include: Permission });
     if (!roles || roles.length === 0) throw { status: 400, message: "No roles found" };
+    
     return roles;
 }
 

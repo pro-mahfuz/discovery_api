@@ -1,11 +1,21 @@
-import { Invoice, InvoiceItem, Stock, Ledger, sequelize } from "../../models/model.js";
+import { Invoice, InvoiceItem, Stock, Ledger, Category, Party, sequelize } from "../../models/model.js";
 
 export const getAllInvoice = async () => {
-    const data = await Invoice.findAll({ 
-        include: { 
-            model: InvoiceItem, 
-            as: 'items' 
-        } 
+    const data = await Invoice.findAll({
+        include: [
+            {
+                model: InvoiceItem,
+                as: "items",
+            },
+            {
+                model: Category,
+                as: "category",
+            },
+            {
+                model: Party,
+                as: "party",
+            },
+        ],
     });
 
     if (!data || data.length === 0) throw { status: 400, message: "No Invoice found" };

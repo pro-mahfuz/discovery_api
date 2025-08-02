@@ -8,6 +8,7 @@ import PageMeta from "../../../components/common/PageMeta";
 import ComponentCard from "../../../components/common/ComponentCard";
 import Label from "../../../components/form/Label";
 import Input from "../../../components/form/input/InputField";
+import DatePicker from "../../../components/form/date-picker.tsx";
 import Button from "../../../components/ui/button/Button";
 import Select from "react-select";
 import {
@@ -18,14 +19,16 @@ import {
   TableRow,
 } from "../../../components/ui/table/index.tsx";
 
-import { OptionStringType, OptionNumberType, InvoiceType, InvoiceTypeOptions, CategoryOptions  } from "../../types.ts";
+import { OptionStringType, InvoiceType, InvoiceTypeOptions } from "../../types.ts";
 import { Invoice, Item } from "../features/invoiceTypes";
-import { fetchAll } from "../../item/features/itemThunks.ts";
+import { fetchAll as fetchItem } from "../../item/features/itemThunks.ts";
+import { fetchAll as fetchCategory } from "../../category/features/categoryThunks.ts";
 import { create } from "../features/invoiceThunks";
 import { fetchParty } from "../../party/features/partyThunks.ts";
 import { AppDispatch } from "../../../store/store";
 import { selectAllParties } from "../../party/features/partySelectors";
 import { selectAllItem } from "../../item/features/itemSelectors";
+import { selectAllCategory } from "../../category/features/categorySelectors";
 import { selectUser } from "../../auth/features/authSelectors.ts";
 
 
@@ -35,12 +38,14 @@ export default function InvoiceCreateForm() {
 
     useEffect(() => {
         dispatch(fetchParty("all"));
-        dispatch(fetchAll());
+        dispatch(fetchItem());
+        dispatch(fetchCategory());
     }, [dispatch]);
 
     const authUser = useSelector(selectUser);
     const matchingParties = useSelector(selectAllParties);
     const items = useSelector(selectAllItem);
+    const categories = useSelector(selectAllCategory);
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -49,7 +54,7 @@ export default function InvoiceCreateForm() {
         categoryId: 1,
         invoiceType: "purchase",
         partyId: 0,
-        date: new Date().toISOString().split("T")[0],
+        date: "",
         note: "",
         items: [],
     });
@@ -168,8 +173,6 @@ export default function InvoiceCreateForm() {
         }));
     };
 
-    
-
     // Auto calculate totalAmount from items, separate from formData
     useEffect(() => {
         const total = formData.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -187,16 +190,23 @@ export default function InvoiceCreateForm() {
                 {/* Category */}
                 <div>
                     <Label>Select Category</Label>
-                    <Select<OptionNumberType>
-                        options={CategoryOptions}
-                        placeholder="Select category"
-                        value={CategoryOptions.find(option => option.value === formData.categoryId)}
-                        onChange={(selectedOption) => {
-                            setFormData(prev => ({
+                    <Select
+                        options={categories.map((c) => ({
+                            label: c.name,
+                            value: c.id,
+                        }))}
+                        placeholder="Search and select category"
+                        value={
+                            categories
+                                .filter((c) => c.id === formData.categoryId)
+                                .map((c) => ({ label: c.name, value: c.id }))[0] || null
+                        }
+                        onChange={(selectedOption) =>
+                            setFormData((prev) => ({
                                 ...prev,
-                                categoryId: Number(selectedOption?.value ?? 0),
-                            }));
-                        }}
+                                categoryId: selectedOption?.value ?? 0,
+                            }))
+                        }
                         isClearable
                         styles={selectStyles}
                         classNamePrefix="react-select"
@@ -252,14 +262,21 @@ export default function InvoiceCreateForm() {
 
                 {/* Date */}
                 <div>
-                <Label>Date</Label>
-                <Input
-                    type="date"
-                    name="date"
-                    value={formData.date}
-                    onChange={handleChange}
-                />
-                {errors.date && <p className="text-red-500 text-sm">{errors.date}</p>}
+                    <DatePicker
+                        id="date-picker"
+                        label="Date"
+                        placeholder="Select a date"
+                        defaultDate={formData.date}
+                        onChange={(dates, currentDateString) => {
+                            // Handle your logic
+                            console.log({ dates, currentDateString });
+                            setFormData((prev) => ({
+                                ...prev!,
+                                date: currentDateString,
+                            }))
+                        }}
+                    />
+                    {errors.date && <p className="text-red-500 text-sm">{errors.date}</p>}
                 </div>
 
                 {/* Total Amount */}

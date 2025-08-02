@@ -26,17 +26,18 @@ import ConfirmationModal from "../../../components/ui/modal/ConfirmationModal.ts
 import { Party } from "../features/partyTypes.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
-import { selectAllParties, selectParties } from "../features/partySelectors.ts";
+import { selectUser } from "../../auth/features/authSelectors.ts";
+import { selectParties } from "../features/partySelectors.ts";
 import { fetchParty, deleteParty } from "../features/partyThunks.ts";
 
 export default function PartyList() {
   const { partyType } = useParams();
-  console.log("partyType: ", partyType);
 
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const parties = partyType == "all" ? useSelector(selectAllParties) : useSelector(selectParties(partyType ?? ""));
+  const authUser = useSelector(selectUser);
+  const parties = useSelector(selectParties(Number(authUser?.business?.id), partyType!));
 
   // const allParties = useSelector(selectAllParties);
   // const parties = partyType === "supplier"
@@ -44,8 +45,6 @@ export default function PartyList() {
   //   : partyType === "customer"
   //   ? allParties.filter(p => p.type === "customer")
   //   : allParties;
-
-
 
   const [filterText, setFilterText] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -75,23 +74,19 @@ export default function PartyList() {
   }, [filteredParties, currentPage, itemsPerPage]);
 
   const handleLedger = (party: Party) => {
-    console.log("Viewing Customer:", party);
-    navigate(`/party/${party.id}/ledger`);
+    navigate(`/ledger/1/party/${party.id}`);
   };
 
   const handleView = (party: Party) => {
-    console.log("Viewing Customer:", party);
     navigate(`/party/view/${party.id}`);
   };
 
   const handleEdit = (party: Party) => {
-    console.log("Editing Customer:", party);
     navigate(`/party/edit/${party.id}`);
   };
 
   const handleDelete = async () => {
     if (!selectedParty) return;
-    console.log("Deleting customer ID:", selectedParty);
     try {
       await dispatch(deleteParty(selectedParty.id!)).unwrap();
       toast.success("Customer deleted successfully");
@@ -100,7 +95,6 @@ export default function PartyList() {
       console.error("Failed to delete user:", error);
       toast.error("Failed to delete user");
     }
-    
   };
 
   const closeAndResetModal = () => {
@@ -179,11 +173,11 @@ export default function PartyList() {
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         <button
-                            type="submit"
-                            className="inline-flex items-center gap-1 rounded-full bg-sky-500 px-2 py-1 text-sm font-semibold text-white hover:bg-sky-700 focus:outline-none"
-                            onClick={() => handleLedger(Customer)}
+                          type="submit"
+                          className="inline-flex items-center gap-1 rounded-full bg-sky-500 px-2 py-1 text-sm font-semibold text-white hover:bg-sky-700 focus:outline-none"
+                          onClick={() => handleLedger(Customer)}
                         >
-                            Currency Ledger
+                          Ledger
                         </button>
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm overflow-visible">

@@ -3,30 +3,35 @@ import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import Button from "../ui/button/Button";
 import { useSelector, useDispatch } from "react-redux";
-import type { RootState, AppDispatch } from "../../store/store";
+import { AppDispatch } from "../../store/store.ts";
+import { selectAuth, selectAccessToken } from "../../modules/auth/features/authSelectors";
+import { selectUserById } from "../../modules/user/features/userSelectors";
 import { logout } from "../../modules/auth/features/authSlice";
 import { useNavigate  } from 'react-router-dom';
-import { selectUserById } from "../../modules/user/features/userSelectors";
 
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
 
-  const auth = useSelector((state: RootState) => state.auth);
-  const user = useSelector(selectUserById(Number(auth.user?.id)));
+  const authUser = useSelector(selectAuth);
+  const user = useSelector(selectUserById(Number(authUser.user?.id)));
+  const accessToken = useSelector(selectAccessToken);
+  console.log("user - ", user);
+
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
     dispatch(logout());
+    navigate("/signin", { replace: true });
   };
 
 
   useEffect(() => {
-    if (!auth.accessToken && !auth.user) {
+    if (!accessToken && !user) {
       navigate("/signin", { replace: true });
     }
-  }, [auth, user, navigate]);
+  }, [accessToken, user, navigate]);
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -84,10 +89,10 @@ export default function UserDropdown() {
       >
         <div>
           <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-            {auth.user?.name}
+            {user?.name}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            {auth.user?.email}
+            {user?.email}
           </span>
         </div>
 

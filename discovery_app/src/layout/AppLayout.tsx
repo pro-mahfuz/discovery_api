@@ -3,14 +3,17 @@ import { Outlet } from "react-router";
 import AppHeader from "./AppHeader";
 import Backdrop from "./Backdrop";
 import AppSidebar from "./AppSidebar";
+import { useSelector } from "react-redux";
+import { selectAuth } from "../modules/auth/features/authSelectors";
 
 const LayoutContent: React.FC = () => {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
+  const authUser = useSelector(selectAuth);
 
   return (
     <div className="min-h-screen xl:flex">
       <div>
-        <AppSidebar />
+        <AppSidebar authUser={authUser}/>
         <Backdrop />
       </div>
       <div

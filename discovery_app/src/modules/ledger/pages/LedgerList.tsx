@@ -13,8 +13,8 @@ import Button from "../../../components/ui/button/Button.tsx";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
-import CurrencyInvoice from "./CurrencyInvoice.tsx";
-import CurrencyPayment from "./CurrencyPayment.tsx";
+import CurrencyInvoice from "./VoucherInvoice.tsx";
+import CurrencyPayment from "./VoucherPaymen.tsx";
 import ConfirmationModal from "../../../components/ui/modal/ConfirmationModal.tsx";
 import { useModal } from "../../../hooks/useModal.ts";
 
@@ -22,7 +22,8 @@ import { Ledger } from "../features/ledgerTypes.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
 import { fetchAll } from "../features/ledgerThunks.ts";
-import { selectAllLedger, selectLedgers } from "../features/ledgerSelectors.ts";
+import { selectUser } from "../../auth/features/authSelectors.ts";
+import { selectLedgers } from "../features/ledgerSelectors.ts";
 import { destroy } from "../../invoice/features/invoiceThunks.ts";
 import { destroy as PaymentDestroy } from "../../payment/features/paymentThunks.ts";
 import { useParams } from "react-router";
@@ -31,11 +32,12 @@ import { useParams } from "react-router";
 
 export default function CustomerLedger() {
   const { categoryId } = useParams();
+  const partyId = 0;
   // const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  // const ledgers = useSelector(selectAllLedger);
-  const ledgers = Number(categoryId) == 0 ? useSelector(selectAllLedger) : useSelector(selectLedgers(Number(categoryId)));
+  const authUser = useSelector(selectUser);
+  const ledgers = useSelector(selectLedgers(Number(authUser?.business?.id), Number(categoryId), partyId));
   
   const [selectedTab, setSelectedTab] = useState(0);
   const { isOpen, openModal, closeModal } = useModal();
@@ -165,10 +167,10 @@ export default function CustomerLedger() {
   return (
     <>
       <PageMeta
-        title="Currency Ledger"
-        description="Currency Ledger with Search, Sort, Pagination"
+        title="Voucher & Ledger"
+        description="Voucher & Ledger with Search, Sort, Pagination"
       />
-      <PageBreadcrumb pageTitle="Currency Ledger" />
+      <PageBreadcrumb pageTitle="Voucher & Ledger" />
 
       <TabGroup selectedIndex={selectedTab} onChange={setSelectedTab}>
         <TabList className="flex gap-4 mb-2">

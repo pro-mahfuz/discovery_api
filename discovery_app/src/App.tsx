@@ -30,10 +30,8 @@ import PermissionTable from "./modules/permission/pages/PermissionTable";
 import RoleTable from "./modules/role/pages/RoleTable";
 import RoleEditForm from "./modules/role/pages/RoleEditForm";
 import RoleCreateForm from "./modules/role/pages/RoleCreateForm";
-import CustomerLedger from "./modules/ledger/pages/CustomerLedger";
+import CustomerLedger from "./modules/ledger/pages/LedgerList";
 import PartyCreateForm from "./modules/party/pages/PartyCreateForm";
-import PartySupplierList from "./modules/party/pages/PartySupplierList";
-import PartyCustomerList from "./modules/party/pages/PartyCustomerList";
 import PartyEditForm from "./modules/party/pages/PartyEditForm";
 import PartyView from "./modules/party/pages/PartyView";
 import InvoiceCreateForm from "./modules/invoice/pages/InvoiceCreateForm";
@@ -71,17 +69,6 @@ export default function App() {
               </PrivateRoute>} 
             />
 
-            {/* <Route index path="/party/supplier/list" element={
-              <PrivateRoute permissions={['manage_users']}>
-                <PartySupplierList />
-              </PrivateRoute>} 
-            />
-            <Route index path="/party/customer/list" element={
-              <PrivateRoute permissions={['manage_users']}>
-                <PartyCustomerList />
-              </PrivateRoute>} 
-            /> */}
-
             <Route index path="/party/create" element={
               <PrivateRoute permissions={['manage_users']}>
                 <PartyCreateForm />
@@ -118,7 +105,7 @@ export default function App() {
                 <CustomerLedger />
               </PrivateRoute>} 
             />
-            <Route index path="/party/:id/ledger" element={
+            <Route index path="/ledger/:categoryId/party/:partyId" element={
               <PrivateRoute permissions={['manage_party']}>
                 <PartyLedger />
               </PrivateRoute>} 

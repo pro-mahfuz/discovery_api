@@ -119,7 +119,7 @@ export default function InvoiceList() {
                   <TableCell isHeader className="text-center px-4 py-2">Category</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Type</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Date</TableCell>
-                  <TableCell isHeader className="text-center px-4 py-2">Supplier/Customer Name</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Party Name</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Total Amount</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Action</TableCell>
                 </TableRow>
@@ -145,7 +145,7 @@ export default function InvoiceList() {
                         {(currentPage - 1) * itemsPerPage + index + 1}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {invoice.categoryId}
+                        {invoice.category?.name}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {invoice.invoiceType}
@@ -154,7 +154,7 @@ export default function InvoiceList() {
                         {invoice.date}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {invoice.partyId}
+                        {invoice.party?.name}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {invoice.totalAmount}

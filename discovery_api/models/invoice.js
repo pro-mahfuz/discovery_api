@@ -29,7 +29,7 @@ export default (sequelize, DataTypes) => {
       },
     },
     date: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: false,
     },
     totalAmount: {
@@ -63,7 +63,6 @@ export default (sequelize, DataTypes) => {
     Invoice.hasMany(models.InvoiceItem, {
       foreignKey: 'invoiceId',
       as: 'items',
-      onDelete: 'CASCADE',
     });
 
     Invoice.belongsTo(models.Business, {

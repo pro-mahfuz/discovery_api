@@ -3,7 +3,7 @@ import PageMeta from "../../../components/common/PageMeta.tsx";
 
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { fetchProfile } from "../../user/features/userThunks.ts";
+import { fetchUserById } from "../../user/features/userThunks.ts";
 import { selectUserById } from "../../user/features/userSelectors.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
@@ -17,7 +17,7 @@ export default function ProfileView() {
     const user = useSelector(selectUserById(Number(id)));
     
     useEffect(() => {
-      dispatch(fetchProfile(Number(id)));
+      dispatch(fetchUserById(Number(id)));
     }, [id, dispatch]);
 
 

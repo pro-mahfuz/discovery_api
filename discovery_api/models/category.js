@@ -1,5 +1,12 @@
 export default (sequelize, DataTypes) => {
   const Category = sequelize.define("Category", {
+    businessId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Businesses', // name of Target model
+        key: 'id' // key in Target model that we're referencing
+      }
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -18,6 +25,11 @@ export default (sequelize, DataTypes) => {
     Category.hasMany(models.Item, {
       foreignKey: "categoryId",
       as: "items", // refers to related Items
+    });
+
+    Category.belongsTo(models.Business, {
+      foreignKey: "businessId",
+      as: "business"
     });
   };
 
