@@ -9,6 +9,7 @@ export const selectPartyError = (state: RootState) => state.party.error;
 export const selectAllParties = (state: RootState): Party[] => state.party.parties || [];
 export const selectParties = (businessId: number, partyType: string) => (state: RootState): Party[] => 
   businessId === 0 && partyType === "all" ? state.party.parties :
+  businessId === 0 && partyType ? state.party.parties.filter(party => party.type === partyType) :
   businessId > 0 && partyType === "all" ? state.party.parties.filter(party => party.businessId === businessId) :
   businessId > 0 && partyType ? state.party.parties.filter(party => party.type === partyType && party.businessId === businessId) :
   [];

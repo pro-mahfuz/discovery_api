@@ -17,7 +17,7 @@ export interface Invoice {
   id?: number; 
   businessId: number;                 
   categoryId: number | string;
-  invoiceType: "purchase" | "sale" | "return" | "damaged";
+  invoiceType: "purchase" | "sale";
   partyId: number | string;
   party?: Party;
   date: string;

@@ -40,7 +40,7 @@ export const CategoryOptions: OptionNumberType[] = [
   { value: 2, label: "Vegetable" },
 ];
 
-export type InvoiceType = "purchase" | "sale" | "return" | "damaged";
+export type InvoiceType = "purchase" | "sale";
 
 export const InvoiceTypeOptions: OptionStringType[] = [
   { value: "purchase", label: "Purchase" },

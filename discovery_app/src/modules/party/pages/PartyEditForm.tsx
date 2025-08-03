@@ -18,6 +18,7 @@ import { selectAllParties } from "../features/partySelectors.ts";
 import { selectUser } from "../../auth/features/authSelectors.ts";
 
 export default function PartyEditForm() {
+  const { partyType = 'party' } = useParams() as { partyType?: 'party' | 'customer' | 'supplier' };
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
@@ -30,7 +31,7 @@ export default function PartyEditForm() {
   
   const [formData, setFormData] = useState<Party>({
     businessId: Number(authUser?.business?.id),
-    type: 'customer',
+    type: partyType,
     name: '',
     email: '',
     countryCode: 'AE',
@@ -134,8 +135,8 @@ export default function PartyEditForm() {
 
   return (
     <div>
-      <PageMeta title="Supplier/Customer Edit" description="Form to edit new supplier or customer" />
-      <PageBreadcrumb pageTitle="Supplier/Customer Edit" />
+      <PageMeta title={`${partyType ? partyType.charAt(0).toUpperCase() + partyType.slice(1).toLowerCase() : ''} Create`} description="Form to edit new supplier or customer" />
+      <PageBreadcrumb pageTitle={`${partyType ? partyType.charAt(0).toUpperCase() + partyType.slice(1).toLowerCase() : ''} Create`} />
 
       <ComponentCard title="Fill up all fields to edit a supplier or customer">
         <form onSubmit={handleSubmit} className="space-y-5">

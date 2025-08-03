@@ -10,6 +10,7 @@ import { profileSchema } from "../modules/profile/profile.validator.js";
 import { partySchema } from "../modules/party/party.validator.js";
 import { categorySchema } from "../modules/category/category.validator.js";
 import { itemSchema } from "../modules/item/item.validator.js";
+import { containerSchema } from "../modules/container/container.validator.js";
 import { invoiceSchema } from "../modules/invoice/invoice.validator.js";
 import { paymentSchema } from "../modules/payment/payment.validator.js";
 import { stockSchema } from "../modules/stock/stock.validator.js";
@@ -23,7 +24,8 @@ import * as RoleController from "../modules/role/role.controller.js";
 import * as PermissionController from "../modules/permission/permission.controller.js";
 import * as PartyController from "../modules/party/party.controller.js";
 import * as CategoryController from "../modules/category/category.controller.js";
-import * as ItemController from "../modules/Item/item.controller.js";
+import * as ItemController from "../modules/item/item.controller.js";
+import * as ContainerController from "../modules/container/container.controller.js";
 import * as InvoiceController from "../modules/invoice/invoice.controller.js";
 import * as PaymentController from "../modules/payment/payment.controller.js";
 import * as StockController from "../modules/stock/stock.controller.js";
@@ -97,6 +99,13 @@ router.get("/item/:id", authorize("view_item"), ItemController.getItemById);
 router.put("/item/update", authorize("edit_item"), validate(itemSchema), ItemController.updateItem);
 router.post("/item/:id/active", authorize("manage_item"), ItemController.activeItem);
 router.post("/item/:id/deactive", authorize("manage_item"), ItemController.deactiveItem);
+
+/*---Container---*/
+router.get("/container/list", authorize("manage_container"), ContainerController.getAllContainer);
+router.post("/container/create", authorize("create_container"), validate(containerSchema), ContainerController.createContainer);
+router.get("/container/:id/view", authorize("view_container"), ContainerController.getContainerById);
+router.put("/container/update", authorize("edit_container"), validate(containerSchema), ContainerController.updateContainer);
+router.post("/container/:id/delete", authorize("delete_container"), ContainerController.activeContainer);
 
 /*---Invoice---*/
 router.get("/invoice/list", authorize("manage_invoice"), InvoiceController.getAllInvoice);

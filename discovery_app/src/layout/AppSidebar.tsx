@@ -46,28 +46,73 @@ const AppSidebar: React.FC<any> = () => {
       path: "/",
     },
     {
-      name: "Party",
+      name: "Supplier",
       icon: <ListIcon />,
       subItems: [
-        { name: "Party List", path: "/party/all/list", pro: false },
-        { name: "Party Add", path: "/party/create", pro: false },
+        { name: "Supplier List", path: "/party/supplier/list", pro: false },
+        { name: "Supplier Add", path: "/party/supplier/create", pro: false },
         // { name: "Supplier List", path: "/party/supplier/list", pro: false },
         // { name: "Customer List", path: "/party/customer/list", pro: false },
       ],
     },
+    {
+      name: "Customer",
+      icon: <ListIcon />,
+      subItems: [
+        { name: "Customer List", path: "/party/customer/list", pro: false },
+        { name: "Customer Add", path: "/party/customer/create", pro: false },
+        // { name: "Supplier List", path: "/party/supplier/list", pro: false },
+        // { name: "Customer List", path: "/party/customer/list", pro: false },
+      ],
+    },
+    // {
+    //   name: "Party",
+    //   icon: <ListIcon />,
+    //   subItems: [
+    //     { name: "Party List", path: "/party/all/list", pro: false },
+    //     { name: "Party Add", path: "/party/create", pro: false },
+    //     // { name: "Supplier List", path: "/party/supplier/list", pro: false },
+    //     // { name: "Customer List", path: "/party/customer/list", pro: false },
+    //   ],
+    // },
     {
       name: "Voucher & Ledger",
       icon: <ListIcon />,
       path: "/ledger/1/list",
     },
     {
-      name: "Invoice",
+      name: "Container",
       icon: <ListIcon />,
       subItems: [
-        { name: "Invoice List", path: "/invoice/0/list", pro: false },
-        { name: "Invoice Add", path: "/invoice/create", pro: false }
+        { name: "Container List", path: "/container/0/list", pro: false },
+        { name: "Container Add", path: "/container/create", pro: false }
       ],
     },
+
+    {
+      name: "Purchase",
+      icon: <ListIcon />,
+      subItems: [
+        { name: "Invoice List", path: "/invoice/purchase/0/list", pro: false },
+        { name: "Invoice Add", path: "/invoice/purchase/create", pro: false }
+      ],
+    },
+    {
+      name: "Sale",
+      icon: <ListIcon />,
+      subItems: [
+        { name: "Sale List", path: "/invoice/sale/0/list", pro: false },
+        { name: "Sale Add", path: "/invoice/sale/create", pro: false }
+      ],
+    },
+    // {
+    //   name: "Invoice",
+    //   icon: <ListIcon />,
+    //   subItems: [
+    //     { name: "Invoice List", path: "/invoice/0/list", pro: false },
+    //     { name: "Invoice Add", path: "/invoice/create", pro: false }
+    //   ],
+    // },
     
     
     // {

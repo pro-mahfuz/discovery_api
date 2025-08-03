@@ -37,7 +37,8 @@ export default function PartyList() {
   const dispatch = useDispatch<AppDispatch>();
 
   const authUser = useSelector(selectUser);
-  const parties = useSelector(selectParties(Number(authUser?.business?.id), partyType!));
+  const parties = useSelector(selectParties(Number(authUser?.business?.id), String(partyType)));
+  console.log("parties - ", parties);
 
   // const allParties = useSelector(selectAllParties);
   // const parties = partyType === "supplier"
@@ -111,10 +112,10 @@ export default function PartyList() {
   return (
     <>
       <PageMeta
-        title="Customer List Table"
+        title={`${partyType ? partyType.charAt(0).toUpperCase() + partyType.slice(1).toLowerCase() : ''} List Table`}
         description="Customers Table with Search, Sort, Pagination"
       />
-      <PageBreadcrumb pageTitle="Customer List" />
+      <PageBreadcrumb pageTitle={`${partyType ? partyType.charAt(0).toUpperCase() + partyType.slice(1).toLowerCase() : ''} List`} />
 
       <div className="space-y-6">
         <div className="rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">

@@ -15,6 +15,7 @@ import defineTokenStore from './tokenStore.js';
 import defineParty from './party.js';
 import defineCategory from './category.js';
 import defineItem from './item.js';
+import defineContainer from './container.js';
 import defineInvoice from './invoice.js';
 import defineInvoiceItem from './invoiceItem.js';
 import definePayment from './payment.js';
@@ -33,6 +34,7 @@ const TokenStore = defineTokenStore(sequelize, Sequelize.DataTypes);
 const Party = defineParty(sequelize, Sequelize.DataTypes);
 const Category = defineCategory(sequelize, Sequelize.DataTypes);
 const Item = defineItem(sequelize, Sequelize.DataTypes);
+const Container = defineContainer(sequelize, Sequelize.DataTypes);
 const Invoice = defineInvoice(sequelize, Sequelize.DataTypes);
 const InvoiceItem = defineInvoiceItem(sequelize, Sequelize.DataTypes);
 const Payment = definePayment(sequelize, Sequelize.DataTypes);
@@ -41,7 +43,7 @@ const Warehouse = defineWarehouse(sequelize, Sequelize.DataTypes);
 const Stock = defineStock(sequelize, Sequelize.DataTypes);
 
 // define your model for associate relations here...
-const models = { Business, User, Profile, Role, Permission, RolePermission, TokenStore, Party, Category, Item, Invoice, InvoiceItem, Payment, Ledger, Warehouse, Stock };
+const models = { Business, User, Profile, Role, Permission, RolePermission, TokenStore, Party, Category, Item, Container, Invoice, InvoiceItem, Payment, Ledger, Warehouse, Stock };
 // Call associate on each model if defined
 Object.values(models).forEach((model) => {
   if (model.associate) {
@@ -62,6 +64,7 @@ export {
   Party,
   Category,
   Item,
+  Container,
   Invoice,
   InvoiceItem,
   Payment,

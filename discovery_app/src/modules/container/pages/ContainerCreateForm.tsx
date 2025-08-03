@@ -20,10 +20,10 @@ import {
 } from "../../../components/ui/table/index.tsx";
 
 import { OptionStringType, InvoiceType, InvoiceTypeOptions } from "../../types.ts";
-import { Invoice, Item } from "../features/invoiceTypes";
+import { Invoice, Item } from "../../invoice/features/invoiceTypes";
 import { fetchAll as fetchItem } from "../../item/features/itemThunks.ts";
 import { fetchAll as fetchCategory } from "../../category/features/categoryThunks.ts";
-import { create } from "../features/invoiceThunks";
+import { create } from "../../invoice/features/invoiceThunks";
 import { fetchParty } from "../../party/features/partyThunks.ts";
 import { AppDispatch } from "../../../store/store";
 import { selectAllParties } from "../../party/features/partySelectors";
@@ -32,7 +32,7 @@ import { selectAllCategory } from "../../category/features/categorySelectors";
 import { selectUser } from "../../auth/features/authSelectors.ts";
 
 
-export default function InvoiceView() {
+export default function ContainerCreateForm() {
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
 
@@ -181,10 +181,10 @@ export default function InvoiceView() {
 
     return (
         <div>
-        <PageMeta title="Invoice Create" description="Form to create a new invoice" />
-        <PageBreadcrumb pageTitle="Invoice Create" />
+        <PageMeta title="Container Create" description="Form to create a new container" />
+        <PageBreadcrumb pageTitle="Container Create" />
 
-        <ComponentCard title="Fill up all fields to create a new invoice">
+        <ComponentCard title="Fill up all fields to create a new container">
             <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {/* Category */}
@@ -224,7 +224,7 @@ export default function InvoiceView() {
                         onChange={(selectedOption) => {
                         setFormData(prev => ({
                             ...prev,
-                            invoiceType: selectedOption.value,
+                            invoiceType: selectedOption!.value as InvoiceType,
                         }));
                         }}
                         styles={selectStyles}

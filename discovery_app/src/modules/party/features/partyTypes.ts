@@ -24,7 +24,7 @@ export  const countries = [
 export interface Party {
   id?: number;
   businessId: number;
-  type: "customer" | "supplier" | "party"; // for reuse
+  type?: "customer" | "supplier" | "party"; // for reuse
   name: string;
   company?: string;             // optional for customers
   email?: string;

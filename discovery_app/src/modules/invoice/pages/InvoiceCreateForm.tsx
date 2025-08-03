@@ -1,5 +1,5 @@
 import { FormEvent, ChangeEvent, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
@@ -33,6 +33,7 @@ import { selectUser } from "../../auth/features/authSelectors.ts";
 
 
 export default function InvoiceCreateForm() {
+    const { invoiceType } = useParams() as { invoiceType: 'purchase' | 'sale' };
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
 
@@ -52,7 +53,7 @@ export default function InvoiceCreateForm() {
     const [formData, setFormData] = useState<Omit<Invoice, "totalAmount">>({
         businessId: Number(authUser?.business?.id),
         categoryId: 1,
-        invoiceType: "purchase",
+        invoiceType: invoiceType,
         partyId: 0,
         date: "",
         note: "",
@@ -181,8 +182,8 @@ export default function InvoiceCreateForm() {
 
     return (
         <div>
-        <PageMeta title="Invoice Create" description="Form to create a new invoice" />
-        <PageBreadcrumb pageTitle="Invoice Create" />
+        <PageMeta title={`${invoiceType ? invoiceType.charAt(0).toUpperCase() + invoiceType.slice(1).toLowerCase() : ''} Create`} description="Form to create a new invoice" />
+        <PageBreadcrumb pageTitle={`${invoiceType ? invoiceType.charAt(0).toUpperCase() + invoiceType.slice(1).toLowerCase() : ''} Create`} />
 
         <ComponentCard title="Fill up all fields to create a new invoice">
             <form className="space-y-5" onSubmit={handleSubmit}>

@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   EyeIcon,
   PencilIcon,
@@ -23,7 +23,7 @@ import { toast } from "react-toastify";
 import { useModal } from "../../../hooks/useModal.ts";
 import ConfirmationModal from "../../../components/ui/modal/ConfirmationModal.tsx";
 
-import { Invoice } from "../features/invoiceTypes.ts";
+import { Invoice } from "../../invoice/features/invoiceTypes.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
 import {
@@ -31,11 +31,10 @@ import {
   // selectInvoiceError,
   selectAllInvoice,
 
-} from "../features/invoiceSelectors.ts";
-import { fetchAll, destroy } from "../features/invoiceThunks.ts";
+} from "../../invoice/features/invoiceSelectors.ts";
+import { fetchAll, destroy } from "../../invoice/features/invoiceThunks.ts";
 
-export default function InvoiceList() {
-  const { invoiceType } = useParams() as { invoiceType: 'purchase' | 'sale' };
+export default function ContainerList() {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
@@ -103,10 +102,10 @@ export default function InvoiceList() {
   return (
     <>
       <PageMeta
-        title={`${invoiceType ? invoiceType.charAt(0).toUpperCase() + invoiceType.slice(1).toLowerCase() : ''} List`}
-        description="Invoice Table with Search, Sort, Pagination"
+        title="Container List Table"
+        description="Container Table with Search, Sort, Pagination"
       />
-      <PageBreadcrumb pageTitle={`${invoiceType ? invoiceType.charAt(0).toUpperCase() + invoiceType.slice(1).toLowerCase() : ''} List`} />
+      <PageBreadcrumb pageTitle="Container List" />
 
       <div className="space-y-6">
         <div className="rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">

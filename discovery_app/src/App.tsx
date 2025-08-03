@@ -42,6 +42,12 @@ import BusinessCreateForm from "./modules/business/pages/BusinessCreateForm";
 import BusinessList from "./modules/business/pages/BusinessList";
 import BusinessEditForm from "./modules/business/pages/BusinessEditForm";
 import BusinessView from "./modules/business/pages/BusinessView";
+import InvoiceEditForm from "./modules/invoice/pages/invoiceEditForm";
+import InvoiceView from "./modules/invoice/pages/invoiceView";
+import ContainerCreateForm from "./modules/container/pages/ContainerCreateForm";
+import ContainerEditForm from "./modules/container/pages/ContainerEditForm";
+import ContainerView from "./modules/container/pages/ContainerView";
+import ContainerList from "./modules/container/pages/ContainerList";
 
 
 export default function App() {
@@ -65,13 +71,13 @@ export default function App() {
 
             {/* Party */}
             <Route index path="/party/:partyType/list" element={
-              <PrivateRoute permissions={['manage_users']}>
+              <PrivateRoute permissions={['manage_party']}>
                 <PartyList />
               </PrivateRoute>} 
             />
 
-            <Route index path="/party/create" element={
-              <PrivateRoute permissions={['manage_users']}>
+            <Route index path="/party/:partyType/create" element={
+              <PrivateRoute permissions={['create_party']}>
                 <PartyCreateForm />
               </PrivateRoute>} 
             />
@@ -88,15 +94,52 @@ export default function App() {
               </PrivateRoute>} 
             />
 
+
+            {/* Container */}
+            <Route index path="/container/create" element={
+              <PrivateRoute permissions={['create_container']}>
+                <ContainerCreateForm />
+              </PrivateRoute>} 
+            />
+            <Route index path="/container/:categoryId/list" element={
+              <PrivateRoute permissions={['manage_container']}>
+                <ContainerList />
+              </PrivateRoute>} 
+            />
+
+            <Route index path="/container/:id/view" element={
+              <PrivateRoute permissions={['view_container']}>
+                <ContainerView />
+              </PrivateRoute>} 
+            />
+
+            <Route index path="/container/:id/edit" element={
+              <PrivateRoute permissions={['edit_container']}>
+                <ContainerEditForm />
+              </PrivateRoute>} 
+            />
+
             {/* Invoice */}
-            <Route index path="/invoice/create" element={
+            <Route index path="/invoice/:invoiceType/create" element={
               <PrivateRoute permissions={['create_invoice']}>
                 <InvoiceCreateForm />
               </PrivateRoute>} 
             />
-            <Route index path="/invoice/:categoryId/list" element={
+            <Route index path="/invoice/:invoiceType/:categoryId/list" element={
               <PrivateRoute permissions={['manage_invoice']}>
                 <InvoiceList />
+              </PrivateRoute>} 
+            />
+
+            <Route index path="/invoice/:id/view" element={
+              <PrivateRoute permissions={['view_invoice']}>
+                <InvoiceView />
+              </PrivateRoute>} 
+            />
+
+            <Route index path="/invoice/:id/edit" element={
+              <PrivateRoute permissions={['edit_invoice']}>
+                <InvoiceEditForm />
               </PrivateRoute>} 
             />
             

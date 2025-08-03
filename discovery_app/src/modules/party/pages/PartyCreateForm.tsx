@@ -7,7 +7,7 @@ import Input from "../../../components/form/input/InputField.tsx";
 import Select from "../../../components/form/Select.tsx";
 import PhoneInput from "../../../components/form/group-input/PhoneInput.tsx";
 import Button from "../../../components/ui/button/Button.tsx";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import { statusOptions, countries, Party } from "../features/partyTypes.ts";
@@ -17,6 +17,7 @@ import { AppDispatch } from "../../../store/store.ts";
 import { selectUser } from "../../auth/features/authSelectors.ts";
 
 export default function PartyCreateForm() {
+  const { partyType = 'party' } = useParams() as { partyType?: 'party' | 'customer' | 'supplier' };
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
@@ -94,8 +95,8 @@ export default function PartyCreateForm() {
 
   return (
     <div>
-      <PageMeta title="Supplier/Customer Create" description="Form to create new supplier or customer" />
-      <PageBreadcrumb pageTitle="Supplier/Customer Create" />
+      <PageMeta title={`${partyType ? partyType.charAt(0).toUpperCase() + partyType.slice(1).toLowerCase() : ''} Create`} description="Form to create new supplier or customer" />
+      <PageBreadcrumb pageTitle={`${partyType ? partyType.charAt(0).toUpperCase() + partyType.slice(1).toLowerCase() : ''} Create`} />
 
       <ComponentCard title="Fill up all fields to create a new supplier or customer">
         <form onSubmit={handleSubmit} className="space-y-5">

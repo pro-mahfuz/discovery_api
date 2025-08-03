@@ -7,9 +7,9 @@ import { faker } from '@faker-js/faker';
 async function seed() {
   await sequelize.sync({ force: true });
 
-  const [admin, manager, sales, purchase] = await Promise.all([
+  const [root, admin, sales, purchase] = await Promise.all([
+    Role.create({ name: "Root", action: "root" }),
     Role.create({ name: "Admin", action: "admin" }),
-    Role.create({ name: "Manager", action: "manager" }),
     Role.create({ name: "Sales", action: "sales" }),
     Role.create({ name: "Purchase", action: "purchase" }),
   ]);
@@ -24,7 +24,7 @@ async function seed() {
     }),
   ]);
 
-  await Mahfuz.setRole(admin); // Assign admin role to Mahfuz
+  await Mahfuz.setRole(root); // Assign admin role to Mahfuz
 
   const saleRole = await Role.findOne({ where: { name: 'sales' } });
   if (!saleRole) {
@@ -87,6 +87,12 @@ async function seed() {
     { name: "Item View", action: "view_item" },
     { name: "Item Delete", action: "delete_item" },
 
+    { name: "Container Manage", action: "manage_container" },
+    { name: "Container Create", action: "create_container" },
+    { name: "Container Edit", action: "edit_container" },
+    { name: "Container View", action: "view_container" },
+    { name: "Container Delete", action: "delete_container" },
+
     { name: "Invoice Manage", action: "manage_invoice" },
     { name: "Invoice Create", action: "create_invoice" },
     { name: "Invoice Edit", action: "edit_invoice" },
@@ -118,9 +124,9 @@ async function seed() {
     { name: "Ledger Delete", action: "delete_ledger" },
   ]);
 
-  await admin.setPermissions(permissions); // Admin gets all
+  await root.setPermissions(permissions); // Admin gets all
   
-  await manager.setPermissions([
+  await admin.setPermissions([
     permissions[7],
     permissions[8],
     permissions[9]
