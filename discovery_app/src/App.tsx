@@ -41,6 +41,7 @@ import PartyLedger from "./modules/ledger/pages/PartyLedger";
 import BusinessCreateForm from "./modules/business/pages/BusinessCreateForm";
 import BusinessList from "./modules/business/pages/BusinessList";
 import BusinessEditForm from "./modules/business/pages/BusinessEditForm";
+import BusinessView from "./modules/business/pages/BusinessView";
 
 
 export default function App() {
@@ -129,6 +130,13 @@ export default function App() {
             <Route index path="/business/edit/:id" element={
               <PrivateRoute permissions={['manage_business']}>
                 <BusinessEditForm />
+              </PrivateRoute>
+            }
+            />
+
+            <Route index path="/business/view/:id" element={
+              <PrivateRoute permissions={['view_business']}>
+                <BusinessView />
               </PrivateRoute>
             }
             />

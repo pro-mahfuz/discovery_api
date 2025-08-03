@@ -79,7 +79,6 @@ export default function BusinessList() {
   };
 
   const handleEdit = (business: Business) => {
-    console.log("Editing user:", business);
     navigate(`/business/edit/${business.id}`);
   };
 

@@ -119,7 +119,7 @@ const AppSidebar: React.FC<any> = () => {
       {
         icon: <ListIcon />,
         name: "Business Profile",
-        path: `/business/edit/${user?.business?.id}`,
+        path: `/business/view/${user?.business?.id}`,
       }
     ]),
     
