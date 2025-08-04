@@ -14,7 +14,7 @@ import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
 import CurrencyInvoice from "./VoucherInvoice.tsx";
-import CurrencyPayment from "./VoucherPaymen.tsx";
+import CurrencyPayment from "./VoucherPayment.tsx";
 import ConfirmationModal from "../../../components/ui/modal/ConfirmationModal.tsx";
 import { useModal } from "../../../hooks/useModal.ts";
 

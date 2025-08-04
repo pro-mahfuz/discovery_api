@@ -1,6 +1,6 @@
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useState, useEffect } from "react";
 import ComponentCard from "../../../components/common/ComponentCard.tsx";
 import Label from "../../../components/form/Label.tsx";
 import Input from "../../../components/form/input/InputField.tsx";
@@ -14,19 +14,23 @@ import { statusOptions, countries, Party } from "../features/partyTypes.ts";
 import { createParty } from "../features/partyThunks.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
-import { selectUser } from "../../auth/features/authSelectors.ts";
+import { selectAuth } from "../../auth/features/authSelectors";
+import { selectUserById } from "../../user/features/userSelectors";
 
 export default function PartyCreateForm() {
   const { partyType = 'party' } = useParams() as { partyType?: 'party' | 'customer' | 'supplier' };
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const authUser = useSelector(selectUser);
+  const authUser = useSelector(selectAuth);
+  const user = useSelector(selectUserById(Number(authUser.user?.id)));
+  // console.log("PartyCreate authUser: ", authUser);
+  // console.log("PartyCreate user: ", user);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   
   const [formData, setFormData] = useState<Party>({
-    businessId: Number(authUser?.business?.id),
+    businessId: 0,
     type: 'party',
     name: '',
     email: '',
@@ -41,6 +45,15 @@ export default function PartyCreateForm() {
     openingBalance: 0,
     isActive: true,
   });
+
+  useEffect(() => {
+    if (user?.business?.id) {
+      setFormData((prev) => ({
+        ...prev,
+        businessId: user?.business?.id,
+      }));
+    }
+  }, [user]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

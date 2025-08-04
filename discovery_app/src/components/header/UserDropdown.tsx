@@ -16,7 +16,7 @@ export default function UserDropdown() {
   const authUser = useSelector(selectAuth);
   const user = useSelector(selectUserById(Number(authUser.user?.id)));
   const accessToken = useSelector(selectAccessToken);
-  console.log("user - ", user);
+  // console.log("AppLayout User: ", user);
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();

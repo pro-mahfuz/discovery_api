@@ -37,8 +37,9 @@ export default function SignIn() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
+      console.log("formData: ", formData);
       await dispatch(login(formData));
-      navigate("/", { replace: true });
+      //navigate("/", { replace: true });
     } catch (err) {
       console.error('Login error:', err);
     }

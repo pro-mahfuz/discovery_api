@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { CategoryState } from './categoryTypes';
-import { create, fetchAll, fetchById, update, destroy } from './categoryThunks';
+import { create, fetchAllCategory, fetchById, update, destroy } from './categoryThunks';
 
 
 
@@ -17,15 +17,15 @@ const Slice = createSlice({
   extraReducers: (builder) => {
     builder
       // fetchParty
-      .addCase(fetchAll.pending, (state) => {
+      .addCase(fetchAllCategory.pending, (state) => {
           state.status = 'loading';
           state.error = null;
       })
-      .addCase(fetchAll.fulfilled, (state, action) => {
+      .addCase(fetchAllCategory.fulfilled, (state, action) => {
           state.status = 'succeeded';
           state.data = action.payload;
       })
-      .addCase(fetchAll.rejected, (state, action) => {
+      .addCase(fetchAllCategory.rejected, (state, action) => {
           state.status = 'failed';
           state.error = action.error.message || null;
       })

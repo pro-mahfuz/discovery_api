@@ -8,7 +8,7 @@ export interface Item {
 }
 
 export interface ItemState {
-  data: Item[];
+  items: Item[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }

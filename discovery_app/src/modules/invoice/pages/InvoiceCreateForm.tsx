@@ -21,8 +21,8 @@ import {
 
 import { OptionStringType, InvoiceType, InvoiceTypeOptions } from "../../types.ts";
 import { Invoice, Item } from "../features/invoiceTypes";
-import { fetchAll as fetchItem } from "../../item/features/itemThunks.ts";
-import { fetchAll as fetchCategory } from "../../category/features/categoryThunks.ts";
+import { fetchAllItem } from "../../item/features/itemThunks.ts";
+import { fetchAllCategory } from "../../category/features/categoryThunks.ts";
 import { create } from "../features/invoiceThunks";
 import { fetchParty } from "../../party/features/partyThunks.ts";
 import { AppDispatch } from "../../../store/store";
@@ -39,13 +39,14 @@ export default function InvoiceCreateForm() {
 
     useEffect(() => {
         dispatch(fetchParty("all"));
-        dispatch(fetchItem());
-        dispatch(fetchCategory());
+        dispatch(fetchAllItem());
+        dispatch(fetchAllCategory());
     }, [dispatch]);
 
     const authUser = useSelector(selectUser);
     const matchingParties = useSelector(selectAllParties);
     const items = useSelector(selectAllItem);
+    console.log("items: ", items);
     const categories = useSelector(selectAllCategory);
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -58,6 +59,7 @@ export default function InvoiceCreateForm() {
         date: "",
         note: "",
         items: [],
+        currency: "AED"
     });
 
     const [totalAmount, setTotalAmount] = useState(0);
@@ -317,7 +319,7 @@ export default function InvoiceCreateForm() {
                                 label: i.name,
                                 value: i.id,
                             }))}
-                            placeholder="Search and select party"
+                            placeholder="Search and select item"
                             value={
                                 items
                                     .filter((i) => i.id === currentItem.id)
@@ -334,7 +336,6 @@ export default function InvoiceCreateForm() {
                             styles={selectStyles}
                             classNamePrefix="react-select"
                         />
-                        {errors.partyId && <p className="text-red-500 text-sm">{errors.partyId}</p>}
                     </div>
 
                     <div>

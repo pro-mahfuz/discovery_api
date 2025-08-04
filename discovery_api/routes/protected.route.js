@@ -105,7 +105,7 @@ router.get("/container/list", authorize("manage_container"), ContainerController
 router.post("/container/create", authorize("create_container"), validate(containerSchema), ContainerController.createContainer);
 router.get("/container/:id/view", authorize("view_container"), ContainerController.getContainerById);
 router.put("/container/update", authorize("edit_container"), validate(containerSchema), ContainerController.updateContainer);
-router.post("/container/:id/delete", authorize("delete_container"), ContainerController.activeContainer);
+router.post("/container/:id/delete", authorize("delete_container"), ContainerController.deactiveContainer);
 
 /*---Invoice---*/
 router.get("/invoice/list", authorize("manage_invoice"), InvoiceController.getAllInvoice);

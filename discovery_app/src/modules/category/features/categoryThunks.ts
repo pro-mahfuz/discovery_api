@@ -3,7 +3,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { Category } from './categoryTypes';
 import * as categoryAPI from './categoryAPI';
 
-export const fetchAll = createAsyncThunk<Category[], void, { rejectValue: string }>(
+export const fetchAllCategory = createAsyncThunk<Category[], void, { rejectValue: string }>(
   'invoice/fetchAll', async (_, thunkAPI) => {
     try {
 

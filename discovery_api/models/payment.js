@@ -35,6 +35,10 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    currency: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     amountPaid: {
       type: DataTypes.DECIMAL(12, 2),
       allowNull: false,

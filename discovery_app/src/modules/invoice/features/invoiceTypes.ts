@@ -1,5 +1,6 @@
 import { Category } from "../../category/features/categoryTypes";
 import { Party } from "../../party/features/partyTypes";
+import { InvoiceType } from "../../types";
 
 // Item interface
 export interface Item {
@@ -15,16 +16,17 @@ export interface Item {
 // Invoice interface
 export interface Invoice {
   id?: number; 
-  businessId: number;                 
+  businessId?: number;                 
   categoryId: number | string;
-  invoiceType: "purchase" | "sale";
+  invoiceType: "purchase" | "sale" | "return" | "adjustment";
   partyId: number | string;
   party?: Party;
   date: string;
   note: string;
   totalAmount: number;
   category?: Category;
-  items: Item[];            
+  items: Item[]; 
+  currency: string;           
 }
 
 export interface InvoiceState {

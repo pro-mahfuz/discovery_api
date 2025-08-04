@@ -1,8 +1,15 @@
 
-import { Container } from "../../models/model.js";
+import { Container, Item } from "../../models/model.js";
 
 export const getAllContainer = async () => {
-    const data = await Container.findAll();
+    const data = await Container.findAll({
+        include: [
+            {
+                model: Item,
+                as: "item",
+            },
+        ],
+    });
     if (!data || data.length === 0) throw { status: 400, message: "No Container found" };
     return data;
 }

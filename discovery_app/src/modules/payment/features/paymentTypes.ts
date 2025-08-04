@@ -15,7 +15,7 @@ export  const paymentMethodOptions:  OptionType[] = [
 
 export interface Payment {
   id?: number;   
-  businessId: number;        
+  businessId?: number;        
   partyId: number;
   categoryId: number;
   paymentType: "payment_in" | "payment_out";
@@ -23,8 +23,9 @@ export interface Payment {
   paymentDate: string;
   note?: string;
   amountPaid: number;
-  paymentMethod: "cash" | "bank",
-  paymentDetails?: string
+  paymentMethod: "cash" | "bank";
+  paymentDetails?: string;
+  currency: string;
 }
 
 export interface PaymentState {

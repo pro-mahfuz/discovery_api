@@ -15,6 +15,7 @@ export interface Ledger {
   date: string;  
   referenceId: number;               // ISO string or date format (e.g. "2025-07-28")
   description: string; 
+  currency: string;
   debit: number;
   credit: number;
   balance: number;

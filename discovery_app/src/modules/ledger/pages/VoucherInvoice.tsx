@@ -8,33 +8,38 @@ import { FormEvent, ChangeEvent, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 // import { useNavigate } from "react-router-dom";
 
-import { OptionStringType, InvoiceTypeOptions } from "../../types.ts";
+import { OptionStringType, InvoiceTypeOptions, InvoiceType, CurrencyOptions } from "../../types.ts";
 import { Invoice, Item } from "../../invoice/features/invoiceTypes.ts";
 import { AppDispatch } from "../../../store/store.ts";
 import { create, fetchById, update } from "../../invoice/features/invoiceThunks.ts";
-import { fetchAll } from "../../item/features/itemThunks.ts";
+import { fetchAllItem } from "../../item/features/itemThunks.ts";
 import { fetchParty } from "../../party/features/partyThunks.ts";
 import { selectAllParties } from "../../party/features/partySelectors.ts";
 import { selectAllItem } from "../../item/features/itemSelectors.ts";
 import { selectInvoiceById } from "../../invoice/features/invoiceSelectors.ts";
-import { selectUser } from "../../auth/features/authSelectors.ts";
+import { selectAuth } from "../../auth/features/authSelectors";
+import { selectUserById } from "../../user/features/userSelectors";
 
 interface CurrencyPurchaseProps {
   editingLedgerId: number;
   ledgerPartyId: number;
 }
 
-export default function CurrencyPurchase({ editingLedgerId, ledgerPartyId }: CurrencyPurchaseProps) {
+export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: CurrencyPurchaseProps) {
   // const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const authUser = useSelector(selectUser);
+  const authUser = useSelector(selectAuth);
+  const user = useSelector(selectUserById(Number(authUser.user?.id)));
+  // console.log("VoucherInvoice authUser: ", authUser);
+  // console.log("VoucherInvoice user: ", user);
+  
   const matchingParties = useSelector(selectAllParties);
   const items = useSelector(selectAllItem);
   const selectedInvoice = useSelector(selectInvoiceById(Number(editingLedgerId)));
 
   const [form, setForm] = useState<Invoice>({
-    businessId: Number(authUser?.business?.id),
+    businessId: 0,
     categoryId: 1,
     invoiceType: "purchase",
     partyId: ledgerPartyId ?? 0,
@@ -42,7 +47,19 @@ export default function CurrencyPurchase({ editingLedgerId, ledgerPartyId }: Cur
     note: '',
     totalAmount: 0,
     items: [],
+    currency: "AED",
   });
+
+  useEffect(() => {
+    if (user?.business?.id) {
+      setForm((prev) => ({
+        ...prev,
+        businessId: user?.business?.id,
+      }));
+    }
+  }, [user]);
+
+  // console.log("VoucherInvoice Create FormData: ", form);
 
   const [currentItem, setCurrentItem] = useState<Item>({
     id: 0,
@@ -55,38 +72,27 @@ export default function CurrencyPurchase({ editingLedgerId, ledgerPartyId }: Cur
 
   useEffect(() => {
     dispatch(fetchParty('all'));
-    dispatch(fetchAll());
+    dispatch(fetchAllItem());
     if (editingLedgerId) {
       dispatch(fetchById(editingLedgerId));
     }
   }, [editingLedgerId, dispatch]);
 
-  // Allowed invoice types
-  const allowedInvoiceTypes = ["purchase", "sale", "return", "damaged"] as const;
-  type InvoiceType = typeof allowedInvoiceTypes[number];
-
-  // Type guard to check valid invoiceType
-  const isValidInvoiceType = (type: string): type is InvoiceType =>
-    allowedInvoiceTypes.includes(type as InvoiceType);
 
   useEffect(() => {
-    console.log("selectedInvoice", selectedInvoice);
-    console.log("ledgerPartyId", ledgerPartyId);
+    // console.log("selectedInvoice", selectedInvoice);
+    // console.log("ledgerPartyId", ledgerPartyId);
     if (!selectedInvoice) return;
 
-    const validInvoiceType: InvoiceType = isValidInvoiceType(selectedInvoice.invoiceType)
-      ? selectedInvoice.invoiceType
-      : "purchase"; // fallback default
-
     setForm({
-      businessId: Number(authUser?.business?.id),
       categoryId: selectedInvoice.categoryId ?? 1,
-      invoiceType: validInvoiceType,
+      invoiceType: selectedInvoice.invoiceType ?? "purchase",
       partyId: selectedInvoice.partyId ?? 0,
       date: selectedInvoice.date,
       note: selectedInvoice.note ?? '',
       totalAmount: selectedInvoice.totalAmount ?? 0,
       items: [],
+      currency: selectedInvoice.currency
     });
 
     if (selectedInvoice.items && selectedInvoice.items.length > 0) {
@@ -127,7 +133,7 @@ export default function CurrencyPurchase({ editingLedgerId, ledgerPartyId }: Cur
     const { name, value } = e.target;
     setCurrentItem((prev) => ({
       ...prev,
-      [name]: name === "price" || name === "quantity" ? Number(value) : value,
+      [name]: name === "price" || name === "quantity" ? parseFloat(value) : value,
     }));
   };
 
@@ -141,7 +147,7 @@ export default function CurrencyPurchase({ editingLedgerId, ledgerPartyId }: Cur
       subTotal: currentItem.price * currentItem.quantity,
     };
 
-    console.log("newItem", newItem);
+    // console.log("newItem", newItem);
     const updatedItems = [...form.items, newItem];
 
     const updatedForm: Invoice = {
@@ -160,12 +166,14 @@ export default function CurrencyPurchase({ editingLedgerId, ledgerPartyId }: Cur
         items: updatedItems,
         totalAmount: updatedItems.reduce((total, item) => total + item.subTotal, 0),
       };
-      console.log("Updated formData: ", updatedForm);
+      //console.log("Updated formData: ", updatedForm);
       await dispatch(update(updatedForm));
+      toast.success("Invoice updated successfully!");
     }else{
+      //console.log("Created formData: ", updatedForm);
       await dispatch(create(updatedForm));
+      toast.success("Invoice created successfully!");
     }
-    toast.success("Invoice created successfully!");
     window.location.reload();
     //navigate("/currency/ledger");
   };
@@ -295,13 +303,35 @@ export default function CurrencyPurchase({ editingLedgerId, ledgerPartyId }: Cur
                 classNamePrefix="react-select"
               />
             </div>
+
+            <div>
+              <Label>Select Currency</Label>
+              <Select<OptionStringType>
+                options={CurrencyOptions}
+                placeholder="Select Currency"
+                value={
+                  form
+                    ? CurrencyOptions.find((option) => option.value === form.currency)
+                    : null
+                }
+                onChange={(selectedOption) => {
+                  setForm((prev) => ({
+                    ...prev!,
+                    currency: selectedOption!.value,
+                  }));
+                }}
+                styles={selectStyles}
+                classNamePrefix="react-select"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mt-4">
             <div>
               <Label>BDT Rate</Label>
               <Input
-                type="text"
+                type="number"
+                step={1}
                 name="price"
                 value={currentItem.price}
                 onChange={handleCurrentItemChange}

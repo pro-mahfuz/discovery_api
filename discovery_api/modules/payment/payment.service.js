@@ -30,6 +30,7 @@ export const createPayment = async (req) => {
             date: req.body.date,
             referenceId: data.id,
             description: req.body.note,
+            currency: req.body.currency,
             debit: debitAmount,
             credit: creditAmount,
         }, 
@@ -87,6 +88,7 @@ export const updatePayment = async (req) => {
             date: req.body.date,
             referenceId: data.id,
             description: req.body.note,
+            currency: req.body.currency,
             debit: debitAmount,
             credit: creditAmount,
         }, { transaction: t });

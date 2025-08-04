@@ -19,12 +19,3 @@ export const selectSaleInvoice = createSelector(
   (parties) => parties.filter(invoice => invoice.invoiceType === 'sale')
 );
 
-export const selectReturnInvoice = createSelector(
-  [selectAllInvoice],
-  (parties) => parties.filter(invoice => invoice.invoiceType === 'return')
-);
-
-export const selectDamageInvoice = createSelector(
-  [selectAllInvoice],
-  (parties) => parties.filter(invoice => invoice.invoiceType === 'damaged')
-);

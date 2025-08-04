@@ -17,6 +17,10 @@ import {
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 
+import { selectUserById } from "../modules/user/features/userSelectors";
+import { selectAuth } from "../modules/auth/features/authSelectors";
+import { useSelector } from "react-redux";
+
 type NavItem = {
   name: string;
   icon: React.ReactNode;
@@ -24,14 +28,13 @@ type NavItem = {
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
 };
 
-import { selectUserById } from "../modules/user/features/userSelectors";
-import { selectAuth } from "../modules/auth/features/authSelectors";
-import { useSelector } from "react-redux";
+
 
 
 
 
 const AppSidebar: React.FC<any> = () => {
+  
   const authUser = useSelector(selectAuth);
   const user = useSelector(selectUserById(Number(authUser.user?.id)));
 

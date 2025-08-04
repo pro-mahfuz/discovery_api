@@ -1,11 +1,10 @@
 import axiosInstance from "../../../api/axios";
-import { Item } from './itemTypes';
+import { Container } from './containerTypes';
 
 export const fetchAll = async () => {
   try {
 
-    const res = await axiosInstance.get('protected/item/list');
-    console.log("itemAPI: ", res.data.data);
+    const res = await axiosInstance.get('protected/container/list');
     return res.data.data;
 
   } catch {
@@ -13,10 +12,10 @@ export const fetchAll = async () => {
   }
 };
 
-export const create = async (createData: Item) => {
+export const create = async (createData: Container) => {
   try {
 
-    const res = await axiosInstance.post('protected/item/create', createData);
+    const res = await axiosInstance.post('protected/container/create', createData);
     return res.data.data;
 
   } catch {
@@ -27,7 +26,7 @@ export const create = async (createData: Item) => {
 export const fetchById = async (id: number) => {
   try {
 
-    const res = await axiosInstance.get(`protected/item/${id}/view`);
+    const res = await axiosInstance.get(`protected/container/${id}/view`);
     return res.data.data;
 
   } catch {
@@ -35,10 +34,10 @@ export const fetchById = async (id: number) => {
   }
 };
 
-export const update = async (updateData: Item) => {
+export const update = async (updateData: Container) => {
   try {
 
-    const res = await axiosInstance.put(`protected/item/update`, updateData);
+    const res = await axiosInstance.put(`protected/container/update`, updateData);
     return res.data.data;
 
   } catch {
@@ -49,7 +48,7 @@ export const update = async (updateData: Item) => {
 export const destroy = async (id: number) => {
   try {
 
-    const res = await axiosInstance.post(`protected/item/${id}/delete`);
+    const res = await axiosInstance.post(`protected/container/${id}/delete`);
     return res.data.data;
 
   } catch {

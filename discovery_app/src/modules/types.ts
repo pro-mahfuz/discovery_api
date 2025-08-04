@@ -21,7 +21,7 @@ export const RoleOptions = [
     { value: 4, label: "Purchase" },
 ];
 
-export const StatusOptions = [
+export const StatusOptions: OptionBooleanType[] = [
     { value: true, label: "Active" },
     { value: false, label: "Inactive" },
 ];
@@ -34,15 +34,26 @@ export const CountryOptions = [
     { code: "AU", label: "+61" },
 ];
 
+export const CurrencyOptions: OptionStringType[] = [
+    { value: "AED", label: "AED" },
+    { value: "BDT", label: "BDT" },
+    { value: "USD", label: "USD" },
+    { value: "CAD", label: "CAD" },
+    { value: "EUR", label: "EUR" },
+    { value: "SAR", label: "SAR" },
+];
+
 
 export const CategoryOptions: OptionNumberType[] = [
   { value: 1, label: "Fruit" },
   { value: 2, label: "Vegetable" },
 ];
 
-export type InvoiceType = "purchase" | "sale";
+export type InvoiceType = "purchase" | "sale" | "return" | "adjustment";
 
 export const InvoiceTypeOptions: OptionStringType[] = [
   { value: "purchase", label: "Purchase" },
-  { value: "sale", label: "Sale" }
+  { value: "sale", label: "Sale" },
+  { value: "return", label: "Return" },
+  { value: "adjustment", label: "Adjustment" }
 ];

@@ -19,10 +19,7 @@ import {
   TableRow,
 } from "../../../components/ui/table/index.tsx";
 
-import { OptionStringType, InvoiceType, InvoiceTypeOptions } from "../../types.ts";
 import { Invoice, Item } from "../features/invoiceTypes";
-import { fetchAll as fetchItem } from "../../item/features/itemThunks.ts";
-import { fetchAll as fetchCategory } from "../../category/features/categoryThunks.ts";
 import { create } from "../features/invoiceThunks";
 import { fetchParty } from "../../party/features/partyThunks.ts";
 import { AppDispatch } from "../../../store/store";
@@ -38,8 +35,6 @@ export default function InvoiceView() {
 
     useEffect(() => {
         dispatch(fetchParty("all"));
-        dispatch(fetchItem());
-        dispatch(fetchCategory());
     }, [dispatch]);
 
     const authUser = useSelector(selectUser);
@@ -57,6 +52,7 @@ export default function InvoiceView() {
         date: "",
         note: "",
         items: [],
+        currency: '',
     });
 
     const [totalAmount, setTotalAmount] = useState(0);
@@ -214,24 +210,7 @@ export default function InvoiceView() {
                     {errors.categoryId && <p className="text-red-500 text-sm">{errors.categoryId}</p>}
                 </div>
 
-                {/* Invoice Type */}
-                <div>
-                    <Label>Select Invoice Type</Label>
-                    <Select<OptionStringType>
-                        options={InvoiceTypeOptions}
-                        placeholder="Select invoice type"
-                        value={InvoiceTypeOptions.find(option => option.value === formData.invoiceType)}
-                        onChange={(selectedOption) => {
-                        setFormData(prev => ({
-                            ...prev,
-                            invoiceType: selectedOption.value,
-                        }));
-                        }}
-                        styles={selectStyles}
-                        classNamePrefix="react-select"
-                    />
-                    {errors.invoiceType && <p className="text-red-500 text-sm">{errors.invoiceType}</p>}
-                </div>
+                
 
                 {/* Search Party */}
                 <div>

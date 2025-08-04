@@ -23,41 +23,41 @@ import { toast } from "react-toastify";
 import { useModal } from "../../../hooks/useModal.ts";
 import ConfirmationModal from "../../../components/ui/modal/ConfirmationModal.tsx";
 
-import { Invoice } from "../../invoice/features/invoiceTypes.ts";
+import { Container } from "../features/containerTypes.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
 import {
-  selectInvoiceStatus,
-  // selectInvoiceError,
-  selectAllInvoice,
+  selectContainerStatus,
+  selectAllContainer,
 
-} from "../../invoice/features/invoiceSelectors.ts";
-import { fetchAll, destroy } from "../../invoice/features/invoiceThunks.ts";
+} from "../features/containerSelectors.ts";
+import { fetchAll, destroy } from "../features/containerThunks.ts";
 
 export default function ContainerList() {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const invoices = useSelector(selectAllInvoice);
-  const status = useSelector(selectInvoiceStatus);
+  const containers = useSelector(selectAllContainer);
+  const status = useSelector(selectContainerStatus);
+  console.log("containers: ", containers);
 
   const [filterText, setFilterText] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
 
   const { isOpen, openModal, closeModal } = useModal();
-  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [selectedContainer, setSelectedContainer] = useState<Container | null>(null);
 
   useEffect(() => {
     dispatch(fetchAll());
   }, [dispatch]);
 
   const filteredData = useMemo(() => {
-    return invoices.filter(
-      (i) =>
-        i.categoryId
+    return containers.filter(
+      (c) =>
+        c.itemId
     );
-  }, [invoices, filterText]);
+  }, [containers, filterText]);
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
@@ -66,30 +66,32 @@ export default function ContainerList() {
     return filteredData.slice(start, start + itemsPerPage);
   }, [filteredData, currentPage, itemsPerPage]);
 
-  const handleView = (supplier: Invoice) => {
-    navigate(`/invoice/view/${supplier.id}`);
-  };
+  // const handleView = (container: Container) => {
+  //   navigate(`/container/view/${container.id}`);
+  // };
 
-  const handleEdit = (supplier: Invoice) => {
+  const handleEdit = (container: Container) => {
 
-    navigate(`/invoice/edit/${supplier.id}`);
+    navigate(`/container/${container.id}/edit`);
   };
 
   const handleDelete = async () => {
-    if (!selectedInvoice) return;
+    if (!selectedContainer) return;
 
     try {
       // You can implement a deleteSupplier thunk and use it here:
-      await dispatch(destroy(selectedInvoice.id!)).unwrap();
+      await dispatch(destroy(selectedContainer.id!)).unwrap();
       toast.success("Invoice deleted successfully");
       closeAndResetModal();
+      const categoryId = 0;
+      navigate(`/container/${categoryId}/list`);
     } catch (error) {
       toast.error("Failed to delete invoice");
     }
   };
 
   const closeAndResetModal = () => {
-    setSelectedInvoice(null);
+    setSelectedContainer(null);
     closeModal();
   };
 
@@ -116,12 +118,16 @@ export default function ContainerList() {
               <TableHeader className="border-b border-t border-gray-100 dark:border-white/[0.05] bg-gray-200 text-black text-sm dark:bg-gray-800 dark:text-gray-400">
                 <TableRow>
                   <TableCell isHeader className="text-center px-4 py-2">Sl</TableCell>
-                  <TableCell isHeader className="text-center px-4 py-2">Category</TableCell>
-                  <TableCell isHeader className="text-center px-4 py-2">Type</TableCell>
-                  <TableCell isHeader className="text-center px-4 py-2">Date</TableCell>
-                  <TableCell isHeader className="text-center px-4 py-2">Party Name</TableCell>
-                  <TableCell isHeader className="text-center px-4 py-2">Total Amount</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">B.L No</TableCell>
+                   <TableCell isHeader className="text-center px-4 py-2">Ocean Vessel Name</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Agent Name</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Container No</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Seal No</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Item Name</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Container Quantity</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Stock Quantity</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Action</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">isActive</TableCell>
                 </TableRow>
               </TableHeader>
 
@@ -139,25 +145,37 @@ export default function ContainerList() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  paginatedData.map((invoice, index) => (
-                    <TableRow key={invoice.id} className="border-b border-gray-100 dark:border-white/[0.05]">
+                  paginatedData.map((container, index) => (
+                    <TableRow key={container.id} className="border-b border-gray-100 dark:border-white/[0.05]">
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {(currentPage - 1) * itemsPerPage + index + 1}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {invoice.category?.name}
+                        {container.blNo}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {invoice.invoiceType}
+                        {container.oceanVesselName}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {invoice.date}
+                        {container.agentDetails}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {invoice.party?.name}
+                        {container.containerNo}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {invoice.totalAmount}
+                        {container.sealNo}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {container.item?.name}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {container.containerQuantity + " " + container.containerUnit}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {container.stockQuantity + " " + container.stockUnit}
+                      </TableCell>
+                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {container.isActive ? 'Yes' : 'No'}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm overflow-visible">
                         <Menu as="div" className="relative inline-block text-left">
@@ -168,21 +186,21 @@ export default function ContainerList() {
 
                           <MenuItems className="absolute right-0 z-50 mt-2 w-40 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-sky-500 ring-opacity-5 focus:outline-none">
                             <div className="py-1">
-                              <MenuItem>
+                              {/* <MenuItem>
                                 {({ active }) => (
                                   <button
-                                    onClick={() => handleView(invoice)}
+                                    onClick={() => handleView(container)}
                                     className={`${active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'} flex w-full items-center gap-2 px-4 py-2 text-sm`}
                                   >
                                     <EyeIcon className="h-4 w-4" />
                                     View
                                   </button>
                                 )}
-                              </MenuItem>
+                              </MenuItem> */}
                               <MenuItem>
                                 {({ active }) => (
                                   <button
-                                    onClick={() => handleEdit(invoice)}
+                                    onClick={() => handleEdit(container)}
                                     className={`${active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'} flex w-full items-center gap-2 px-4 py-2 text-sm`}
                                   >
                                     <PencilIcon className="h-4 w-4" />
@@ -194,7 +212,7 @@ export default function ContainerList() {
                                 {({ active }) => (
                                   <button
                                     onClick={() => {
-                                      setSelectedInvoice(invoice);
+                                      setSelectedContainer(container);
                                       openModal();
                                     }}
                                     className={`${active ? 'bg-red-100 text-red-700' : 'text-red-600'} flex w-full items-center gap-2 px-4 py-2 text-sm`}

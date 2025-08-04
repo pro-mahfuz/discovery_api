@@ -21,8 +21,8 @@ import {
 
 import { OptionStringType, InvoiceType, InvoiceTypeOptions } from "../../types.ts";
 import { Invoice, Item } from "../features/invoiceTypes";
-import { fetchAll as fetchItem } from "../../item/features/itemThunks.ts";
-import { fetchAll as fetchCategory } from "../../category/features/categoryThunks.ts";
+import { fetchAllItem } from "../../item/features/itemThunks.ts";
+import { fetchAllCategory } from "../../category/features/categoryThunks.ts";
 import { create } from "../features/invoiceThunks";
 import { fetchParty } from "../../party/features/partyThunks.ts";
 import { AppDispatch } from "../../../store/store";
@@ -38,8 +38,8 @@ export default function InvoiceEditForm() {
 
     useEffect(() => {
         dispatch(fetchParty("all"));
-        dispatch(fetchItem());
-        dispatch(fetchCategory());
+        dispatch(fetchAllItem());
+        dispatch(fetchAllCategory());
     }, [dispatch]);
 
     const authUser = useSelector(selectUser);
@@ -57,6 +57,7 @@ export default function InvoiceEditForm() {
         date: "",
         note: "",
         items: [],
+        currency: "AED"
     });
 
     const [totalAmount, setTotalAmount] = useState(0);

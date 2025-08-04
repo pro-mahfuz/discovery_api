@@ -21,9 +21,9 @@ export const containerSchema = yup.object({
     .string()
     .required("Voyage No is required"),
 
-  agentDetails: yup
-    .string()
-    .required("Voyage No is required"),
+  // agents: yup
+  //   .string()
+  //   .required("Voyage No is required"),
 
 //   placeOfReceipt: yup
 //     .string()

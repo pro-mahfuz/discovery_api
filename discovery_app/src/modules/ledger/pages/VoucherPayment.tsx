@@ -14,7 +14,9 @@ import { create, update, fetchById } from "../../payment/features/paymentThunks.
 import { selectAllParties } from "../../party/features/partySelectors.ts";
 import { selectPaymentById } from "../../payment/features/paymentSelectors.ts";
 import { Payment, paymentOptions, paymentMethodOptions, OptionType } from "../../payment/features/paymentTypes.ts";
-import { selectUser } from "../../auth/features/authSelectors.ts";
+import { selectUserById } from "../../user/features/userSelectors.ts";
+import { selectAuth } from "../../auth/features/authSelectors.ts";
+import { CurrencyOptions, OptionStringType } from "../../types.ts";
 // import { useNavigate } from "react-router-dom";
 
 interface CurrencyPaymentProps {
@@ -22,16 +24,20 @@ interface CurrencyPaymentProps {
   paymentPartyId: number;
 }
 
-export default function CurrencyPayment({ editingPaymentId, paymentPartyId }: CurrencyPaymentProps) {
+export default function VoucherPayment({ editingPaymentId, paymentPartyId }: CurrencyPaymentProps) {
   // const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const authUser = useSelector(selectUser);
+  const authUser = useSelector(selectAuth);
+  const user = useSelector(selectUserById(Number(authUser.user?.id)));
+  // console.log("VoucherPayment authUser: ", authUser);
+  // console.log("VoucherPayment user: ", user);
+
   const matchingParties = useSelector(selectAllParties);
   const selectedPayment = useSelector(selectPaymentById(Number(editingPaymentId)));
 
   const [form, setForm] = useState<Payment>({
-    businessId: Number(authUser?.business?.id),
+    businessId: user?.business?.id,
     categoryId: 1,
     paymentType: "payment_in",
     invoiceId: null,
@@ -40,8 +46,20 @@ export default function CurrencyPayment({ editingPaymentId, paymentPartyId }: Cu
     note: "",
     amountPaid: 0,
     paymentMethod: "cash",
-    paymentDetails: ''
+    paymentDetails: '',
+    currency: '',
   });
+
+  useEffect(() => {
+    if (user?.business?.id) {
+      setForm((prev) => ({
+        ...prev,
+        businessId: user?.business?.id,
+      }));
+    }
+  }, [user]);
+
+  // console.log("VoucherPayment Update FormData: ", form);
 
   useEffect(() => {
     
@@ -52,11 +70,11 @@ export default function CurrencyPayment({ editingPaymentId, paymentPartyId }: Cu
   }, [editingPaymentId, dispatch]); 
 
   useEffect(() => {
-    console.log("selectedPayment", selectedPayment);
+    // console.log("selectedPayment", selectedPayment);
     if (!selectedPayment) return;
 
     setForm({
-      businessId: Number(authUser?.business?.id),
+      businessId: user?.business?.id ?? 0,
       categoryId: selectedPayment.categoryId ?? 1,
       paymentType: selectedPayment.paymentType ?? '',
       partyId: selectedPayment.partyId ?? 0,
@@ -64,8 +82,11 @@ export default function CurrencyPayment({ editingPaymentId, paymentPartyId }: Cu
       note: selectedPayment.note ?? '',
       amountPaid: selectedPayment.amountPaid ?? 0,
       paymentMethod: selectedPayment.paymentMethod,
-      paymentDetails: selectedPayment.paymentDetails
+      paymentDetails: selectedPayment.paymentDetails,
+      currency: selectedPayment.currency
     });
+
+    
     
   }, [selectedPayment]);
 
@@ -89,13 +110,14 @@ export default function CurrencyPayment({ editingPaymentId, paymentPartyId }: Cu
         ...form,
         id: selectedPayment?.id,
       };
-      console.log("Updated formData: ", updatedForm);
+      // console.log("Updated formData: ", updatedForm);
       await dispatch(update(updatedForm));
+      toast.success("Payment updated successfully!");
     }else{
-      console.log("formData: ", form);
+      // console.log("formData: ", form);
       await dispatch(create(form));
+      toast.success("Payment created successfully!");
     }
-    toast.success("Invoice created successfully!");
     window.location.reload();
     //navigate("/currency/ledger");
   };
@@ -169,7 +191,7 @@ export default function CurrencyPayment({ editingPaymentId, paymentPartyId }: Cu
                 defaultDate={form.paymentDate}
                 onChange={(dates, currentDateString) => {
                   // Handle your logic
-                  console.log({ dates, currentDateString });
+                  // console.log({ dates, currentDateString });
                   setForm((prev) => ({
                     ...prev!,
                     paymentDate: currentDateString,
@@ -226,6 +248,27 @@ export default function CurrencyPayment({ editingPaymentId, paymentPartyId }: Cu
             </div>
 
             <div>
+              <Label>Select Currency</Label>
+              <Select<OptionStringType>
+                options={CurrencyOptions}
+                placeholder="Select Currency"
+                value={
+                  form
+                    ? CurrencyOptions.find((option) => option.value === form.currency)
+                    : null
+                }
+                onChange={(selectedOption) => {
+                  setForm((prev) => ({
+                    ...prev!,
+                    currency: selectedOption!.value,
+                  }));
+                }}
+                styles={selectStyles}
+                classNamePrefix="react-select"
+              />
+            </div>
+
+            <div>
               <Label>Amount</Label>
               <Input
                 type="text"
@@ -264,7 +307,7 @@ export default function CurrencyPayment({ editingPaymentId, paymentPartyId }: Cu
               />
             </div>
 
-            <div className="col-span-3">
+            <div className="col-span-2">
               <Label>Description / Note</Label>
               <Input
                   type="text"

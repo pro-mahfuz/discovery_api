@@ -1,53 +1,99 @@
 import { hash } from "bcryptjs";
 import dotenv from "dotenv";
 dotenv.config();
-import { sequelize, User, Role, Permission, Category, Item } from "../models/model.js"; // Adjust the path as needed
+import { sequelize, Business, User, Role, Permission, Category, Item } from "../models/model.js"; // Adjust the path as needed
 import { faker } from '@faker-js/faker';
 
 async function seed() {
   await sequelize.sync({ force: true });
 
-  const [root, admin, sales, purchase] = await Promise.all([
-    Role.create({ name: "Root", action: "root" }),
-    Role.create({ name: "Admin", action: "admin" }),
-    Role.create({ name: "Sales", action: "sales" }),
-    Role.create({ name: "Purchase", action: "purchase" }),
+  await Category.bulkCreate([
+    {
+      name: "Fruit",
+      isActive: true,
+    },
+    {
+      name: "Vegetable",
+      isActive: true,
+    }
+  ]);
+
+  await Item.bulkCreate([
+    {
+      code: "001",
+      name: "Orange",
+      categoryId: 1,
+      isActive: true,
+    },
+    {
+      code: "002",
+      name: "Carrot",
+      categoryId: 2,
+      isActive: true,
+    }
+  ]);
+
+  const [root, admin, manager, sale] = await Promise.all([
+    Role.create({ name: "Root", action: "root", isActive: true }),
+    Role.create({ name: "Admin", action: "admin", isActive: true }),
+    Role.create({ name: "Manager", action: "manager", isActive: true }),
+    Role.create({ name: "Sale Person", action: "sale", isActive: true }),
   ]);
 
 
-  const [Mahfuz] = await Promise.all([
-    User.create({
-      name: "Mahfuz",
-      email: "admin@gmail.com",
-      password: await hash("password123", 10),
+  const [Discovery, SHMGold] = await Promise.all([
+    Business.create({
+      businessName: "Discovery Foodstuff Trading Co.",
+      businessLicenseNo: "A123456",
+      ownerName: "Mr. Aftab",
+      email: "discovery@gmail.com",
+      countryCode: "AE",
+      phoneCode: "+971",
+      phoneNumber: "555555555",
+      address: "Ras Al Khor",
+      city: "Dubai",
+      Country: "UAE",
+      postalCode: "00000",
+      isActive: true,
+    }),
+    Business.create({
+      businessName: null,
+      businessLicenseNo: "A123457",
+      ownerName: "Mr. Abdul Hoque",
+      email: "mollahin3@gmail.com",
+      countryCode: "AE",
+      phoneCode: "+971",
+      phoneNumber: "555555566",
+      address: "Deira Dubai",
+      city: "Dubai",
+      Country: "UAE",
+      postalCode: "00000",
       isActive: true,
     }),
   ]);
 
-  await Mahfuz.setRole(root); // Assign admin role to Mahfuz
-
-  const saleRole = await Role.findOne({ where: { name: 'sales' } });
-  if (!saleRole) {
-    throw new Error('Admin role not found. Make sure roles are seeded first.');
-  }
-
-  const usersData = [];
-
-  for (let i = 0; i < 20; i++) {
-    usersData.push({
-      name: faker.person.fullName(),
-      email: faker.internet.email(),
-      password: await hash('password123', 10),
+  const [Mahfuz, Mollah] = await Promise.all([
+    User.create({
+      businessId: null,
+      name: "Root Admin",
+      email: "root@gmail.com",
+      password: await hash("password123", 10),
       isActive: true,
-    });
-  }
+    }),
+    User.create({
+      businessId: SHMGold.id,
+      name: "Admin",
+      email: "admin@gmail.com",
+      password: await hash("password123", 10),
+      isActive: true,
+    })
+  ]);
 
-  const users = await Promise.all(usersData.map(data => User.create(data)));
-  // Assign the same role to all users
-  for (const user of users) {
-    await user.setRole(saleRole); // make sure `User.belongsTo(Role)` exists
-  }
+  // Assign role to user
+  await Mahfuz.setRole(root); 
+  await Mollah.setRole(admin);
 
+  // Assign permission to user
   const permissions = await Permission.bulkCreate([
     { name: "Role Manage", action: "manage_roles" },
     { name: "Permission Manage", action: "manage_permissions" },
@@ -124,51 +170,11 @@ async function seed() {
     { name: "Ledger Delete", action: "delete_ledger" },
   ]);
 
-  await root.setPermissions(permissions); // Admin gets all
+  await root.setPermissions(permissions);
+  await admin.setPermissions(permissions);
   
-  await admin.setPermissions([
-    permissions[7],
-    permissions[8],
-    permissions[9]
-  ]); // Manager gets manage_profile, edit_profile, view_profile
-  
-  await sales.setPermissions([
-    permissions[7],
-    permissions[8],
-    permissions[9]
-  ]); // Sales gets manage_profile, edit_profile, view_profile
-  
-  await purchase.setPermissions([
-    permissions[7],
-    permissions[8],
-    permissions[9]
-  ]); // Purchase gets manage_profile, edit_profile, view_profile
 
-  await Category.bulkCreate([
-    {
-      name: "Fruit",
-      isActive: true,
-    },
-    {
-      name: "Vegetable",
-      isActive: true,
-    }
-  ]);
-
-  await Item.bulkCreate([
-    {
-      code: "001",
-      name: "Orange",
-      categoryId: 1,
-      isActive: true,
-    },
-    {
-      code: "002",
-      name: "Carrot",
-      categoryId: 2,
-      isActive: true,
-    }
-  ]);
+  
 
   console.log("Seed complete");
   process.exit();

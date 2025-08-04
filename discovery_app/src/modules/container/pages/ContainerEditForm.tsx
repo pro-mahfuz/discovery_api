@@ -1,5 +1,5 @@
 import { FormEvent, ChangeEvent, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
@@ -11,108 +11,95 @@ import Input from "../../../components/form/input/InputField";
 import DatePicker from "../../../components/form/date-picker.tsx";
 import Button from "../../../components/ui/button/Button";
 import Select from "react-select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from "../../../components/ui/table/index.tsx";
 
-import { OptionStringType, InvoiceType, InvoiceTypeOptions } from "../../types.ts";
-import { Invoice, Item } from "../../invoice/features/invoiceTypes";
-import { fetchAll as fetchItem } from "../../item/features/itemThunks.ts";
-import { fetchAll as fetchCategory } from "../../category/features/categoryThunks.ts";
-import { create } from "../../invoice/features/invoiceThunks";
+import { StatusOptions } from "../../types.ts";
+import { fetchAllItem } from "../../item/features/itemThunks.ts";
+import { fetchAllCategory } from "../../category/features/categoryThunks.ts";
+import { update } from "..//features/containerThunks";
 import { fetchParty } from "../../party/features/partyThunks.ts";
 import { AppDispatch } from "../../../store/store";
-import { selectAllParties } from "../../party/features/partySelectors";
 import { selectAllItem } from "../../item/features/itemSelectors";
-import { selectAllCategory } from "../../category/features/categorySelectors";
-import { selectUser } from "../../auth/features/authSelectors.ts";
+import { selectUserById } from "../../user/features/userSelectors";
+import { selectAuth } from "../../auth/features/authSelectors";
+import { Container } from "../features/containerTypes.ts";
+import { selectContainerById } from "../features/containerSelectors";
 
 
-export default function ContainerEditForm() {
+export default function ContainerFormForm() {
+    const { id } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
 
+    const authUser = useSelector(selectAuth);
+    const user = useSelector(selectUserById(Number(authUser.user?.id)));
+    // console.log("container authUser: ", authUser);
+    // console.log("container user: ", user);
+
+    const container = useSelector(selectContainerById(Number(id)));
+    console.log("container - ", container);
+
     useEffect(() => {
         dispatch(fetchParty("all"));
-        dispatch(fetchItem());
-        dispatch(fetchCategory());
+        dispatch(fetchAllItem());
+        dispatch(fetchAllCategory());
     }, [dispatch]);
 
-    const authUser = useSelector(selectUser);
-    const matchingParties = useSelector(selectAllParties);
+
     const items = useSelector(selectAllItem);
-    const categories = useSelector(selectAllCategory);
 
-    const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
-    const [formData, setFormData] = useState<Omit<Invoice, "totalAmount">>({
-        businessId: Number(authUser?.business?.id),
-        categoryId: 1,
-        invoiceType: "purchase",
-        partyId: 0,
-        date: "",
-        note: "",
-        items: [],
+    const [formData, setFormData] = useState<Container>({
+        id: container?.id,
+        businessId: user?.business?.id ?? 0,
+        date: container?.date ?? '',
+        blNo: container?.blNo ?? '',
+        soNo: container?.soNo,
+        oceanVesselName: container?.oceanVesselName,
+        voyageNo: container?.voyageNo,
+        agentDetails: container?.agentDetails,
+        placeOfReceipt: container?.placeOfReceipt,
+        portOfLoading: container?.portOfLoading,
+        portOfDischarge: container?.portOfDischarge,
+        placeOfDelivery: container?.placeOfDelivery,
+        containerNo: container?.containerNo ?? '',
+        sealNo: container?.sealNo,
+        itemId: container?.itemId ?? 0,
+        containerQuantity: container?.containerQuantity ?? 0,
+        containerUnit: container?.containerUnit ?? '',
+        stockQuantity: container?.stockQuantity ?? 0,
+        stockUnit: container?.stockUnit ?? '',
+        isActive: true,
+        createdUserId: user?.id
     });
 
-    const [totalAmount, setTotalAmount] = useState(0);
-
-    // Local state for current item inputs
-    const [currentItem, setCurrentItem] = useState<Item>({
-        id: 0,
-        name: '',
-        price: 0,
-        quantity: 1,
-        subTotal: 0,
-    });
+    const handleStatusChange = (value: boolean) => {
+        setFormData((prev) => ({
+            ...prev,
+            isActive: value,
+        }));
+    };
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [name]: name === "partyId" || name === "categoryId" ? Number(value) : value,
+            [name]: value,
         }));
     };
 
-    const handleCurrentItemChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setCurrentItem(prev => ({
-            ...prev,
-            [name]: name === "price" || name === "quantity" ? Number(value) : value,
-        }));
-    };
-
-    const validateForm = () => {
-        const newErrors: { [key: string]: string } = {};
-        if (!formData.categoryId) newErrors.categoryId = "Select Category";
-        if (!formData.invoiceType.trim()) newErrors.invoiceType = "Select Invoice Type";
-        if (!formData.partyId) newErrors.partyId = "Select Party";
-        if (!formData.date.trim()) newErrors.date = "Date is required";
-        if (totalAmount <= 0) newErrors.totalAmount = "Amount is required";
-        if (!formData.items || formData.items.length === 0) newErrors.items = "At least one item is required";
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
+    
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!validateForm()) {
-            toast.error("Please fix the errors in the form.");
-            return;
-        }
-
+        
         try {
-            // Dispatch create action, including totalAmount
-            console.log("formData: ", formData);
-            await dispatch(create({ ...formData, totalAmount }));
-            toast.success("Invoice created successfully!");
-            navigate("/invoice/list");
+            console.log("container updateFormData: ", formData);
+            await dispatch(update(formData));
+            toast.success("Container updated successfully!");
+            
+            const categoryId = 0;
+            navigate(`/container/${categoryId}/list`);
         } catch (err) {
-            toast.error("Failed to create invoice.");
+            toast.error("Failed to create container.");
         }
     };
 
@@ -142,123 +129,17 @@ export default function ContainerEditForm() {
         }),
     };
 
-    const addItem = () => {
-        
-        if (!currentItem.id || currentItem.price <= 0 || currentItem.quantity <= 0) {
-            toast.error("Please fill all item fields properly");
-            return;
-        }
+    
 
-        setFormData(prev => ({
-            ...prev,
-            items: [
-                ...prev.items,
-                { ...currentItem, id: Date.now() }, // unique id
-            ],
-        }));
-
-        setCurrentItem({
-            id: 0,
-            name: '',
-            price: 0,
-            quantity: 1,
-            subTotal: 0,
-        });
-    };
-
-    const removeItem = (id: number) => {
-        setFormData(prev => ({
-            ...prev,
-            items: prev.items.filter(item => item.id !== id),
-        }));
-    };
-
-    // Auto calculate totalAmount from items, separate from formData
-    useEffect(() => {
-        const total = formData.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-        setTotalAmount(total);
-    }, [formData.items]);
 
     return (
         <div>
-        <PageMeta title="Container Create" description="Form to create a new container" />
-        <PageBreadcrumb pageTitle="Container Create" />
+        <PageMeta title="Container Update" description="Form to update a container" />
+        <PageBreadcrumb pageTitle="Container Update" />
 
-        <ComponentCard title="Fill up all fields to create a new container">
+        <ComponentCard title="Fill up all fields to update a container">
             <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                {/* Category */}
-                <div>
-                    <Label>Select Category</Label>
-                    <Select
-                        options={categories.map((c) => ({
-                            label: c.name,
-                            value: c.id,
-                        }))}
-                        placeholder="Search and select category"
-                        value={
-                            categories
-                                .filter((c) => c.id === formData.categoryId)
-                                .map((c) => ({ label: c.name, value: c.id }))[0] || null
-                        }
-                        onChange={(selectedOption) =>
-                            setFormData((prev) => ({
-                                ...prev,
-                                categoryId: selectedOption?.value ?? 0,
-                            }))
-                        }
-                        isClearable
-                        styles={selectStyles}
-                        classNamePrefix="react-select"
-                    />
-                    {errors.categoryId && <p className="text-red-500 text-sm">{errors.categoryId}</p>}
-                </div>
-
-                {/* Invoice Type */}
-                <div>
-                    <Label>Select Invoice Type</Label>
-                    <Select<OptionStringType>
-                        options={InvoiceTypeOptions}
-                        placeholder="Select invoice type"
-                        value={InvoiceTypeOptions.find(option => option.value === formData.invoiceType)}
-                        onChange={(selectedOption) => {
-                        setFormData(prev => ({
-                            ...prev,
-                            invoiceType: selectedOption!.value as InvoiceType,
-                        }));
-                        }}
-                        styles={selectStyles}
-                        classNamePrefix="react-select"
-                    />
-                    {errors.invoiceType && <p className="text-red-500 text-sm">{errors.invoiceType}</p>}
-                </div>
-
-                {/* Search Party */}
-                <div>
-                    <Label>Select Party</Label>
-                    <Select
-                        options={matchingParties.map((p) => ({
-                            label: p.name,
-                            value: p.id,
-                        }))}
-                        placeholder="Search and select party"
-                        value={
-                            matchingParties
-                                .filter((p) => p.id === formData.partyId)
-                                .map((p) => ({ label: p.name, value: p.id }))[0] || null
-                        }
-                        onChange={(selectedOption) =>
-                            setFormData((prev) => ({
-                                ...prev,
-                                partyId: selectedOption?.value ?? 0,
-                            }))
-                        }
-                        isClearable
-                        styles={selectStyles}
-                        classNamePrefix="react-select"
-                    />
-                    {errors.partyId && <p className="text-red-500 text-sm">{errors.partyId}</p>}
-                </div>
 
                 {/* Date */}
                 <div>
@@ -276,140 +157,172 @@ export default function ContainerEditForm() {
                             }))
                         }}
                     />
-                    {errors.date && <p className="text-red-500 text-sm">{errors.date}</p>}
                 </div>
 
-                {/* Total Amount */}
+                {/* B.L No */}
                 <div>
-                <Label>Total Amount</Label>
-                <Input
-                    type="number"
-                    name="totalAmount"
-                    placeholder="Enter total amount"
-                    value={totalAmount}
-                    readonly={true}
-                />
-                {errors.totalAmount && <p className="text-red-500 text-sm">{errors.totalAmount}</p>}
+                    <Label>B.L No</Label>
+                    <Input
+                        type="text"
+                        name="blNo"
+                        placeholder="Enter B.L No"
+                        value={formData.blNo}
+                        onChange={handleChange}
+                    />
                 </div>
 
-                {/* Note */}
-                <div className="md:col-span-3">
-                <Label>Note</Label>
-                <Input
-                    type="text"
-                    name="note"
-                    placeholder="Optional note"
-                    value={formData.note}
-                    onChange={handleChange}
-                />
+                
+                <div>
+                    <Label>S.O No</Label>
+                    <Input
+                        type="text"
+                        name="soNo"
+                        placeholder="Enter S.O No"
+                        value={formData.soNo}
+                        onChange={handleChange}
+                    />
                 </div>
-            </div>
 
-            {/* Add Item Section */}
-            <h5>Add Item</h5>
-            <div className="mt-5 rounded-xl border border-gray-100 bg-gray-50 p-4 sm:p-6 dark:border-gray-800 dark:bg-gray-900">
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-                    <div>
-                        <Label>Search Item Name</Label>
-                        <Select
-                            options={items.map((i) => ({
-                                label: i.name,
-                                value: i.id,
-                            }))}
-                            placeholder="Search and select party"
-                            value={
-                                items
-                                    .filter((i) => i.id === currentItem.id)
-                                    .map((i) => ({ label: i.name, value: i.id }))[0] || null
-                                }
-                            onChange={(selectedOption) =>
-                                setCurrentItem((prev) => ({
-                                    ...prev,
-                                    id: selectedOption?.value ?? 0,
-                                    name: selectedOption?.label ?? ''
-                                }))
+                <div>
+                    <Label>Occean Vessel Name</Label>
+                    <Input
+                        type="text"
+                        name="oceanVesselName"
+                        placeholder="Enter Vessel Name"
+                        value={formData.oceanVesselName}
+                        onChange={handleChange}
+                    />
+                </div>
+
+                <div>
+                    <Label>Voyage No</Label>
+                    <Input
+                        type="text"
+                        name="voyageNo"
+                        placeholder="Enter Voyage No"
+                        value={formData.voyageNo}
+                        onChange={handleChange}
+                    />
+                </div>
+
+                <div>
+                    <Label>Agent</Label>
+                    <Input
+                        type="text"
+                        name="agentDetails"
+                        placeholder="Enter Agent"
+                        value={formData.agentDetails}
+                        onChange={handleChange}
+                    />
+                </div>
+
+                <div>
+                    <Label>Container No</Label>
+                    <Input
+                        type="text"
+                        name="containerNo"
+                        placeholder="Enter Container No"
+                        value={formData.containerNo}
+                        onChange={handleChange}
+                    />
+                </div>
+
+                <div>
+                    <Label>Seal No</Label>
+                    <Input
+                        type="text"
+                        name="sealNo"
+                        placeholder="Enter Seal No"
+                        value={formData.sealNo}
+                        onChange={handleChange}
+                    />
+                </div>
+
+                <div>
+                    <Label>Search Item Name</Label>
+                    <Select
+                        options={items.map((i) => ({
+                            label: i.name,
+                            value: i.id,
+                        }))}
+                        placeholder="Search and select party"
+                        value={
+                            items
+                                .filter((i) => i.id === formData.itemId)
+                                .map((i) => ({ label: i.name, value: i.id }))[0] || null
                             }
-                            isClearable
-                            styles={selectStyles}
-                            classNamePrefix="react-select"
-                        />
-                        {errors.partyId && <p className="text-red-500 text-sm">{errors.partyId}</p>}
-                    </div>
-
-                    <div>
-                        <Label>Price</Label>
-                        <Input
-                            type="number"
-                            name="price"
-                            value={currentItem.price}
-                            onChange={handleCurrentItemChange}
-                            placeholder="Enter price"
-                            min='0'
-                        />
-                    </div>
-
-                    <div>
-                        <Label>Quantity</Label>
-                        <Input
-                            type="number"
-                            name="quantity"
-                            value={currentItem.quantity}
-                            onChange={handleCurrentItemChange}
-                            placeholder="Enter quantity"
-                            min='1'
-                        />
-                    </div>
-
-                    <div className="flex items-end">
-                        <Button type="button" onClick={addItem}>
-                            Add Item
-                        </Button>
-                    </div>
+                        onChange={(selectedOption) =>
+                            setFormData((prev) => ({
+                                ...prev,
+                                itemId: selectedOption?.value ?? 0,
+                            }))
+                        }
+                        isClearable
+                        styles={selectStyles}
+                        classNamePrefix="react-select"
+                    />
                 </div>
+
+                <div>
+                    <Label>Container Quantity</Label>
+                    <Input
+                        type="text"
+                        name="containerQuantity"
+                        placeholder="Enter Container Quantity"
+                        value={formData.containerQuantity}
+                        onChange={handleChange}
+                    />
+                </div>
+
+                <div>
+                    <Label>Container Unit</Label>
+                    <Input
+                        type="text"
+                        name="containerUnit"
+                        placeholder="Enter Container Unit"
+                        value={formData.containerUnit}
+                        onChange={handleChange}
+                    />
+                </div>
+
+                <div>
+                    <Label>Stock Quantity</Label>
+                    <Input
+                        type="number"
+                        name="stockQuantity"
+                        placeholder="Enter Stock Quantity"
+                        value={formData.stockQuantity}
+                        onChange={handleChange}
+                    />
+                </div>
+
+                <div>
+                    <Label>Stock Unit</Label>
+                    <Input
+                        type="text"
+                        name="stockUnit"
+                        placeholder="Enter Stock Unit"
+                        value={formData.stockUnit}
+                        onChange={handleChange}
+                    />
+                </div>
+
+                <div>
+                    <Label>Select Status</Label>
+                    <Select
+                        options={StatusOptions}
+                        placeholder="Select status"
+                        value={StatusOptions.find(option => option.value === formData.isActive)}
+                        onChange={(selected)=> handleStatusChange(selected?.value ?? false)}
+                        className="dark:bg-dark-900"
+                    />
+                </div>
+                
+
+                
             </div>
 
-            {/* Items Table */}
-            <Table>
-                <TableHeader className="border-b border-t border-gray-100 dark:border-white/[0.05] bg-gray-200 text-black text-sm dark:bg-gray-800 dark:text-gray-400">
-                <TableRow>
-                    <TableCell isHeader className="text-center px-4 py-2">Sl</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Item</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Price</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Quantity</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Sub-Total</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Action</TableCell>
-                </TableRow>
-                </TableHeader>
-
-                <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                {formData.items.length === 0 ? (
-                    <TableRow>
-                    <TableCell colSpan={6} className="text-center py-4">
-                        No items added yet.
-                    </TableCell>
-                    </TableRow>
-                ) : (
-                    formData.items.map((item, index) => (
-                    <TableRow key={item.id}>
-                        <TableCell className="text-center px-4 py-2">{index + 1}</TableCell>
-                        <TableCell className="text-center px-4 py-2">{item.name}</TableCell>
-                        <TableCell className="text-center px-4 py-2">{item.price.toFixed(2)}</TableCell>
-                        <TableCell className="text-center px-4 py-2">{item.quantity}</TableCell>
-                        <TableCell className="text-center px-4 py-2">{(item.price * item.quantity).toFixed(2)}</TableCell>
-                        <TableCell className="text-center px-4 py-2">
-                        <button
-                            onClick={() => removeItem(Number(item.id))}
-                            className="text-red-500 hover:underline"
-                            type="button"
-                        >
-                            Remove
-                        </button>
-                        </TableCell>
-                    </TableRow>
-                    ))
-                )}
-                </TableBody>
-            </Table>
+            
 
             <div className="flex justify-end">
                 <Button type="submit" variant="success">

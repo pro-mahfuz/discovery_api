@@ -15,7 +15,8 @@ import { fetchPartyById, updateParty } from "../features/partyThunks.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
 import { selectAllParties } from "../features/partySelectors.ts";
-import { selectUser } from "../../auth/features/authSelectors.ts";
+import { selectAuth } from "../../auth/features/authSelectors";
+import { selectUserById } from "../../user/features/userSelectors";
 
 export default function PartyEditForm() {
   const { partyType = 'party' } = useParams() as { partyType?: 'party' | 'customer' | 'supplier' };
@@ -23,14 +24,17 @@ export default function PartyEditForm() {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const authUser = useSelector(selectUser);
+  const authUser = useSelector(selectAuth);
+  const user = useSelector(selectUserById(Number(authUser.user?.id)));
+  // console.log("PartyCreate authUser: ", authUser);
+  // console.log("PartyCreate user: ", user);
+
   const parties = useSelector(selectAllParties);
-  console.log("authUser:", authUser);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   
   const [formData, setFormData] = useState<Party>({
-    businessId: Number(authUser?.business?.id),
+    businessId: 0,
     type: partyType,
     name: '',
     email: '',
@@ -47,14 +51,25 @@ export default function PartyEditForm() {
   });
 
   useEffect(() => {
+    if (user?.business?.id) {
+      setFormData((prev) => ({
+        ...prev,
+        businessId: user?.business?.id,
+      }));
+    }
+  }, [user]);
+
+  console.log("formData: ", formData)
+
+  useEffect(() => {
     const party = parties.find((p) => p.id === Number(id));
-    console.log("party found:", party);
     
     if (!party) {
         dispatch(fetchPartyById(Number(id)));
     } else {
-        setFormData({
-          businessId: Number(authUser?.business?.id),
+        setFormData((prev) => ({
+        ...prev,
+          businessId: user?.business?.id,
           type: party.type,
           name: party.name,
           email: party.email,
@@ -68,7 +83,7 @@ export default function PartyEditForm() {
           tradeLicense: party.tradeLicense,
           openingBalance: party.openingBalance,
           isActive: party.isActive,
-        });
+        }));
     }
   }, [parties, id, dispatch]);
 

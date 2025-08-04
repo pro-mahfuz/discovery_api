@@ -69,6 +69,18 @@ export default (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false  
       },
+      isActive: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      createdUserId: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+      },
+      updatedUserId: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+      }
     },
   );
 
@@ -76,6 +88,14 @@ export default (sequelize, DataTypes) => {
     Container.belongsTo(models.Item, {
       foreignKey: 'itemId',
       as: 'item',
+    });
+    Container.belongsTo(models.User, {
+      foreignKey: 'createdUserId',
+      as: 'createdBy',
+    });
+    Container.belongsTo(models.User, {
+      foreignKey: 'updatedUserId',
+      as: 'updatedBy',
     });
   };
 

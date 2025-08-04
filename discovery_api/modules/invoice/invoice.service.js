@@ -88,6 +88,7 @@ export const createInvoice = async (req) => {
                     .map((item) => `${item.name} x${item.quantity} @${item.price}`)
                     .join(', ')}${invoice.note ? `<br />Note: ${invoice.note}` : ''}`
                 : '',
+                currency: req.body.currency,
                 debit: debitAmount,
                 credit: creditAmount,
             }, 
@@ -211,6 +212,7 @@ export const updateInvoice = async (req) => {
                         .map((item) => `${item.name} x${item.quantity} @${item.price}`)
                         .join(', ')}${invoice.note ? `<br />Note: ${invoice.note}` : ''}`
                     : '',
+                    currency: req.body.currency,
                     debit: debitAmount,
                     credit: creditAmount,
                 },

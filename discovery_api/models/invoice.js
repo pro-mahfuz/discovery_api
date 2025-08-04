@@ -43,6 +43,10 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    currency: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   }, {
     tableName: "invoices",
     timestamps: true, // createdAt & updatedAt
