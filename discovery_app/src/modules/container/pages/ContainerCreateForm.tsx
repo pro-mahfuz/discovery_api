@@ -18,10 +18,10 @@ import { fetchAllCategory } from "../../category/features/categoryThunks.ts";
 import { create } from "..//features/containerThunks";
 import { fetchParty } from "../../party/features/partyThunks.ts";
 import { AppDispatch } from "../../../store/store";
-import { selectAllItem } from "../../item/features/itemSelectors";
 import { selectUserById } from "../../user/features/userSelectors";
 import { selectAuth } from "../../auth/features/authSelectors";
 import { Container } from "../features/containerTypes.ts";
+import { selectAllCategory, selectCategoryById } from "../../category/features/categorySelectors";
 
 
 export default function ContainerCreateForm() {
@@ -33,14 +33,14 @@ export default function ContainerCreateForm() {
     console.log("container authUser: ", authUser);
     console.log("container user: ", user);
 
+    const categories = useSelector(selectAllCategory);
+
     useEffect(() => {
         dispatch(fetchParty("all"));
         dispatch(fetchAllItem());
         dispatch(fetchAllCategory());
     }, [dispatch]);
 
-
-    const items = useSelector(selectAllItem);
 
     const [formData, setFormData] = useState<Container>({
         businessId: user?.business?.id ?? 0,
@@ -56,6 +56,7 @@ export default function ContainerCreateForm() {
         placeOfDelivery: '',
         containerNo: '',
         sealNo: '',
+        categoryId: 0,
         itemId: 0,
         containerQuantity: 0,
         containerUnit: '',
@@ -65,10 +66,15 @@ export default function ContainerCreateForm() {
         createdUserId: user?.id
     });
 
+    
+
+    const categoryItem = useSelector(selectCategoryById(Number(formData.categoryId)));
+    console.log(categoryItem);
+
     const handleStatusChange = (value: boolean) => {
         setFormData((prev) => ({
-        ...prev,
-        isActive: value,
+            ...prev,
+            isActive: value,
         }));
     };
 
@@ -233,18 +239,44 @@ export default function ContainerCreateForm() {
                 </div>
 
                 <div>
+                    <Label>Select Category</Label>
+                    <Select
+                        options={categories.map((c) => ({
+                            label: c.name,
+                            value: c.id,
+                        }))}
+                        placeholder="Search and select category"
+                        value={
+                            categories
+                            .filter((c) => c.id === formData.categoryId)
+                            .map((c) => ({ label: c.name, value: c.id }))[0] || null
+                        }
+                        onChange={(selectedOption) =>
+                            setFormData((prev) => ({
+                                ...prev,
+                                categoryId: selectedOption?.value ?? 0,
+                            }))
+                        }
+                        isClearable
+                        styles={selectStyles}
+                        classNamePrefix="react-select"
+                    />
+                </div>
+                <div>
                     <Label>Search Item Name</Label>
                     <Select
-                        options={items.map((i) => ({
-                            label: i.name,
-                            value: i.id,
-                        }))}
-                        placeholder="Search and select party"
+                        options={
+                            categoryItem?.items?.map((i) => ({
+                                label: i.name,
+                                value: i.id,
+                            })) || []
+                        }
+                        placeholder="Search and select item"
                         value={
-                            items
-                                .filter((i) => i.id === formData.itemId)
-                                .map((i) => ({ label: i.name, value: i.id }))[0] || null
-                            }
+                            categoryItem?.items
+                            ?.filter((i) => i.id === formData.itemId)
+                            .map((i) => ({ label: i.name, value: i.id }))[0] || null
+                        }
                         onChange={(selectedOption) =>
                             setFormData((prev) => ({
                                 ...prev,
@@ -256,6 +288,8 @@ export default function ContainerCreateForm() {
                         classNamePrefix="react-select"
                     />
                 </div>
+
+                
 
                 <div>
                     <Label>Container Quantity</Label>

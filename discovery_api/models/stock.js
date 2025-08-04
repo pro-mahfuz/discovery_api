@@ -31,6 +31,14 @@ export default (sequelize, DataTypes) => {
         key: 'id',
       },
     },
+    containerId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Containers', // Ensure this matches the actual table name
+        key: 'id',
+      },
+    },
     itemId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -59,6 +67,11 @@ export default (sequelize, DataTypes) => {
     Stock.belongsTo(models.Business, {
       foreignKey: "businessId",
       as: "business"
+    });
+
+    Stock.belongsTo(models.Container, {
+      foreignKey: "containerId",
+      as: "container"
     });
   };
 

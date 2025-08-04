@@ -1,8 +1,16 @@
 
-import { Category } from "../../models/model.js";
+import { Category, Item } from "../../models/model.js";
 
 export const getAllCategory = async () => {
-    const data = await Category.findAll();
+    const data = await Category.findAll({
+        include: [
+            {
+                model: Item,
+                as: "items",
+            },
+        ],
+    });
+
     if (!data || data.length === 0) throw { status: 400, message: "No Categories found" };
     return data;
 }

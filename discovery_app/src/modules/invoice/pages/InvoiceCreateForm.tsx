@@ -21,15 +21,16 @@ import {
 
 import { OptionStringType, InvoiceType, InvoiceTypeOptions } from "../../types.ts";
 import { Invoice, Item } from "../features/invoiceTypes";
-import { fetchAllItem } from "../../item/features/itemThunks.ts";
 import { fetchAllCategory } from "../../category/features/categoryThunks.ts";
 import { create } from "../features/invoiceThunks";
 import { fetchParty } from "../../party/features/partyThunks.ts";
 import { AppDispatch } from "../../../store/store";
 import { selectAllParties } from "../../party/features/partySelectors";
-import { selectAllItem } from "../../item/features/itemSelectors";
-import { selectAllCategory } from "../../category/features/categorySelectors";
-import { selectUser } from "../../auth/features/authSelectors.ts";
+import { selectAllCategory, selectCategoryById } from "../../category/features/categorySelectors";
+import { selectUserById } from "../../user/features/userSelectors";
+import { selectAuth } from "../../auth/features/authSelectors";
+import { selectContainerByItemId } from "../../container/features/containerSelectors";
+import { fetchAll } from "../../container/features/containerThunks.ts";
 
 
 export default function InvoiceCreateForm() {
@@ -39,20 +40,23 @@ export default function InvoiceCreateForm() {
 
     useEffect(() => {
         dispatch(fetchParty("all"));
-        dispatch(fetchAllItem());
         dispatch(fetchAllCategory());
+        dispatch(fetchAll());
     }, [dispatch]);
 
-    const authUser = useSelector(selectUser);
+    const authUser = useSelector(selectAuth);
+    const user = useSelector(selectUserById(Number(authUser.user?.id)));
+    console.log("Invoice authUser: ", authUser);
+    console.log("Invoice user: ", user);
+
     const matchingParties = useSelector(selectAllParties);
-    const items = useSelector(selectAllItem);
-    console.log("items: ", items);
     const categories = useSelector(selectAllCategory);
+    
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
     const [formData, setFormData] = useState<Omit<Invoice, "totalAmount">>({
-        businessId: Number(authUser?.business?.id),
+        businessId: 0,
         categoryId: 1,
         invoiceType: invoiceType,
         partyId: 0,
@@ -62,16 +66,34 @@ export default function InvoiceCreateForm() {
         currency: "AED"
     });
 
+    useEffect(() => {
+        if (user?.business?.id) {
+          setFormData((prev) => ({
+            ...prev,
+            businessId: user?.business?.id,
+          }));
+        }
+    }, [user]);
+
+    console.log("Invoice FormData: ", formData);
+
+    const categoryItem = useSelector(selectCategoryById(Number(formData.categoryId)));
+    console.log("categoryItem-", categoryItem);
+
     const [totalAmount, setTotalAmount] = useState(0);
 
     // Local state for current item inputs
     const [currentItem, setCurrentItem] = useState<Item>({
-        id: 0,
+        itemId: 0,
+        containerId: 0,
         name: '',
         price: 0,
-        quantity: 1,
+        quantity: 0,
         subTotal: 0,
     });
+
+    const containers = useSelector(selectContainerByItemId(Number(formData.categoryId), (Number(currentItem.itemId))));
+    console.log("containers-", containers);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -103,17 +125,18 @@ export default function InvoiceCreateForm() {
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!validateForm()) {
-            toast.error("Please fix the errors in the form.");
-            return;
-        }
+        // if (!validateForm()) {
+        //     toast.error("Please fix the errors in the form.");
+        //     return;
+        // }
 
         try {
             // Dispatch create action, including totalAmount
             console.log("formData: ", formData);
+            console.log("currentItemData: ", currentItem);
             await dispatch(create({ ...formData, totalAmount }));
             toast.success("Invoice created successfully!");
-            navigate("/invoice/list");
+            //navigate("/invoice/list");
         } catch (err) {
             toast.error("Failed to create invoice.");
         }
@@ -147,7 +170,7 @@ export default function InvoiceCreateForm() {
 
     const addItem = () => {
         
-        if (!currentItem.id || currentItem.price <= 0 || currentItem.quantity <= 0) {
+        if (!currentItem.itemId || currentItem.price <= 0 || currentItem.quantity <= 0) {
             toast.error("Please fill all item fields properly");
             return;
         }
@@ -156,12 +179,13 @@ export default function InvoiceCreateForm() {
             ...prev,
             items: [
                 ...prev.items,
-                { ...currentItem, id: Date.now() }, // unique id
+                { ...currentItem, itemId: currentItem.itemId }, // unique id
             ],
         }));
 
         setCurrentItem({
-            id: 0,
+            itemId: 0,
+            containerId: 0,
             name: '',
             price: 0,
             quantity: 1,
@@ -201,8 +225,8 @@ export default function InvoiceCreateForm() {
                         placeholder="Search and select category"
                         value={
                             categories
-                                .filter((c) => c.id === formData.categoryId)
-                                .map((c) => ({ label: c.name, value: c.id }))[0] || null
+                            .filter((c) => c.id === formData.categoryId)
+                            .map((c) => ({ label: c.name, value: c.id }))[0] || null
                         }
                         onChange={(selectedOption) =>
                             setFormData((prev) => ({
@@ -315,21 +339,54 @@ export default function InvoiceCreateForm() {
                     <div>
                         <Label>Search Item Name</Label>
                         <Select
-                            options={items.map((i) => ({
-                                label: i.name,
-                                value: i.id,
-                            }))}
+                            options={
+                                categoryItem?.items?.map((i) => ({
+                                    label: i.name,
+                                    value: i.id,
+                                })) || []
+                            }
                             placeholder="Search and select item"
                             value={
-                                items
-                                    .filter((i) => i.id === currentItem.id)
-                                    .map((i) => ({ label: i.name, value: i.id }))[0] || null
-                                }
+                                categoryItem?.items
+                                ?.filter((i) => i.id === currentItem.itemId)
+                                .map((i) => ({ label: i.name, value: i.id }))[0] || null
+                            }
                             onChange={(selectedOption) =>
                                 setCurrentItem((prev) => ({
                                     ...prev,
-                                    id: selectedOption?.value ?? 0,
-                                    name: selectedOption?.label ?? ''
+                                    itemId: selectedOption?.value,
+                                    name: selectedOption?.label ?? '',
+                                }))
+                            }
+                            isClearable
+                            styles={selectStyles}
+                            classNamePrefix="react-select"
+                        />
+                    </div>
+
+                    <div>
+                        <Label>Search Container</Label>
+                        <Select
+                            options={
+                            containers
+                                .filter((i) => {
+                                    if (invoiceType === "sale" &&  Number(i.netStock) > 0) return true
+                                })
+                                .map((i) => ({
+                                    label: `${i.containerNo} - ${i.netStock} ${i.stockUnit} ${invoiceType}`,
+                                    value: i.id,
+                                })) || []
+                            }
+                            placeholder="Search and select item"
+                            value={
+                                containers
+                                ?.filter((i) => i.id === currentItem.containerId)
+                                .map((i) => ({ label: i.containerNo, value: i.id }))[0] || null
+                            }
+                            onChange={(selectedOption) =>
+                                setCurrentItem((prev) => ({
+                                    ...prev,
+                                    containerId: selectedOption?.value ?? 0,
                                 }))
                             }
                             isClearable

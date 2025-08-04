@@ -24,7 +24,7 @@ export default (sequelize, DataTypes) => {
   Category.associate = (models) => {
     Category.hasMany(models.Item, {
       foreignKey: "categoryId",
-      as: "items", // refers to related Items
+      as: "items", 
     });
 
     Category.belongsTo(models.Business, {

@@ -328,7 +328,7 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
 
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mt-4">
             <div>
-              <Label>BDT Rate</Label>
+              <Label>Rate</Label>
               <Input
                 type="number"
                 step={1}

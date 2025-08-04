@@ -59,6 +59,7 @@ export const createInvoice = async (req) => {
                 movementType: movementType,
                 quantity: item.quantity,
                 warehouseId: item.warehouseId || null, // allow null
+                containerId: item.containerId,
                 itemId: item.itemId,
             }));
 

@@ -24,7 +24,7 @@ const Slice = createSlice({
       .addCase(fetchAllItem.fulfilled, (state, action) => {
           state.status = 'succeeded';
           state.items = action.payload;
-          console.log("action.payload: ", action.payload);
+          //console.log("action.payload: ", action.payload);
       })
       .addCase(fetchAllItem.rejected, (state, action) => {
           state.status = 'failed';

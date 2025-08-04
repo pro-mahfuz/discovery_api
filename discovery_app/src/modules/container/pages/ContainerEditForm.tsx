@@ -18,11 +18,11 @@ import { fetchAllCategory } from "../../category/features/categoryThunks.ts";
 import { update } from "..//features/containerThunks";
 import { fetchParty } from "../../party/features/partyThunks.ts";
 import { AppDispatch } from "../../../store/store";
-import { selectAllItem } from "../../item/features/itemSelectors";
 import { selectUserById } from "../../user/features/userSelectors";
 import { selectAuth } from "../../auth/features/authSelectors";
 import { Container } from "../features/containerTypes.ts";
 import { selectContainerById } from "../features/containerSelectors";
+import { selectAllCategory, selectCategoryById } from "../../category/features/categorySelectors";
 
 
 export default function ContainerFormForm() {
@@ -34,7 +34,7 @@ export default function ContainerFormForm() {
     const user = useSelector(selectUserById(Number(authUser.user?.id)));
     // console.log("container authUser: ", authUser);
     // console.log("container user: ", user);
-
+    const categories = useSelector(selectAllCategory);
     const container = useSelector(selectContainerById(Number(id)));
     console.log("container - ", container);
 
@@ -43,9 +43,6 @@ export default function ContainerFormForm() {
         dispatch(fetchAllItem());
         dispatch(fetchAllCategory());
     }, [dispatch]);
-
-
-    const items = useSelector(selectAllItem);
 
     const [formData, setFormData] = useState<Container>({
         id: container?.id,
@@ -62,6 +59,7 @@ export default function ContainerFormForm() {
         placeOfDelivery: container?.placeOfDelivery,
         containerNo: container?.containerNo ?? '',
         sealNo: container?.sealNo,
+        categoryId: container?.categoryId ?? 0,
         itemId: container?.itemId ?? 0,
         containerQuantity: container?.containerQuantity ?? 0,
         containerUnit: container?.containerUnit ?? '',
@@ -70,6 +68,9 @@ export default function ContainerFormForm() {
         isActive: true,
         createdUserId: user?.id
     });
+
+    const categoryItem = useSelector(selectCategoryById(Number(formData.categoryId)));
+        console.log(categoryItem);
 
     const handleStatusChange = (value: boolean) => {
         setFormData((prev) => ({
@@ -239,18 +240,44 @@ export default function ContainerFormForm() {
                 </div>
 
                 <div>
+                    <Label>Select Category</Label>
+                    <Select
+                        options={categories.map((c) => ({
+                            label: c.name,
+                            value: c.id,
+                        }))}
+                        placeholder="Search and select category"
+                        value={
+                            categories
+                            .filter((c) => c.id === formData.categoryId)
+                            .map((c) => ({ label: c.name, value: c.id }))[0] || null
+                        }
+                        onChange={(selectedOption) =>
+                            setFormData((prev) => ({
+                                ...prev,
+                                categoryId: selectedOption?.value ?? 0,
+                            }))
+                        }
+                        isClearable
+                        styles={selectStyles}
+                        classNamePrefix="react-select"
+                    />
+                </div>
+                <div>
                     <Label>Search Item Name</Label>
                     <Select
-                        options={items.map((i) => ({
-                            label: i.name,
-                            value: i.id,
-                        }))}
-                        placeholder="Search and select party"
+                        options={
+                            categoryItem?.items?.map((i) => ({
+                                label: i.name,
+                                value: i.id,
+                            })) || []
+                        }
+                        placeholder="Search and select item"
                         value={
-                            items
-                                .filter((i) => i.id === formData.itemId)
-                                .map((i) => ({ label: i.name, value: i.id }))[0] || null
-                            }
+                            categoryItem?.items
+                            ?.filter((i) => i.id === formData.itemId)
+                            .map((i) => ({ label: i.name, value: i.id }))[0] || null
+                        }
                         onChange={(selectedOption) =>
                             setFormData((prev) => ({
                                 ...prev,
@@ -262,6 +289,8 @@ export default function ContainerFormForm() {
                         classNamePrefix="react-select"
                     />
                 </div>
+
+                
 
                 <div>
                     <Label>Container Quantity</Label>

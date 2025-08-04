@@ -8,7 +8,6 @@ export const fetchAllItem = createAsyncThunk<Item[], void, { rejectValue: string
     try {
 
       const data = await itemAPI.fetchAll();
-      console.log("itemThuns: ", data);
       return data;
       
     } catch (err) {

@@ -49,6 +49,10 @@ export default (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true  
       },
+      categoryId: { 
+        type: DataTypes.INTEGER,
+        allowNull: false  
+      },
       itemId: { 
         type: DataTypes.INTEGER,
         allowNull: false  
@@ -88,6 +92,10 @@ export default (sequelize, DataTypes) => {
     Container.belongsTo(models.Item, {
       foreignKey: 'itemId',
       as: 'item',
+    });
+    Container.hasMany(models.Stock, {
+      foreignKey: 'containerId',
+      as: 'stocks',
     });
     Container.belongsTo(models.User, {
       foreignKey: 'createdUserId',

@@ -49,6 +49,11 @@ export const CategoryOptions: OptionNumberType[] = [
   { value: 2, label: "Vegetable" },
 ];
 
+export const ItemOptions = [
+  { id: 1, value: "Orrange", categoryId: 1},
+  { id: 2, value: "Carrot", categoryId: 2 },
+];
+
 export type InvoiceType = "purchase" | "sale" | "return" | "adjustment";
 
 export const InvoiceTypeOptions: OptionStringType[] = [

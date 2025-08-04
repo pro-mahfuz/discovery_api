@@ -5,6 +5,7 @@ import { InvoiceType } from "../../types";
 // Item interface
 export interface Item {
   id?: number;
+  containerId?: number;
   itemId?: number;
   name?: string;
   price: number;

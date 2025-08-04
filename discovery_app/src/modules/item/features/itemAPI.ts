@@ -5,7 +5,6 @@ export const fetchAll = async () => {
   try {
 
     const res = await axiosInstance.get('protected/item/list');
-    console.log("itemAPI: ", res.data.data);
     return res.data.data;
 
   } catch {

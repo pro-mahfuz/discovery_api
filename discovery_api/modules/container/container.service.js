@@ -1,5 +1,5 @@
 
-import { Container, Item } from "../../models/model.js";
+import { Container, Item, Stock } from "../../models/model.js";
 
 export const getAllContainer = async () => {
     const data = await Container.findAll({
@@ -8,10 +8,39 @@ export const getAllContainer = async () => {
                 model: Item,
                 as: "item",
             },
+            {
+                model: Stock,
+                as: "stocks",
+            },
         ],
     });
-    if (!data || data.length === 0) throw { status: 400, message: "No Container found" };
-    return data;
+    
+    if (!data || data.length === 0)
+        throw { status: 400, message: "No Container found" };
+
+    //Add net stock field for each container
+    const containersWithNetStock = data
+    .map(container => {
+        let netStock = 0;
+        if(container.stock){
+            const rawNetStock = container.stocks.reduce((total, stock) => {
+            const quantity = Number(stock.quantity ?? 0);
+            return stock.invoiceType === "purchase"
+                ? total + quantity
+                : total - quantity;
+            }, 0);
+
+            netStock = Number(rawNetStock % 1 === 0 ? rawNetStock.toFixed(0) : rawNetStock.toFixed(2));
+        }
+
+        return {
+            ...container.toJSON(),
+            netStock: netStock.toString(), // or keep as a number if needed
+        };
+    });
+    
+    return containersWithNetStock;
+    //return data;
 }
 
 export const createContainer = async (req) => {

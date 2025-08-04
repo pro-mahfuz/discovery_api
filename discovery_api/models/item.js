@@ -30,13 +30,11 @@ export default (sequelize, DataTypes) => {
     Item.belongsTo(models.Category, {
       foreignKey: "categoryId",
       as: "category", // refers to related Category
-      onDelete: "RESTRICT", // or 'CASCADE', depending on your logic
     });
 
     Item.hasMany(models.InvoiceItem, {
       foreignKey: "itemId",
       as: "invoiceItems", // refers to related InvoiceItems
-      onDelete: "CASCADE",
     });
   };
 
