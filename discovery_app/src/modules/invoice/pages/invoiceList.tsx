@@ -41,6 +41,7 @@ export default function InvoiceList() {
 
   const invoices = useSelector(selectAllInvoice);
   const status = useSelector(selectInvoiceStatus);
+  console.log("all invoice: ", invoices);
 
   const [filterText, setFilterText] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -67,13 +68,13 @@ export default function InvoiceList() {
     return filteredData.slice(start, start + itemsPerPage);
   }, [filteredData, currentPage, itemsPerPage]);
 
-  const handleView = (supplier: Invoice) => {
-    navigate(`/invoice/view/${supplier.id}`);
+  const handleView = (invoice: Invoice) => {
+    navigate(`/invoice/${invoice.id}/view`);
   };
 
-  const handleEdit = (supplier: Invoice) => {
+  const handleEdit = (invoice: Invoice) => {
 
-    navigate(`/invoice/edit/${supplier.id}`);
+    navigate(`/invoice/${invoice.id}/edit`);
   };
 
   const handleDelete = async () => {

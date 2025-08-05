@@ -1,5 +1,5 @@
 import { FormEvent, ChangeEvent, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
@@ -17,360 +17,409 @@ import {
   TableCell,
   TableHeader,
   TableRow,
-} from "../../../components/ui/table/index.tsx";
+} from "../../../components/ui/table";
 
-import { OptionStringType, InvoiceType, InvoiceTypeOptions } from "../../types.ts";
+import {
+  OptionStringType,
+  InvoiceType,
+  InvoiceTypeOptions,
+} from "../../types.ts";
 import { Invoice, Item } from "../features/invoiceTypes";
-import { fetchAllItem } from "../../item/features/itemThunks.ts";
 import { fetchAllCategory } from "../../category/features/categoryThunks.ts";
-import { create } from "../features/invoiceThunks";
+import { update, fetchById } from "../features/invoiceThunks";
 import { fetchParty } from "../../party/features/partyThunks.ts";
 import { AppDispatch } from "../../../store/store";
 import { selectAllParties } from "../../party/features/partySelectors";
-import { selectAllItem } from "../../item/features/itemSelectors";
-import { selectAllCategory } from "../../category/features/categorySelectors";
-import { selectUser } from "../../auth/features/authSelectors.ts";
-
+import {
+  selectAllCategory,
+  selectCategoryById,
+} from "../../category/features/categorySelectors";
+import { selectUserById } from "../../user/features/userSelectors";
+import { selectAuth } from "../../auth/features/authSelectors";
+import { selectContainerByItemId } from "../../container/features/containerSelectors";
+import { selectInvoiceById } from "../features/invoiceSelectors";
+import { fetchAll } from "../../container/features/containerThunks.ts";
 
 export default function InvoiceEditForm() {
-    const navigate = useNavigate();
-    const dispatch = useDispatch<AppDispatch>();
+  const { id, invoiceType } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
 
-    useEffect(() => {
-        dispatch(fetchParty("all"));
-        dispatch(fetchAllItem());
-        dispatch(fetchAllCategory());
-    }, [dispatch]);
+  const invoice = useSelector(selectInvoiceById(Number(id)));
+  const authUser = useSelector(selectAuth);
+  const user = useSelector(selectUserById(Number(authUser.user?.id)));
+  const matchingParties = useSelector(selectAllParties);
+  const categories = useSelector(selectAllCategory);
 
-    const authUser = useSelector(selectUser);
-    const matchingParties = useSelector(selectAllParties);
-    const items = useSelector(selectAllItem);
-    const categories = useSelector(selectAllCategory);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [totalAmount, setTotalAmount] = useState(0);
 
-    const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [currentItem, setCurrentItem] = useState<Item>({
+    itemId: 0,
+    containerId: 0,
+    name: "",
+    price: 0,
+    quantity: 1,
+    subTotal: 0,
+  });
 
-    const [formData, setFormData] = useState<Omit<Invoice, "totalAmount">>({
-        businessId: Number(authUser?.business?.id),
-        categoryId: 1,
-        invoiceType: "purchase",
-        partyId: 0,
-        date: "",
-        note: "",
-        items: [],
-        currency: "AED"
-    });
+  const [formData, setFormData] = useState<Omit<Invoice, "totalAmount">>({
+    id: 0,
+    businessId: 0,
+    categoryId: 1,
+    invoiceType: invoiceType ?? "",
+    partyId: 0,
+    date: "",
+    note: "",
+    items: [],
+    currency: "AED",
+  });
 
-    const [totalAmount, setTotalAmount] = useState(0);
+  useEffect(() => {
+    dispatch(fetchParty("all"));
+    dispatch(fetchAllCategory());
+    dispatch(fetchAll());
+    if (id && !invoice) dispatch(fetchById(Number(id)));
+  }, [dispatch]);
 
-    // Local state for current item inputs
-    const [currentItem, setCurrentItem] = useState<Item>({
-        id: 0,
-        name: '',
-        price: 0,
-        quantity: 1,
-        subTotal: 0,
-    });
+  useEffect(() => {
+    if (user?.business?.id && invoice) {
+      setFormData({
+        id: invoice.id,
+        businessId: user.business.id,
+        categoryId: invoice.categoryId,
+        invoiceType: invoice.invoiceType,
+        partyId: invoice.partyId,
+        date: invoice.date,
+        note: invoice.note,
+        items: invoice.items,
+        currency: invoice.currency,
+      });
+    }
+  }, [user, invoice]);
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: name === "partyId" || name === "categoryId" ? Number(value) : value,
-        }));
-    };
+  const categoryItem = useSelector(
+    selectCategoryById(Number(formData.categoryId))
+  );
+  const containers = useSelector(selectContainerByItemId(Number(formData.categoryId), (Number(currentItem.itemId))));
 
-    const handleCurrentItemChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setCurrentItem(prev => ({
-            ...prev,
-            [name]: name === "price" || name === "quantity" ? Number(value) : value,
-        }));
-    };
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === "partyId" || name === "categoryId" ? Number(value) : value,
+    }));
+  };
 
-    const validateForm = () => {
-        const newErrors: { [key: string]: string } = {};
-        if (!formData.categoryId) newErrors.categoryId = "Select Category";
-        if (!formData.invoiceType.trim()) newErrors.invoiceType = "Select Invoice Type";
-        if (!formData.partyId) newErrors.partyId = "Select Party";
-        if (!formData.date.trim()) newErrors.date = "Date is required";
-        if (totalAmount <= 0) newErrors.totalAmount = "Amount is required";
-        if (!formData.items || formData.items.length === 0) newErrors.items = "At least one item is required";
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
+  const handleCurrentItemChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCurrentItem((prev) => ({
+      ...prev,
+      [name]: name === "price" || name === "quantity" ? Number(value) : value,
+    }));
+  };
 
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (!validateForm()) {
-            toast.error("Please fix the errors in the form.");
-            return;
-        }
+  const addItem = () => {
+    if (!currentItem.itemId || currentItem.price <= 0 || currentItem.quantity <= 0) {
+      toast.error("Please fill all item fields properly");
+      return;
+    }
 
-        try {
-            // Dispatch create action, including totalAmount
-            console.log("formData: ", formData);
-            await dispatch(create({ ...formData, totalAmount }));
-            toast.success("Invoice created successfully!");
-            navigate("/invoice/list");
-        } catch (err) {
-            toast.error("Failed to create invoice.");
-        }
-    };
-
-    const selectStyles = {
-        control: (base: any, state: any) => ({
-        ...base,
-        borderColor: state.isFocused ? "#72a4f5ff" : "#d1d5db",
-        boxShadow: state.isFocused ? "0 0 0 1px #8eb8fcff" : "none",
-        padding: "0.25rem 0.5rem",
-        borderRadius: "0.375rem",
-        minHeight: "38px",
-        fontSize: "0.875rem",
-        "&:hover": {
-            borderColor: "#3b82f6",
+    setFormData((prev) => ({
+      ...prev,
+      items: [
+        ...prev.items,
+        {
+          ...currentItem,
+          subTotal: currentItem.price * currentItem.quantity,
         },
-        }),
-        menu: (base: any) => ({
-        ...base,
-        zIndex: 20,
-        }),
-        option: (base: any, state: any) => ({
-        ...base,
-        backgroundColor: state.isFocused ? "#e0f2fe" : "white",
-        color: "#1f2937",
-        fontSize: "0.875rem",
-        padding: "0.5rem 0.75rem",
-        }),
-    };
+      ],
+    }));
 
-    const addItem = () => {
-        
-        if (!currentItem.id || currentItem.price <= 0 || currentItem.quantity <= 0) {
-            toast.error("Please fill all item fields properly");
-            return;
-        }
+    setCurrentItem({
+      itemId: 0,
+      containerId: 0,
+      name: "",
+      price: 0,
+      quantity: 1,
+      subTotal: 0,
+    });
+  };
 
-        setFormData(prev => ({
-            ...prev,
-            items: [
-                ...prev.items,
-                { ...currentItem, id: Date.now() }, // unique id
-            ],
-        }));
+  const removeItem = (id: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      items: prev.items.filter((item) => item.itemId !== id),
+    }));
+  };
 
-        setCurrentItem({
-            id: 0,
-            name: '',
-            price: 0,
-            quantity: 1,
-            subTotal: 0,
-        });
-    };
+  useEffect(() => {
+    const total = formData.items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+    setTotalAmount(total);
+  }, [formData.items]);
 
-    const removeItem = (id: number) => {
-        setFormData(prev => ({
-            ...prev,
-            items: prev.items.filter(item => item.id !== id),
-        }));
-    };
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      await dispatch(update({ ...formData, totalAmount }));
+      toast.success("Invoice created successfully!");
+      const categoryId = 0;
+      navigate(`/invoice/${formData.invoiceType}/${categoryId}/list`);
+    } catch (err) {
+      toast.error("Failed to create invoice.");
+    }
+  };
 
-    // Auto calculate totalAmount from items, separate from formData
-    useEffect(() => {
-        const total = formData.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-        setTotalAmount(total);
-    }, [formData.items]);
+  const selectStyles = {
+    control: (base: any, state: any) => ({
+      ...base,
+      borderColor: state.isFocused ? "#72a4f5ff" : "#d1d5db",
+      boxShadow: state.isFocused ? "0 0 0 1px #8eb8fcff" : "none",
+      padding: "0.25rem 0.5rem",
+      borderRadius: "0.375rem",
+      minHeight: "38px",
+      fontSize: "0.875rem",
+      "&:hover": {
+        borderColor: "#3b82f6",
+      },
+    }),
+    menu: (base: any) => ({ ...base, zIndex: 20 }),
+    option: (base: any, state: any) => ({
+      ...base,
+      backgroundColor: state.isFocused ? "#e0f2fe" : "white",
+      color: "#1f2937",
+      fontSize: "0.875rem",
+      padding: "0.5rem 0.75rem",
+    }),
+  };
 
-    return (
-        <div>
-        <PageMeta title="Invoice Create" description="Form to create a new invoice" />
-        <PageBreadcrumb pageTitle="Invoice Create" />
+  return (
+    <div>
+      <PageMeta title={`${invoiceType?.toUpperCase()} Create`} description="Edit Invoice" />
+      <PageBreadcrumb pageTitle={`${invoiceType?.toUpperCase()} Create`} />
+      <ComponentCard title="Edit Invoice">
+        <form className="space-y-5" onSubmit={handleSubmit}>
+          {/* Invoice Details */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div>
+                <Label>Select Category</Label>
+                <Select
+                    options={categories.map((c) => ({
+                        label: c.name,
+                        value: c.id,
+                    }))}
+                    placeholder="Search and select category"
+                    value={
+                        categories
+                        .filter((c) => c.id === formData.categoryId)
+                        .map((c) => ({ label: c.name, value: c.id }))[0] || null
+                    }
+                    onChange={(selectedOption) =>
+                        setFormData((prev) => ({
+                            ...prev,
+                            categoryId: selectedOption?.value ?? 0,
+                        }))
+                    }
+                    isClearable
+                    styles={selectStyles}
+                    classNamePrefix="react-select"
+                />
+                {errors.categoryId && <p className="text-red-500 text-sm">{errors.categoryId}</p>}
+            </div>
 
-        <ComponentCard title="Fill up all fields to create a new invoice">
-            <form className="space-y-5" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                {/* Category */}
-                <div>
-                    <Label>Select Category</Label>
-                    <Select
-                        options={categories.map((c) => ({
-                            label: c.name,
-                            value: c.id,
-                        }))}
-                        placeholder="Search and select category"
-                        value={
-                            categories
-                                .filter((c) => c.id === formData.categoryId)
-                                .map((c) => ({ label: c.name, value: c.id }))[0] || null
-                        }
-                        onChange={(selectedOption) =>
-                            setFormData((prev) => ({
-                                ...prev,
-                                categoryId: selectedOption?.value ?? 0,
-                            }))
-                        }
-                        isClearable
-                        styles={selectStyles}
-                        classNamePrefix="react-select"
-                    />
-                    {errors.categoryId && <p className="text-red-500 text-sm">{errors.categoryId}</p>}
-                </div>
-
-                {/* Invoice Type */}
-                <div>
-                    <Label>Select Invoice Type</Label>
-                    <Select<OptionStringType>
-                        options={InvoiceTypeOptions}
-                        placeholder="Select invoice type"
-                        value={InvoiceTypeOptions.find(option => option.value === formData.invoiceType)}
-                        onChange={(selectedOption) => {
+            {/* Invoice Type */}
+            <div>
+                <Label>Select Invoice Type</Label>
+                <Select<OptionStringType>
+                    options={InvoiceTypeOptions}
+                    placeholder="Select invoice type"
+                    value={InvoiceTypeOptions.find(option => option.value === formData.invoiceType)}
+                    onChange={(selectedOption) => {
                         setFormData(prev => ({
                             ...prev,
                             invoiceType: selectedOption!.value as InvoiceType,
                         }));
-                        }}
-                        styles={selectStyles}
-                        classNamePrefix="react-select"
-                    />
-                    {errors.invoiceType && <p className="text-red-500 text-sm">{errors.invoiceType}</p>}
-                </div>
+                    }}
+                    styles={selectStyles}
+                    classNamePrefix="react-select"
+                />
+                {errors.invoiceType && <p className="text-red-500 text-sm">{errors.invoiceType}</p>}
+            </div>
 
-                {/* Search Party */}
+            {/* Search Party */}
+            <div>
+                <Label>Select Party</Label>
+                <Select
+                    options={matchingParties.map((p) => ({
+                        label: p.name,
+                        value: p.id,
+                    }))}
+                    placeholder="Search and select party"
+                    value={
+                        matchingParties
+                            .filter((p) => p.id === formData.partyId)
+                            .map((p) => ({ label: p.name, value: p.id }))[0] || null
+                    }
+                    onChange={(selectedOption) =>
+                        setFormData((prev) => ({
+                            ...prev,
+                            partyId: selectedOption?.value ?? 0,
+                        }))
+                    }
+                    isClearable
+                    styles={selectStyles}
+                    classNamePrefix="react-select"
+                />
+                {errors.partyId && <p className="text-red-500 text-sm">{errors.partyId}</p>}
+            </div>
+
+            {/* Date */}
+            <div>
+                <DatePicker
+                    id="date-picker"
+                    label="Date"
+                    placeholder="Select a date"
+                    defaultDate={formData.date}
+                    onChange={(dates, currentDateString) => {
+                        // Handle your logic
+                        console.log({ dates, currentDateString });
+                        setFormData((prev) => ({
+                            ...prev!,
+                            date: currentDateString,
+                        }))
+                    }}
+                />
+                {errors.date && <p className="text-red-500 text-sm">{errors.date}</p>}
+            </div>
+
+            {/* Total Amount */}
+            <div>
+            <Label>Total Amount</Label>
+            <Input
+                type="number"
+                name="totalAmount"
+                placeholder="Enter total amount"
+                value={totalAmount}
+                readonly={true}
+            />
+            {errors.totalAmount && <p className="text-red-500 text-sm">{errors.totalAmount}</p>}
+            </div>
+
+            {/* Note */}
+            <div className="md:col-span-3">
+            <Label>Note</Label>
+            <Input
+                type="text"
+                name="note"
+                placeholder="Optional note"
+                value={formData.note}
+                onChange={handleChange}
+            />
+            </div>
+        </div>
+
+        {/* Add Item Section */}
+        <h5>Add Item</h5>
+        <div className="mt-5 rounded-xl border border-gray-100 bg-gray-50 p-4 sm:p-6 dark:border-gray-800 dark:bg-gray-900">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                 <div>
-                    <Label>Select Party</Label>
+                    <Label>Search Item Name</Label>
                     <Select
-                        options={matchingParties.map((p) => ({
-                            label: p.name,
-                            value: p.id,
-                        }))}
-                        placeholder="Search and select party"
+                        options={
+                            categoryItem?.items?.map((i) => ({
+                                label: i.name,
+                                value: i.id,
+                            })) || []
+                        }
+                        placeholder="Search and select item"
                         value={
-                            matchingParties
-                                .filter((p) => p.id === formData.partyId)
-                                .map((p) => ({ label: p.name, value: p.id }))[0] || null
+                            categoryItem?.items
+                            ?.filter((i) => i.id === currentItem.itemId)
+                            .map((i) => ({ label: i.name, value: i.id }))[0] || null
                         }
                         onChange={(selectedOption) =>
-                            setFormData((prev) => ({
+                            setCurrentItem((prev) => ({
                                 ...prev,
-                                partyId: selectedOption?.value ?? 0,
+                                itemId: selectedOption?.value,
+                                name: selectedOption?.label ?? '',
                             }))
                         }
                         isClearable
                         styles={selectStyles}
                         classNamePrefix="react-select"
                     />
-                    {errors.partyId && <p className="text-red-500 text-sm">{errors.partyId}</p>}
                 </div>
 
-                {/* Date */}
                 <div>
-                    <DatePicker
-                        id="date-picker"
-                        label="Date"
-                        placeholder="Select a date"
-                        defaultDate={formData.date}
-                        onChange={(dates, currentDateString) => {
-                            // Handle your logic
-                            console.log({ dates, currentDateString });
-                            setFormData((prev) => ({
-                                ...prev!,
-                                date: currentDateString,
-                            }))
-                        }}
-                    />
-                    {errors.date && <p className="text-red-500 text-sm">{errors.date}</p>}
-                </div>
-
-                {/* Total Amount */}
-                <div>
-                <Label>Total Amount</Label>
-                <Input
-                    type="number"
-                    name="totalAmount"
-                    placeholder="Enter total amount"
-                    value={totalAmount}
-                    readonly={true}
-                />
-                {errors.totalAmount && <p className="text-red-500 text-sm">{errors.totalAmount}</p>}
-                </div>
-
-                {/* Note */}
-                <div className="md:col-span-3">
-                <Label>Note</Label>
-                <Input
-                    type="text"
-                    name="note"
-                    placeholder="Optional note"
-                    value={formData.note}
-                    onChange={handleChange}
-                />
-                </div>
-            </div>
-
-            {/* Add Item Section */}
-            <h5>Add Item</h5>
-            <div className="mt-5 rounded-xl border border-gray-100 bg-gray-50 p-4 sm:p-6 dark:border-gray-800 dark:bg-gray-900">
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-                    <div>
-                        <Label>Search Item Name</Label>
-                        <Select
-                            options={items.map((i) => ({
-                                label: i.name,
+                    <Label>Search Container</Label>
+                    <Select
+                        options={
+                        containers
+                            .filter((i) =>
+                                formData.invoiceType === "purchase"
+                                ? true
+                                : Number(i.netStock) > 0
+                            )
+                            .map((i) => ({
+                                label: `${i.containerNo} - ${i.netStock} ${i.stockUnit} ${formData.invoiceType}`,
                                 value: i.id,
-                            }))}
-                            placeholder="Search and select party"
-                            value={
-                                items
-                                    .filter((i) => i.id === currentItem.id)
-                                    .map((i) => ({ label: i.name, value: i.id }))[0] || null
-                                }
-                            onChange={(selectedOption) =>
-                                setCurrentItem((prev) => ({
-                                    ...prev,
-                                    id: selectedOption?.value ?? 0,
-                                    name: selectedOption?.label ?? ''
-                                }))
-                            }
-                            isClearable
-                            styles={selectStyles}
-                            classNamePrefix="react-select"
-                        />
-                        {errors.partyId && <p className="text-red-500 text-sm">{errors.partyId}</p>}
-                    </div>
+                            })) || []
+                        }
+                        placeholder="Search and select item"
+                        value={
+                            containers
+                            ?.filter((i) => i.id === currentItem.containerId)
+                            .map((i) => ({ label: i.containerNo, value: i.id }))[0] || null
+                        }
+                        onChange={(selectedOption) =>
+                            setCurrentItem((prev) => ({
+                                ...prev,
+                                containerId: selectedOption?.value ?? 0,
+                            }))
+                        }
+                        isClearable
+                        styles={selectStyles}
+                        classNamePrefix="react-select"
+                    />
+                </div>
 
-                    <div>
-                        <Label>Price</Label>
-                        <Input
-                            type="number"
-                            name="price"
-                            value={currentItem.price}
-                            onChange={handleCurrentItemChange}
-                            placeholder="Enter price"
-                            min='0'
-                        />
-                    </div>
+                <div>
+                    <Label>Price</Label>
+                    <Input
+                        type="number"
+                        name="price"
+                        value={currentItem.price}
+                        onChange={handleCurrentItemChange}
+                        placeholder="Enter price"
+                        min='0'
+                    />
+                </div>
 
-                    <div>
-                        <Label>Quantity</Label>
-                        <Input
-                            type="number"
-                            name="quantity"
-                            value={currentItem.quantity}
-                            onChange={handleCurrentItemChange}
-                            placeholder="Enter quantity"
-                            min='1'
-                        />
-                    </div>
+                <div>
+                    <Label>Quantity</Label>
+                    <Input
+                        type="number"
+                        name="quantity"
+                        value={currentItem.quantity}
+                        onChange={handleCurrentItemChange}
+                        placeholder="Enter quantity"
+                        min='1'
+                    />
+                </div>
 
-                    <div className="flex items-end">
-                        <Button type="button" onClick={addItem}>
-                            Add Item
-                        </Button>
-                    </div>
+                <div className="flex items-end">
+                    <Button type="button" onClick={addItem}>
+                        Add Item
+                    </Button>
                 </div>
             </div>
+        </div>
 
-            {/* Items Table */}
-            <Table>
+          {/* Items Table */}
+          <Table>
                 <TableHeader className="border-b border-t border-gray-100 dark:border-white/[0.05] bg-gray-200 text-black text-sm dark:bg-gray-800 dark:text-gray-400">
                 <TableRow>
                     <TableCell isHeader className="text-center px-4 py-2">Sl</TableCell>
@@ -391,7 +440,7 @@ export default function InvoiceEditForm() {
                     </TableRow>
                 ) : (
                     formData.items.map((item, index) => (
-                    <TableRow key={item.id}>
+                    <TableRow key={`${item.itemId}-${index}`}>
                         <TableCell className="text-center px-4 py-2">{index + 1}</TableCell>
                         <TableCell className="text-center px-4 py-2">{item.name}</TableCell>
                         <TableCell className="text-center px-4 py-2">{item.price.toFixed(2)}</TableCell>
@@ -412,13 +461,14 @@ export default function InvoiceEditForm() {
                 </TableBody>
             </Table>
 
-            <div className="flex justify-end">
-                <Button type="submit" variant="success">
-                Submit
-                </Button>
-            </div>
-            </form>
-        </ComponentCard>
-        </div>
-    );
+          {/* Submit Button */}
+          <div className="flex justify-end">
+            <Button type="submit" variant="success">
+              Submit
+            </Button>
+          </div>
+        </form>
+      </ComponentCard>
+    </div>
+  );
 }

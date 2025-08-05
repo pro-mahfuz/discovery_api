@@ -18,6 +18,8 @@ export const getAllInvoice = async () => {
         ],
     });
 
+    
+
     if (!data || data.length === 0) throw { status: 400, message: "No Invoice found" };
     return data;
 }

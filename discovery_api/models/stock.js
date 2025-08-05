@@ -1,14 +1,15 @@
 export default (sequelize, DataTypes) => {
-  const Stock = sequelize.define("Stock", {
+  const Stock = sequelize.define('Stock', {
     businessId: {
       type: DataTypes.INTEGER,
+      allowNull: true,
       references: {
-        model: 'Businesses', // name of Target model
-        key: 'id' // key in Target model that we're referencing
-      }
+        model: 'businesses',
+        key: 'id',
+      },
     },
     invoiceType: {
-      type: DataTypes.STRING(20), // e.g. 'purchase', 'sale'
+      type: DataTypes.STRING(20), // 'purchase' or 'sale'
       allowNull: true,
     },
     invoiceId: {
@@ -27,30 +28,31 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: 'Warehouses', // Ensure this matches the actual table name
+        model: 'warehouses',
         key: 'id',
       },
     },
     containerId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: {
-        model: 'Containers', // Ensure this matches the actual table name
+        model: 'containers', // must match tableName exactly
         key: 'id',
       },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE',
     },
     itemId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Items', // Ensure this matches the actual table name
+        model: 'items',
         key: 'id',
       },
     },
   }, {
     tableName: 'stocks',
-    timestamps: true, // `created_at` is manually handled
-    underscored: false,
+    timestamps: true,
   });
 
   Stock.associate = (models) => {
@@ -65,13 +67,13 @@ export default (sequelize, DataTypes) => {
     });
 
     Stock.belongsTo(models.Business, {
-      foreignKey: "businessId",
-      as: "business"
+      foreignKey: 'businessId',
+      as: 'business',
     });
 
     Stock.belongsTo(models.Container, {
-      foreignKey: "containerId",
-      as: "container"
+      foreignKey: 'containerId',
+      as: 'container',
     });
   };
 

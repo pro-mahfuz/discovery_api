@@ -73,7 +73,12 @@ export default function InvoiceCreateForm() {
             businessId: user?.business?.id,
           }));
         }
-    }, [user]);
+
+        setFormData((prev) => ({
+            ...prev,
+            invoiceType: invoiceType,
+        }));
+    }, [user, invoiceType]);
 
     console.log("Invoice FormData: ", formData);
 
@@ -94,6 +99,7 @@ export default function InvoiceCreateForm() {
 
     const containers = useSelector(selectContainerByItemId(Number(formData.categoryId), (Number(currentItem.itemId))));
     console.log("containers-", containers);
+
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -136,7 +142,8 @@ export default function InvoiceCreateForm() {
             console.log("currentItemData: ", currentItem);
             await dispatch(create({ ...formData, totalAmount }));
             toast.success("Invoice created successfully!");
-            //navigate("/invoice/list");
+            const categoryId = 0;
+            navigate(`/invoice/${formData.invoiceType}/${categoryId}/list`);
         } catch (err) {
             toast.error("Failed to create invoice.");
         }
@@ -249,10 +256,10 @@ export default function InvoiceCreateForm() {
                         placeholder="Select invoice type"
                         value={InvoiceTypeOptions.find(option => option.value === formData.invoiceType)}
                         onChange={(selectedOption) => {
-                        setFormData(prev => ({
-                            ...prev,
-                            invoiceType: selectedOption!.value as InvoiceType,
-                        }));
+                            setFormData(prev => ({
+                                ...prev,
+                                invoiceType: selectedOption!.value as InvoiceType,
+                            }));
                         }}
                         styles={selectStyles}
                         classNamePrefix="react-select"
@@ -369,11 +376,13 @@ export default function InvoiceCreateForm() {
                         <Select
                             options={
                             containers
-                                .filter((i) => {
-                                    if (invoiceType === "sale" &&  Number(i.netStock) > 0) return true
-                                })
+                                .filter((i) =>
+                                    formData.invoiceType === "purchase"
+                                    ? true
+                                    : Number(i.netStock) > 0
+                                )
                                 .map((i) => ({
-                                    label: `${i.containerNo} - ${i.netStock} ${i.stockUnit} ${invoiceType}`,
+                                    label: `${i.containerNo} - ${i.netStock} ${i.stockUnit} ${formData.invoiceType}`,
                                     value: i.id,
                                 })) || []
                             }

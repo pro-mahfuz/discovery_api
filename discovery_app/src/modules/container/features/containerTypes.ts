@@ -25,9 +25,9 @@ export interface Container {
   stockQuantity: number;
   stockUnit: string;
   item?: Item;
-  stock: Stock[];
+  stock?: Stock[];
   user?: User;
-  netStock: number;
+  netStock?: number;
   isActive: boolean;
   createdUserId?: number;
   updatedUserId?: number;

@@ -19,7 +19,7 @@ export interface Invoice {
   id?: number; 
   businessId?: number;                 
   categoryId: number | string;
-  invoiceType: "purchase" | "sale" | "return" | "adjustment";
+  invoiceType: string;
   partyId: number | string;
   party?: Party;
   date: string;
@@ -27,7 +27,8 @@ export interface Invoice {
   totalAmount: number;
   category?: Category;
   items: Item[]; 
-  currency: string;           
+  currency: string;
+  netStock?: number;
 }
 
 export interface InvoiceState {

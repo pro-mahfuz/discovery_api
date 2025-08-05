@@ -1,35 +1,27 @@
-import { FormEvent, ChangeEvent, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
 
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
 import PageMeta from "../../../components/common/PageMeta";
-import ComponentCard from "../../../components/common/ComponentCard";
-import Label from "../../../components/form/Label";
-import Input from "../../../components/form/input/InputField";
-import DatePicker from "../../../components/form/date-picker.tsx";
-import Button from "../../../components/ui/button/Button";
-import Select from "react-select";
 import {
   Table,
   TableBody,
   TableCell,
   TableHeader,
   TableRow,
-} from "../../../components/ui/table/index.tsx";
+} from "../../../components/ui/table";
 
-import { Invoice, Item } from "../features/invoiceTypes";
-import { create } from "../features/invoiceThunks";
+
 import { fetchParty } from "../../party/features/partyThunks.ts";
 import { AppDispatch } from "../../../store/store";
-import { selectAllParties } from "../../party/features/partySelectors";
-import { selectAllItem } from "../../item/features/itemSelectors";
-import { selectAllCategory } from "../../category/features/categorySelectors";
-import { selectUser } from "../../auth/features/authSelectors.ts";
+import { selectInvoiceById } from "../features/invoiceSelectors";
+import { selectAuth } from "../../auth/features/authSelectors";
+import { selectUserById } from "../../user/features/userSelectors";
 
 
 export default function InvoiceView() {
+    const { id } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
 
@@ -37,366 +29,140 @@ export default function InvoiceView() {
         dispatch(fetchParty("all"));
     }, [dispatch]);
 
-    const authUser = useSelector(selectUser);
-    const matchingParties = useSelector(selectAllParties);
-    const items = useSelector(selectAllItem);
-    const categories = useSelector(selectAllCategory);
+    const authUser = useSelector(selectAuth);
+    const user = useSelector(selectUserById(Number(authUser.user?.id)));
+    const invoice = useSelector(selectInvoiceById(Number(id)));
+    console.log("invoiceData: ", user);
 
-    const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
-    const [formData, setFormData] = useState<Omit<Invoice, "totalAmount">>({
-        businessId: Number(authUser?.business?.id),
-        categoryId: 1,
-        invoiceType: "purchase",
-        partyId: 0,
-        date: "",
-        note: "",
-        items: [],
-        currency: '',
-    });
-
-    const [totalAmount, setTotalAmount] = useState(0);
-
-    // Local state for current item inputs
-    const [currentItem, setCurrentItem] = useState<Item>({
-        id: 0,
-        name: '',
-        price: 0,
-        quantity: 1,
-        subTotal: 0,
-    });
-
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: name === "partyId" || name === "categoryId" ? Number(value) : value,
-        }));
+    const handlePrint = () => {
+        window.print();
     };
 
-    const handleCurrentItemChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setCurrentItem(prev => ({
-            ...prev,
-            [name]: name === "price" || name === "quantity" ? Number(value) : value,
-        }));
-    };
 
-    const validateForm = () => {
-        const newErrors: { [key: string]: string } = {};
-        if (!formData.categoryId) newErrors.categoryId = "Select Category";
-        if (!formData.invoiceType.trim()) newErrors.invoiceType = "Select Invoice Type";
-        if (!formData.partyId) newErrors.partyId = "Select Party";
-        if (!formData.date.trim()) newErrors.date = "Date is required";
-        if (totalAmount <= 0) newErrors.totalAmount = "Amount is required";
-        if (!formData.items || formData.items.length === 0) newErrors.items = "At least one item is required";
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (!validateForm()) {
-            toast.error("Please fix the errors in the form.");
-            return;
-        }
-
-        try {
-            // Dispatch create action, including totalAmount
-            console.log("formData: ", formData);
-            await dispatch(create({ ...formData, totalAmount }));
-            toast.success("Invoice created successfully!");
-            navigate("/invoice/list");
-        } catch (err) {
-            toast.error("Failed to create invoice.");
-        }
-    };
-
-    const selectStyles = {
-        control: (base: any, state: any) => ({
-        ...base,
-        borderColor: state.isFocused ? "#72a4f5ff" : "#d1d5db",
-        boxShadow: state.isFocused ? "0 0 0 1px #8eb8fcff" : "none",
-        padding: "0.25rem 0.5rem",
-        borderRadius: "0.375rem",
-        minHeight: "38px",
-        fontSize: "0.875rem",
-        "&:hover": {
-            borderColor: "#3b82f6",
-        },
-        }),
-        menu: (base: any) => ({
-        ...base,
-        zIndex: 20,
-        }),
-        option: (base: any, state: any) => ({
-        ...base,
-        backgroundColor: state.isFocused ? "#e0f2fe" : "white",
-        color: "#1f2937",
-        fontSize: "0.875rem",
-        padding: "0.5rem 0.75rem",
-        }),
-    };
-
-    const addItem = () => {
-        
-        if (!currentItem.id || currentItem.price <= 0 || currentItem.quantity <= 0) {
-            toast.error("Please fill all item fields properly");
-            return;
-        }
-
-        setFormData(prev => ({
-            ...prev,
-            items: [
-                ...prev.items,
-                { ...currentItem, id: Date.now() }, // unique id
-            ],
-        }));
-
-        setCurrentItem({
-            id: 0,
-            name: '',
-            price: 0,
-            quantity: 1,
-            subTotal: 0,
-        });
-    };
-
-    const removeItem = (id: number) => {
-        setFormData(prev => ({
-            ...prev,
-            items: prev.items.filter(item => item.id !== id),
-        }));
-    };
-
-    // Auto calculate totalAmount from items, separate from formData
-    useEffect(() => {
-        const total = formData.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-        setTotalAmount(total);
-    }, [formData.items]);
+   
 
     return (
         <div>
-        <PageMeta title="Invoice Create" description="Form to create a new invoice" />
-        <PageBreadcrumb pageTitle="Invoice Create" />
+            <PageMeta title="Invoice Create" description="Form to create a new invoice" />
+            <PageBreadcrumb pageTitle="Invoice Create" />
 
-        <ComponentCard title="Fill up all fields to create a new invoice">
-            <form className="space-y-5" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                {/* Category */}
-                <div>
-                    <Label>Select Category</Label>
-                    <Select
-                        options={categories.map((c) => ({
-                            label: c.name,
-                            value: c.id,
-                        }))}
-                        placeholder="Search and select category"
-                        value={
-                            categories
-                                .filter((c) => c.id === formData.categoryId)
-                                .map((c) => ({ label: c.name, value: c.id }))[0] || null
-                        }
-                        onChange={(selectedOption) =>
-                            setFormData((prev) => ({
-                                ...prev,
-                                categoryId: selectedOption?.value ?? 0,
-                            }))
-                        }
-                        isClearable
-                        styles={selectStyles}
-                        classNamePrefix="react-select"
-                    />
-                    {errors.categoryId && <p className="text-red-500 text-sm">{errors.categoryId}</p>}
-                </div>
-
-                
-
-                {/* Search Party */}
-                <div>
-                    <Label>Select Party</Label>
-                    <Select
-                        options={matchingParties.map((p) => ({
-                            label: p.name,
-                            value: p.id,
-                        }))}
-                        placeholder="Search and select party"
-                        value={
-                            matchingParties
-                                .filter((p) => p.id === formData.partyId)
-                                .map((p) => ({ label: p.name, value: p.id }))[0] || null
-                        }
-                        onChange={(selectedOption) =>
-                            setFormData((prev) => ({
-                                ...prev,
-                                partyId: selectedOption?.value ?? 0,
-                            }))
-                        }
-                        isClearable
-                        styles={selectStyles}
-                        classNamePrefix="react-select"
-                    />
-                    {errors.partyId && <p className="text-red-500 text-sm">{errors.partyId}</p>}
-                </div>
-
-                {/* Date */}
-                <div>
-                    <DatePicker
-                        id="date-picker"
-                        label="Date"
-                        placeholder="Select a date"
-                        defaultDate={formData.date}
-                        onChange={(dates, currentDateString) => {
-                            // Handle your logic
-                            console.log({ dates, currentDateString });
-                            setFormData((prev) => ({
-                                ...prev!,
-                                date: currentDateString,
-                            }))
-                        }}
-                    />
-                    {errors.date && <p className="text-red-500 text-sm">{errors.date}</p>}
-                </div>
-
-                {/* Total Amount */}
-                <div>
-                <Label>Total Amount</Label>
-                <Input
-                    type="number"
-                    name="totalAmount"
-                    placeholder="Enter total amount"
-                    value={totalAmount}
-                    readonly={true}
-                />
-                {errors.totalAmount && <p className="text-red-500 text-sm">{errors.totalAmount}</p>}
-                </div>
-
-                {/* Note */}
-                <div className="md:col-span-3">
-                <Label>Note</Label>
-                <Input
-                    type="text"
-                    name="note"
-                    placeholder="Optional note"
-                    value={formData.note}
-                    onChange={handleChange}
-                />
-                </div>
+            {/* ✅ Print Button */}
+            <div className="mb-4 flex justify-end print:hidden">
+                <button
+                onClick={() => window.print()}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                >
+                Print Invoice
+                </button>
             </div>
 
-            {/* Add Item Section */}
-            <h5>Add Item</h5>
-            <div className="mt-5 rounded-xl border border-gray-100 bg-gray-50 p-4 sm:p-6 dark:border-gray-800 dark:bg-gray-900">
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-                    <div>
-                        <Label>Search Item Name</Label>
-                        <Select
-                            options={items.map((i) => ({
-                                label: i.name,
-                                value: i.id,
-                            }))}
-                            placeholder="Search and select party"
-                            value={
-                                items
-                                    .filter((i) => i.id === currentItem.id)
-                                    .map((i) => ({ label: i.name, value: i.id }))[0] || null
-                                }
-                            onChange={(selectedOption) =>
-                                setCurrentItem((prev) => ({
-                                    ...prev,
-                                    id: selectedOption?.value ?? 0,
-                                    name: selectedOption?.label ?? ''
-                                }))
-                            }
-                            isClearable
-                            styles={selectStyles}
-                            classNamePrefix="react-select"
-                        />
-                        {errors.partyId && <p className="text-red-500 text-sm">{errors.partyId}</p>}
-                    </div>
+            <div id="print-section">
+                <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+                    <div className="space-y-6">
+                        <div className="p-5 rounded-2xl lg:p-6">
+                            <div className="flex flex-col items-center text-center gap-5 xl:flex-row xl:justify-between">
+                                <div className="flex flex-col items-center w-full gap-1">
+                                    <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+                                        {user?.business?.businessName}
+                                    </h4>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        Address: {user?.business?.address}
+                                    </p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        Phone: {(user?.business?.phoneCode ?? '') + user?.business?.phoneNumber}
+                                    </p>
+                                </div>
+                                
+                            </div>
+                            
+                        </div>
 
-                    <div>
-                        <Label>Price</Label>
-                        <Input
-                            type="number"
-                            name="price"
-                            value={currentItem.price}
-                            onChange={handleCurrentItemChange}
-                            placeholder="Enter price"
-                            min='0'
-                        />
-                    </div>
+                        <div className="flex flex-col items-start text-center gap-5 xl:flex-row xl:justify-between">
+                                <div className="flex flex-col items-start w-full gap-1 xl:justify-between">
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        Date: {invoice?.date}
+                                    </p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        # Ref: {invoice?.id}
+                                    </p>
+                                </div>
+                            </div>
 
-                    <div>
-                        <Label>Quantity</Label>
-                        <Input
-                            type="number"
-                            name="quantity"
-                            value={currentItem.quantity}
-                            onChange={handleCurrentItemChange}
-                            placeholder="Enter quantity"
-                            min='1'
-                        />
-                    </div>
+                        <div className="flex flex-col items-start text-left gap-5 xl:flex-row xl:justify-between">
+                            <div className="flex flex-col items-start w-full gap-1 xl:justify-between">
+                                <h6 className="text-lg font-semibold text-gray-800 dark:text-white/90">To,</h6>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    <b>Customer Name:</b> {invoice?.party?.name}
+                                </p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    <b>Address:</b> {invoice?.party?.address}
+                                </p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    <b>Phone:</b> {(invoice?.party?.phoneCode ?? '') + invoice?.party?.phoneNumber}
+                                </p>
+                            </div>
+                        </div>
 
-                    <div className="flex items-end">
-                        <Button type="button" onClick={addItem}>
-                            Add Item
-                        </Button>
+                        <Table>
+                            <TableHeader className="border-b border-t border-gray-100 dark:border-white/[0.05] bg-gray-200 text-black text-sm dark:bg-gray-800 dark:text-gray-400">
+                                <TableRow>
+                                <TableCell isHeader className="text-center px-4 py-2">Sl</TableCell>
+                                <TableCell isHeader className="text-center px-4 py-2">Item</TableCell>
+                                <TableCell isHeader className="text-center px-4 py-2">Price</TableCell>
+                                <TableCell isHeader className="text-center px-4 py-2">Quantity</TableCell>
+                                <TableCell isHeader className="text-center px-4 py-2">Unit</TableCell>
+                                <TableCell isHeader className="text-right px-4 py-2">Sub-Total (Dhs.)</TableCell>
+                                </TableRow>
+                            </TableHeader>
+
+                            <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                                {invoice?.items.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={6} className="text-center py-4">
+                                    No items added yet.
+                                    </TableCell>
+                                </TableRow>
+                                ) : (
+                                invoice?.items.map((item, index) => (
+                                    <TableRow key={item.id ?? index}>
+                                        <TableCell className="text-center px-4 py-2">{index + 1}</TableCell>
+                                        <TableCell className="text-center px-4 py-2">{item.name}</TableCell>
+                                        <TableCell className="text-center px-4 py-2">{item.price.toFixed(2)}</TableCell>
+                                        <TableCell className="text-center px-4 py-2">{item.quantity}</TableCell>
+                                        <TableCell className="text-center px-4 py-2">Box</TableCell>
+                                        <TableCell className="text-right px-4 py-2">{(item.price * item.quantity).toFixed(2)}</TableCell>
+                                    </TableRow>
+                                )))}
+
+                                
+                            </TableBody>
+                            {/* <TableHeader className="border-b border-t border-gray-100 dark:border-white/[0.05] bg-gray-200 text-black text-sm dark:bg-gray-800 dark:text-gray-400">
+                                <TableRow>
+                                    <TableCell colSpan={4} isHeader className="text-right px-4 py-2">Net Total Amount:</TableCell>
+                                    <TableCell colSpan={1} isHeader className="text-center px-4 py-2">{invoice?.totalAmount.toFixed(2)}</TableCell>
+                                </TableRow>
+                            </TableHeader> */}
+                        </Table>
+
+                        <div className="my-6 flex justify-end pb-6 text-right">
+                            <div className="w-[220px]">
+                                <p className="my-4 text-left text-sm font-medium text-gray-800 dark:text-white/90">
+                                Order summary
+                                </p>
+                                <ul className="space-y-2">
+                                
+                                <li className="flex items-center justify-between">
+                                    <span className="font-medium text-gray-700 dark:text-gray-400">
+                                    Total (Dhs.) :
+                                    </span>
+                                    <span className="text-lg font-semibold text-gray-800 dark:text-white/90 pr-4">{invoice?.totalAmount.toFixed(2)}</span>
+                                </li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            {/* Items Table */}
-            <Table>
-                <TableHeader className="border-b border-t border-gray-100 dark:border-white/[0.05] bg-gray-200 text-black text-sm dark:bg-gray-800 dark:text-gray-400">
-                <TableRow>
-                    <TableCell isHeader className="text-center px-4 py-2">Sl</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Item</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Price</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Quantity</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Sub-Total</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Action</TableCell>
-                </TableRow>
-                </TableHeader>
-
-                <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                {formData.items.length === 0 ? (
-                    <TableRow>
-                    <TableCell colSpan={6} className="text-center py-4">
-                        No items added yet.
-                    </TableCell>
-                    </TableRow>
-                ) : (
-                    formData.items.map((item, index) => (
-                    <TableRow key={item.id}>
-                        <TableCell className="text-center px-4 py-2">{index + 1}</TableCell>
-                        <TableCell className="text-center px-4 py-2">{item.name}</TableCell>
-                        <TableCell className="text-center px-4 py-2">{item.price.toFixed(2)}</TableCell>
-                        <TableCell className="text-center px-4 py-2">{item.quantity}</TableCell>
-                        <TableCell className="text-center px-4 py-2">{(item.price * item.quantity).toFixed(2)}</TableCell>
-                        <TableCell className="text-center px-4 py-2">
-                        <button
-                            onClick={() => removeItem(Number(item.id))}
-                            className="text-red-500 hover:underline"
-                            type="button"
-                        >
-                            Remove
-                        </button>
-                        </TableCell>
-                    </TableRow>
-                    ))
-                )}
-                </TableBody>
-            </Table>
-
-            <div className="flex justify-end">
-                <Button type="submit" variant="success">
-                Submit
-                </Button>
-            </div>
-            </form>
-        </ComponentCard>
         </div>
     );
 }

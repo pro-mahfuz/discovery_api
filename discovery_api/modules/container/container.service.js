@@ -22,7 +22,7 @@ export const getAllContainer = async () => {
     const containersWithNetStock = data
     .map(container => {
         let netStock = 0;
-        if(container.stock){
+        // if(container.stock){
             const rawNetStock = container.stocks.reduce((total, stock) => {
             const quantity = Number(stock.quantity ?? 0);
             return stock.invoiceType === "purchase"
@@ -31,7 +31,7 @@ export const getAllContainer = async () => {
             }, 0);
 
             netStock = Number(rawNetStock % 1 === 0 ? rawNetStock.toFixed(0) : rawNetStock.toFixed(2));
-        }
+        // }
 
         return {
             ...container.toJSON(),
