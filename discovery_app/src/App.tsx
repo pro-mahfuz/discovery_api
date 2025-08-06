@@ -48,6 +48,12 @@ import ContainerCreateForm from "./modules/container/pages/ContainerCreateForm";
 import ContainerEditForm from "./modules/container/pages/ContainerEditForm";
 import ContainerView from "./modules/container/pages/ContainerView";
 import ContainerList from "./modules/container/pages/ContainerList";
+import PaymentCreateForm from "./modules/payment/pages/PaymentCreateForm";
+import PaymentList from "./modules/payment/pages/PaymentList";
+import PaymentEditForm from "./modules/payment/pages/PaymentEditForm";
+import StockCreateForm from "./modules/stock/pages/StockCreateForm";
+import StockListForm from "./modules/stock/pages/StockList";
+import StockEditForm from "./modules/stock/pages/StockEditForm";
 
 
 export default function App() {
@@ -140,6 +146,37 @@ export default function App() {
             <Route index path="/invoice/:id/edit" element={
               <PrivateRoute permissions={['edit_invoice']}>
                 <InvoiceEditForm />
+              </PrivateRoute>} 
+            />
+
+
+            {/* Payment */}
+            <Route index path="/payment/create" element={
+              <PrivateRoute permissions={['create_invoice']}>
+                <PaymentCreateForm />
+              </PrivateRoute>} 
+            />
+            <Route index path="/payment/list" element={
+              <PrivateRoute permissions={['manage_invoice']}>
+                <PaymentList />
+              </PrivateRoute>} 
+            />
+
+            {/* Stock */}
+            <Route index path="/stock/create" element={
+              <PrivateRoute permissions={['create_invoice']}>
+                <StockCreateForm />
+              </PrivateRoute>} 
+            />
+            <Route index path="/stock/list" element={
+              <PrivateRoute permissions={['manage_invoice']}>
+                <StockListForm />
+              </PrivateRoute>} 
+            />
+
+            <Route index path="/stock/:id/edit" element={
+              <PrivateRoute permissions={['manage_invoice']}>
+                <StockEditForm />
               </PrivateRoute>} 
             />
             

@@ -1,11 +1,11 @@
 import * as yup from "yup";
 
 export const paymentSchema = yup.object({
-  categoryId: yup
-    .number()
-    .typeError("Category ID must be a number")
-    .integer("Category ID must be an integer")
-    .required("Category is required"),
+  // categoryId: yup
+  //   .number()
+  //   .typeError("Category ID must be a number")
+  //   .integer("Category ID must be an integer")
+  //   .required("Category is required"),
 
   paymentType: yup
     .string()
@@ -18,8 +18,7 @@ export const paymentSchema = yup.object({
   //   .required("Invoice ID is required"),
 
   paymentDate: yup
-    .date()
-    .typeError("Payment date must be a valid date")
+    .string()
     .required("Payment date is required"),
 
   amountPaid: yup

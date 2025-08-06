@@ -62,3 +62,36 @@ export const InvoiceTypeOptions: OptionStringType[] = [
   { value: "return", label: "Return" },
   { value: "adjustment", label: "Adjustment" }
 ];
+
+export const MovementTypeOptions: OptionStringType[] = [
+  { value: "in", label: "In" },
+  { value: "out", label: "Out" },
+  { value: "return", label: "Return" },
+  { value: "damage", label: "Damaged" }
+];
+
+export const selectStyles = {
+  control: (base: any, state: any) => ({
+  ...base,
+  borderColor: state.isFocused ? "#72a4f5ff" : "#d1d5db",
+  boxShadow: state.isFocused ? "0 0 0 1px #8eb8fcff" : "none",
+  padding: "0.25rem 0.5rem",
+  borderRadius: "0.375rem",
+  minHeight: "38px",
+  fontSize: "0.875rem",
+  "&:hover": {
+      borderColor: "#3b82f6",
+  },
+  }),
+  menu: (base: any) => ({
+  ...base,
+  zIndex: 20,
+  }),
+  option: (base: any, state: any) => ({
+  ...base,
+  backgroundColor: state.isFocused ? "#e0f2fe" : "white",
+  color: "#1f2937",
+  fontSize: "0.875rem",
+  padding: "0.5rem 0.75rem",
+  }),
+};

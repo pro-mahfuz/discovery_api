@@ -1,13 +1,13 @@
 import { AxiosError } from 'axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { Invoice } from './invoiceTypes';
-import * as invoiceAPI from '../features/invoiceAPI';
+import { Stock } from './stockTypes';
+import * as stockAPI from '../features/stockAPI';
 
-export const fetchAllInvoice = createAsyncThunk<Invoice[], void, { rejectValue: string }>(
-  'invoice/fetchAll', async (_, thunkAPI) => {
+export const fetchAll = createAsyncThunk<Stock[], void, { rejectValue: string }>(
+  'stock/fetchAll', async (_, thunkAPI) => {
     try {
 
-      const data = await invoiceAPI.fetchAll();
+      const data = await stockAPI.fetchAll();
       return data;
       
     } catch (err) {
@@ -18,10 +18,10 @@ export const fetchAllInvoice = createAsyncThunk<Invoice[], void, { rejectValue: 
   }
 );
 
-export const create = createAsyncThunk<Invoice, Invoice, { rejectValue: string }>(
-  'invoice/create', async (createData, thunkAPI) => {
+export const create = createAsyncThunk<Stock, Stock, { rejectValue: string }>(
+  'stock/create', async (createData, thunkAPI) => {
     try {
-      const data = await invoiceAPI.create(createData);
+      const data = await stockAPI.create(createData);
       return data;
 
     } catch (err) {
@@ -35,11 +35,11 @@ export const create = createAsyncThunk<Invoice, Invoice, { rejectValue: string }
   }
 );
 
-export const fetchById = createAsyncThunk<Invoice, number, { rejectValue: string }>(
-  'invoice/fetchById', async (id, thunkAPI) => {
+export const fetchById = createAsyncThunk<Stock, number, { rejectValue: string }>(
+  'stock/fetchById', async (id, thunkAPI) => {
     try {
 
-      const data = await invoiceAPI.fetchById(id);
+      const data = await stockAPI.fetchById(id);
       return data;
 
     } catch (err) {
@@ -53,15 +53,15 @@ export const fetchById = createAsyncThunk<Invoice, number, { rejectValue: string
   }
 );
 
-export const update = createAsyncThunk<Invoice, Invoice, { rejectValue: string }>(
-  'invoice/update', async (updatedData, thunkAPI) => {
+export const update = createAsyncThunk<Stock, Stock, { rejectValue: string }>(
+  'stock/update', async (updatedData, thunkAPI) => {
     try {
 
       if (typeof updatedData.id !== 'number') {
-        return thunkAPI.rejectWithValue("invoice ID is missing or invalid");
+        return thunkAPI.rejectWithValue("stock ID is missing or invalid");
       }
 
-      const data = await invoiceAPI.update(updatedData);
+      const data = await stockAPI.update(updatedData);
       return data;
 
     } catch (err) {
@@ -76,10 +76,10 @@ export const update = createAsyncThunk<Invoice, Invoice, { rejectValue: string }
 );
 
 export const destroy = createAsyncThunk<any, number, { rejectValue: string }>(
-  'invoice/delete', async (id, thunkAPI) => {
+  'stock/delete', async (id, thunkAPI) => {
     try {
 
-      await invoiceAPI.destroy(id);
+      await stockAPI.destroy(id);
       return id;
       
     } catch (err) {

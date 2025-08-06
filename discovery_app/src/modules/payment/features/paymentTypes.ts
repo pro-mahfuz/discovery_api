@@ -6,6 +6,7 @@ export type OptionType = {
 export const paymentOptions:  OptionType[] = [
     { value: "payment_out", label: "Make Payment" },
     { value: "payment_in", label: "Received Payment" },
+    { value: "expense", label: "Expense" },
 ];
 
 export  const paymentMethodOptions:  OptionType[] = [
@@ -16,14 +17,14 @@ export  const paymentMethodOptions:  OptionType[] = [
 export interface Payment {
   id?: number;   
   businessId?: number;        
-  partyId: number;
-  categoryId: number;
-  paymentType: "payment_in" | "payment_out";
   invoiceId?: number | null;
+  categoryId?: number | null;
+  partyId?: number;
+  paymentType: string;
   paymentDate: string;
   note?: string;
   amountPaid: number;
-  paymentMethod: "cash" | "bank";
+  paymentMethod: string;
   paymentDetails?: string;
   currency: string;
 }

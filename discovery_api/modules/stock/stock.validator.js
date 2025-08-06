@@ -1,9 +1,9 @@
 import * as yup from "yup";
 
 export const stockSchema = yup.object({
-  invoiceType: yup
-    .string()
-    .required("invoice type is required"),
+  // invoiceType: yup
+  //   .string()
+  //   .required("invoice type is required"),
 
   invoiceId: yup
     .number()

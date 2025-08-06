@@ -32,7 +32,7 @@ import {
   selectAllInvoice,
 
 } from "../features/invoiceSelectors.ts";
-import { fetchAll, destroy } from "../features/invoiceThunks.ts";
+import { fetchAllInvoice, destroy } from "../features/invoiceThunks.ts";
 
 export default function InvoiceList() {
   const { invoiceType } = useParams() as { invoiceType: 'purchase' | 'sale' };
@@ -51,7 +51,7 @@ export default function InvoiceList() {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
 
   useEffect(() => {
-    dispatch(fetchAll());
+    dispatch(fetchAllInvoice());
   }, [dispatch]);
 
   const filteredData = useMemo(() => {

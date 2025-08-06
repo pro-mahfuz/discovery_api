@@ -5,7 +5,7 @@ import { create, fetchAllItem, fetchById, update, destroy } from './itemThunks';
 
 
 const initialState: ItemState = {
-  items: [],
+  data: [],
   status: 'idle',
   error: null,
 };
@@ -23,7 +23,7 @@ const Slice = createSlice({
       })
       .addCase(fetchAllItem.fulfilled, (state, action) => {
           state.status = 'succeeded';
-          state.items = action.payload;
+          state.data = action.payload;
           //console.log("action.payload: ", action.payload);
       })
       .addCase(fetchAllItem.rejected, (state, action) => {
@@ -34,7 +34,7 @@ const Slice = createSlice({
       // createParty
       .addCase(create.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.items.push(action.payload);
+        state.data.push(action.payload);
       })
       .addCase(create.rejected, (state, action) => {
         state.status = 'failed';
@@ -47,11 +47,11 @@ const Slice = createSlice({
       })
       .addCase(fetchById.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        const existingIndex = state.items.findIndex(d => d.id === action.payload.id);
+        const existingIndex = state.data.findIndex(d => d.id === action.payload.id);
         if (existingIndex >= 0) {
-          state.items[existingIndex] = action.payload;
+          state.data[existingIndex] = action.payload;
         } else {
-          state.items.push(action.payload);
+          state.data.push(action.payload);
         }
       })
       .addCase(fetchById.rejected, (state, action) => {
@@ -62,11 +62,11 @@ const Slice = createSlice({
       // updateUser
       .addCase(update.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        const existingUserIndex = state.items.findIndex(d => d.id === action.payload.id);
+        const existingUserIndex = state.data.findIndex(d => d.id === action.payload.id);
         if (existingUserIndex >= 0) {
-          state.items[existingUserIndex] = action.payload;
+          state.data[existingUserIndex] = action.payload;
         } else {
-          state.items.push(action.payload);
+          state.data.push(action.payload);
         }
       })
       .addCase(update.rejected, (state, action) => {
@@ -77,7 +77,7 @@ const Slice = createSlice({
       // deleteUser
       .addCase(destroy.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.items = state.items.filter(d => d.id !== action.payload);
+        state.data = state.data.filter(d => d.id !== action.payload);
       })
       .addCase(destroy.rejected, (state, action) => {
         state.status = 'failed';

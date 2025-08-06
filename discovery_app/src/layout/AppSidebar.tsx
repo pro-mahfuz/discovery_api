@@ -112,7 +112,7 @@ const AppSidebar: React.FC<any> = () => {
       name: "Payment",
       icon: <ListIcon />,
       subItems: [
-        { name: "Payment List", path: "/payment/0/list", pro: false },
+        { name: "Payment List", path: "/payment/list", pro: false },
         { name: "Payment Add", path: "/payment/create", pro: false }
       ],
     },

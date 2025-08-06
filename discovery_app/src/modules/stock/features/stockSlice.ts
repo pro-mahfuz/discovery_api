@@ -1,31 +1,31 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { InvoiceState } from './invoiceTypes';
-import { create, fetchAllInvoice, fetchById, update, destroy } from './invoiceThunks';
+import { StockState } from './stockTypes';
+import { create, fetchAll, fetchById, update, destroy } from './stockThunks';
 
 
 
-const initialState: InvoiceState = {
+const initialState: StockState = {
   data: [],
   status: 'idle',
   error: null,
 };
 
 const Slice = createSlice({
-  name: 'invoice',
+  name: 'stock',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
       // fetchParty
-      .addCase(fetchAllInvoice.pending, (state) => {
+      .addCase(fetchAll.pending, (state) => {
           state.status = 'loading';
           state.error = null;
       })
-      .addCase(fetchAllInvoice.fulfilled, (state, action) => {
+      .addCase(fetchAll.fulfilled, (state, action) => {
           state.status = 'succeeded';
           state.data = action.payload;
       })
-      .addCase(fetchAllInvoice.rejected, (state, action) => {
+      .addCase(fetchAll.rejected, (state, action) => {
           state.status = 'failed';
           state.error = action.error.message || null;
       })

@@ -19,23 +19,25 @@ export const createPayment = async (req) => {
     }
     else if (req.body.paymentType === 'payment_out'){
         debitAmount = req.body.amountPaid;
+    }else{
+        await Ledger.create(
+            {
+                businessId: req.body.businessId,
+                categoryId: req.body.categoryId,
+                transactionType: req.body.paymentType,
+                partyId: req.body.partyId,
+                date: req.body.date,
+                referenceId: data.id,
+                description: req.body.note,
+                currency: req.body.currency,
+                debit: debitAmount,
+                credit: creditAmount,
+            }, 
+            { transaction: t }
+        );
     }
 
-    await Ledger.create(
-        {
-            businessId: req.body.businessId,
-            categoryId: req.body.categoryId,
-            transactionType: req.body.paymentType,
-            partyId: req.body.partyId,
-            date: req.body.date,
-            referenceId: data.id,
-            description: req.body.note,
-            currency: req.body.currency,
-            debit: debitAmount,
-            credit: creditAmount,
-        }, 
-        { transaction: t }
-    );
+    
 
     await t.commit();
     console.log("Payment response body:", data);

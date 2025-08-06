@@ -264,7 +264,6 @@ export default function InvoiceCreateForm() {
                         styles={selectStyles}
                         classNamePrefix="react-select"
                     />
-                    {errors.invoiceType && <p className="text-red-500 text-sm">{errors.invoiceType}</p>}
                 </div>
 
                 {/* Search Party */}

@@ -9,11 +9,11 @@ export default (sequelize, DataTypes) => {
     },
     partyId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     categoryId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'Categories', // Ensure this matches the actual table name
         key: 'id',
