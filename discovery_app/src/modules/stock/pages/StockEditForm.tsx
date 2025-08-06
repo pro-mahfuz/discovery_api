@@ -13,57 +13,71 @@ import Button from "../../../components/ui/button/Button.tsx";
 import Select from "react-select";
 
 import { AppDispatch } from "../../../store/store.ts";
-import { OptionStringType, OptionNumberType, selectStyles } from "../../types.ts";
+import { OptionStringType, MovementTypeOptions, selectStyles } from "../../types.ts";
 import { Stock } from "../features/stockTypes.ts";
 
-import { create } from "../features/stockThunks.ts";
+import { update } from "../features/stockThunks.ts";
 import { fetchAllInvoice } from "../../invoice/features/invoiceThunks.ts";
 import { fetchAll as fetchContainer } from "../../container/features/containerThunks.ts";
 import { fetchAllItem } from "../../item/features/itemThunks.ts";
 import { fetchAllWarehouse } from "../../warehouse/features/warehouseThunks.ts";
+import { fetchAllCategory } from "../../category/features/categoryThunks.ts";
 
 import { selectAuth } from "../../auth/features/authSelectors.ts";
 import { selectUserById } from "../../user/features/userSelectors.ts";
-import { selectAllInvoice } from "../../invoice/features/invoiceSelectors.ts";
-import { selectAllContainer } from "../../container/features/containerSelectors.ts";
+import { selectAllInvoice, selectInvoiceById } from "../../invoice/features/invoiceSelectors.ts";
 import { selectAllItem } from "../../item/features/itemSelectors.ts";
 import { selectAllWarehouse } from "../../warehouse/features/warehouseSelectors.ts";
+import { selectCategoryById } from "../../category/features/categorySelectors";
+import { selectAllContainerByItemId } from "../../container/features/containerSelectors";
+import { selectStockById } from "../features/stockSelectors";
 
 
 export default function StockEditForm() {
-
+    const { id } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
 
     const authUser = useSelector(selectAuth);
     const user = useSelector(selectUserById(Number(authUser.user?.id)));
-    console.log("Invoice authUser: ", authUser);
-    console.log("Invoice user: ", user);
+    // console.log("Invoice authUser: ", authUser);
+    // console.log("Invoice user: ", user);
+
+    const items = useSelector(selectAllItem);
+    const invoices = useSelector(selectAllInvoice);
+    const warehouses = useSelector(selectAllWarehouse);
+    const stock = useSelector(selectStockById(Number(id)));
 
     useEffect(() => {
         dispatch(fetchAllInvoice());
         dispatch(fetchContainer());
         dispatch(fetchAllWarehouse());
+        dispatch(fetchAllCategory());
         dispatch(fetchAllItem());
     }, [dispatch]);
 
-    const containers = useSelector(selectAllContainer);
-    const invoices = useSelector(selectAllInvoice);
-    const items = useSelector(selectAllItem);
-    const warehouses = useSelector(selectAllWarehouse);
-
-
     const [formData, setFormData] = useState<Stock>({
-        businessId: 0,
-        date: '',
-        invoiceType: undefined,        
-        invoiceId: undefined,
-        itemId: 0,
-        containerId: 0,
-        movementType: '',
-        warehouseId: 0,
-        quantity: 0,
+        id: stock?.id,
+        businessId: stock?.business?.id,
+        date: stock?.date ?? '',
+        invoiceType: stock?.invoiceType,        
+        invoiceId: stock?.invoiceId,
+        itemId: stock?.item?.id ?? 0,
+        containerId: stock?.containerId ?? 0,
+        movementType: stock?.movementType ?? '',
+        warehouseId: stock?.warehouseId ?? 0,
+        quantity: stock?.quantity ?? 0,
+        stockUnit: stock?.stockUnit ?? ''
     });
+
+    const invoice = useSelector(selectInvoiceById(Number(formData.invoiceId)));
+    console.log("invoice- ", invoice);
+
+    const categoryItem = useSelector(selectCategoryById(Number(invoice?.categoryId)));
+    console.log("categoryItem- ",categoryItem);
+
+    const containers = useSelector(selectAllContainerByItemId((Number(formData.itemId))));
+    console.log("containers-", containers);
 
     useEffect(() => {
         if (user?.business?.id) {
@@ -88,8 +102,8 @@ export default function StockEditForm() {
        
         try {
             // Dispatch create action, including totalAmount
-            console.log("Payment formData: ", formData);
-            await dispatch(create(formData));
+            console.log("Stock formData: ", formData);
+            await dispatch(update(formData));
             toast.success("Payment created successfully!");
 
             //navigate(`/payment/list`);
@@ -100,10 +114,10 @@ export default function StockEditForm() {
 
     return (
         <div>
-        <PageMeta title="Stock Update" description="Form to update stock" />
-        <PageBreadcrumb pageTitle="Stock Update" />
+        <PageMeta title="Stock Create" description="Form to create a new stock" />
+        <PageBreadcrumb pageTitle="Stock Create" />
 
-        <ComponentCard title="Modify fields to update stock">
+        <ComponentCard title="Fill up all fields to create a new stock">
             <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 
@@ -111,17 +125,43 @@ export default function StockEditForm() {
                 {/* Invoice Type */}
                 <div>
                     <Label>Select Invoice Ref (if have)</Label>
-                    <Select<OptionNumberType>
+                    <Select
                         options={invoices.map((i) => ({
-                            label: String(i.id),
-                            value: Number(i.id)
+                            label: `#${i.id} | ${i.party?.name ?? "No name"}`,
+                            value: i.id,
                         }))}
                         placeholder="Select invoice type"
+                        value={
+                            invoices
+                                .map((i) => ({
+                                label: `#${i.id} | ${i.party?.name ?? "No name"}`,
+                                value: i.id,
+                                }))
+                                .find((option) => option.value === formData.invoiceId) || null
+                        }
+                        onChange={(selectedOption) => {
+                        setFormData((prev) => ({
+                            ...prev,
+                            invoiceId: Number(selectedOption!.value),
+                        }));
+                        }}
+                        styles={selectStyles}
+                        classNamePrefix="react-select"
+                    />
+                    </div>
 
+
+                {/* Invoice Type */}
+                <div>
+                    <Label>Select Movement Type</Label>
+                    <Select<OptionStringType>
+                        options={MovementTypeOptions}
+                        placeholder="Select movement type"
+                        value={MovementTypeOptions.find(option => option.value === formData.movementType)}
                         onChange={(selectedOption) => {
                             setFormData(prev => ({
                                 ...prev,
-                                invoiceId: selectedOption!.value ?? null,
+                                movementType: selectedOption!.value,
                             }));
                         }}
                         styles={selectStyles}
@@ -140,9 +180,7 @@ export default function StockEditForm() {
                         }
                         placeholder="Search and select item"
                         value={
-                            items
-                            ?.filter((i) => i.id === formData.itemId)
-                            .map((i) => ({ label: i.name, value: i.id }))[0] || null
+                            items?.map((i) => ({ label: i.name, value: i.id }))[0] || null
                         }
                         onChange={(selectedOption) =>
                             setFormData((prev) => ({
@@ -159,28 +197,25 @@ export default function StockEditForm() {
                 <div>
                     <Label>Select Container</Label>
                     <Select
-                        options={
-                        containers
-                            .filter((i) =>
-                                formData.invoiceType === "purchase"
-                                ? true
-                                : Number(i.netStock) > 0
-                            )
-                            .map((i) => ({
-                                label: `${i.containerNo} - ${i.netStock} ${i.stockUnit} ${formData.invoiceType}`,
-                                value: i.id,
-                            })) || []
-                        }
+                        options={containers.map((i) => ({
+                            label: `${i.containerNo} - ${i.netStock} ${i.stockUnit}`,
+                            value: i.id,
+                            stockUnit: i.stockUnit, // consistent key name
+                        })) || []}
                         placeholder="Search and select item"
                         value={
                             containers
-                            ?.filter((i) => i.id === formData.containerId)
-                            .map((i) => ({ label: i.containerNo, value: i.id }))[0] || null
+                            .map((i) => ({
+                                label: `${i.containerNo} - ${i.netStock} ${i.stockUnit}`,
+                                value: i.id,
+                                stockUnit: i.stockUnit,
+                            }))
                         }
                         onChange={(selectedOption) =>
                             setFormData((prev) => ({
                                 ...prev,
-                                containerId: Number(selectedOption?.value),
+                                containerId: Number(selectedOption!.value),
+                                stockUnit: selectedOption?.stockUnit || '',
                             }))
                         }
                         isClearable

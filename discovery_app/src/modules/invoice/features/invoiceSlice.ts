@@ -23,7 +23,7 @@ const Slice = createSlice({
       })
       .addCase(fetchAllInvoice.fulfilled, (state, action) => {
           state.status = 'succeeded';
-          state.data = action.payload;
+          state.data = [...action.payload];
       })
       .addCase(fetchAllInvoice.rejected, (state, action) => {
           state.status = 'failed';

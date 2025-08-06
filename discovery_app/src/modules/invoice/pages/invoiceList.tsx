@@ -28,8 +28,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
 import {
   selectInvoiceStatus,
-  // selectInvoiceError,
-  selectAllInvoice,
+  selectAllInvoiceByType,
 
 } from "../features/invoiceSelectors.ts";
 import { fetchAllInvoice, destroy } from "../features/invoiceThunks.ts";
@@ -39,7 +38,7 @@ export default function InvoiceList() {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const invoices = useSelector(selectAllInvoice);
+  const invoices = useSelector(selectAllInvoiceByType(invoiceType));
   const status = useSelector(selectInvoiceStatus);
   console.log("all invoice: ", invoices);
 
@@ -118,6 +117,7 @@ export default function InvoiceList() {
               <TableHeader className="border-b border-t border-gray-100 dark:border-white/[0.05] bg-gray-200 text-black text-sm dark:bg-gray-800 dark:text-gray-400">
                 <TableRow>
                   <TableCell isHeader className="text-center px-4 py-2">Sl</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Invoice No</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Category</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Type</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Date</TableCell>
@@ -145,6 +145,9 @@ export default function InvoiceList() {
                     <TableRow key={invoice.id} className="border-b border-gray-100 dark:border-white/[0.05]">
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {(currentPage - 1) * itemsPerPage + index + 1}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {invoice.prefix + '-' + String(invoice.id).padStart(6, '0')}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {invoice.category?.name}

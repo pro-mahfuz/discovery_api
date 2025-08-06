@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { StockState } from './stockTypes';
-import { create, fetchAll, fetchById, update, destroy } from './stockThunks';
+import { create, fetchAllStock, fetchById, update, destroy } from './stockThunks';
 
 
 
@@ -17,15 +17,15 @@ const Slice = createSlice({
   extraReducers: (builder) => {
     builder
       // fetchParty
-      .addCase(fetchAll.pending, (state) => {
+      .addCase(fetchAllStock.pending, (state) => {
           state.status = 'loading';
           state.error = null;
       })
-      .addCase(fetchAll.fulfilled, (state, action) => {
+      .addCase(fetchAllStock.fulfilled, (state, action) => {
           state.status = 'succeeded';
           state.data = action.payload;
       })
-      .addCase(fetchAll.rejected, (state, action) => {
+      .addCase(fetchAllStock.rejected, (state, action) => {
           state.status = 'failed';
           state.error = action.error.message || null;
       })

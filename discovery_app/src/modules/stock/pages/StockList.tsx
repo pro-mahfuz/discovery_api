@@ -1,265 +1,249 @@
-import { FormEvent, ChangeEvent, useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
-
+import {
+  EyeIcon,
+  PencilIcon,
+  TrashIcon,
+  ChevronDownIcon,
+} from '@heroicons/react/20/solid';
+import {
+  PaginationControl,
+  SearchControl,
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from "../../../components/ui/table/index.tsx";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
-import ComponentCard from "../../../components/common/ComponentCard.tsx";
-import Label from "../../../components/form/Label.tsx";
-import Input from "../../../components/form/input/InputField.tsx";
-import DatePicker from "../../../components/form/date-picker.tsx";
-import Button from "../../../components/ui/button/Button.tsx";
-import Select from "react-select";
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 
-import { AppDispatch } from "../../../store/store.ts";
-import { OptionStringType, OptionNumberType, selectStyles } from "../../types.ts";
+import { toast } from "react-toastify";
+import { useModal } from "../../../hooks/useModal.ts";
+import ConfirmationModal from "../../../components/ui/modal/ConfirmationModal.tsx";
+
 import { Stock } from "../features/stockTypes.ts";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "../../../store/store.ts";
+import {
+  selectStockStatus,
+  selectAllStock
+} from "../features/stockSelectors.ts";
+import { fetchAllStock, destroy } from "../features/stockThunks.ts";
 
-import { create } from "../features/stockThunks.ts";
-import { fetchAllInvoice } from "../../invoice/features/invoiceThunks.ts";
-import { fetchAll as fetchContainer } from "../../container/features/containerThunks.ts";
-import { fetchAllItem } from "../../item/features/itemThunks.ts";
-import { fetchAllWarehouse } from "../../warehouse/features/warehouseThunks.ts";
+export default function StockList() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
 
-import { selectAuth } from "../../auth/features/authSelectors.ts";
-import { selectUserById } from "../../user/features/userSelectors.ts";
-import { selectAllInvoice } from "../../invoice/features/invoiceSelectors.ts";
-import { selectAllContainer } from "../../container/features/containerSelectors.ts";
-import { selectAllItem } from "../../item/features/itemSelectors.ts";
-import { selectAllWarehouse } from "../../warehouse/features/warehouseSelectors.ts";
+  const stocks = useSelector(selectAllStock);
+  const status = useSelector(selectStockStatus);
+  console.log("all stock: ", stocks);
 
+  const [filterText, setFilterText] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
 
-export default function StockListForm() {
+  const { isOpen, openModal, closeModal } = useModal();
+  const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
 
-    const navigate = useNavigate();
-    const dispatch = useDispatch<AppDispatch>();
+  useEffect(() => {
+    dispatch(fetchAllStock());
+  }, [dispatch]);
 
-    const authUser = useSelector(selectAuth);
-    const user = useSelector(selectUserById(Number(authUser.user?.id)));
-    console.log("Invoice authUser: ", authUser);
-    console.log("Invoice user: ", user);
-
-    useEffect(() => {
-        dispatch(fetchAllInvoice());
-        dispatch(fetchContainer());
-        dispatch(fetchAllWarehouse());
-        dispatch(fetchAllItem());
-    }, [dispatch]);
-
-    const containers = useSelector(selectAllContainer);
-    const invoices = useSelector(selectAllInvoice);
-    const items = useSelector(selectAllItem);
-    const warehouses = useSelector(selectAllWarehouse);
-
-
-    const [formData, setFormData] = useState<Stock>({
-        businessId: 0,
-        date: '',
-        invoiceType: undefined,        
-        invoiceId: undefined,
-        itemId: 0,
-        containerId: 0,
-        movementType: '',
-        warehouseId: 0,
-        quantity: 0,
-    });
-
-    useEffect(() => {
-        if (user?.business?.id) {
-          setFormData((prev) => ({
-            ...prev,
-            businessId: user?.business?.id,
-          }));
-        }
-    }, [user]);
-
-
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: name === "partyId" || name === "categoryId" ? Number(value) : value,
-        }));
-    };
-
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-       
-        try {
-            // Dispatch create action, including totalAmount
-            console.log("Payment formData: ", formData);
-            await dispatch(create(formData));
-            toast.success("Payment created successfully!");
-
-            //navigate(`/payment/list`);
-        } catch (err) {
-            toast.error("Failed to create payment.");
-        }
-    };
-
-    return (
-        <div>
-        <PageMeta title="Payment Create" description="Form to create a new payment" />
-        <PageBreadcrumb pageTitle="Payment Create" />
-
-        <ComponentCard title="Fill up all fields to create a new invoice">
-            <form className="space-y-5" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                
-
-                {/* Invoice Type */}
-                <div>
-                    <Label>Select Invoice Ref (if have)</Label>
-                    <Select<OptionNumberType>
-                        options={invoices.map((i) => ({
-                            label: String(i.id),
-                            value: Number(i.id)
-                        }))}
-                        placeholder="Select invoice type"
-
-                        onChange={(selectedOption) => {
-                            setFormData(prev => ({
-                                ...prev,
-                                invoiceId: selectedOption!.value ?? null,
-                            }));
-                        }}
-                        styles={selectStyles}
-                        classNamePrefix="react-select"
-                    />
-                </div>
-
-                <div>
-                    <Label>Search Item</Label>
-                    <Select
-                        options={
-                            items?.map((i) => ({
-                                label: i.name,
-                                value: i.id,
-                            })) || []
-                        }
-                        placeholder="Search and select item"
-                        value={
-                            items
-                            ?.filter((i) => i.id === formData.itemId)
-                            .map((i) => ({ label: i.name, value: i.id }))[0] || null
-                        }
-                        onChange={(selectedOption) =>
-                            setFormData((prev) => ({
-                                ...prev,
-                                itemId: Number(selectedOption?.value) ?? undefined,
-                            }))
-                        }
-                        isClearable
-                        styles={selectStyles}
-                        classNamePrefix="react-select"
-                    />
-                </div>
-
-                <div>
-                    <Label>Select Container</Label>
-                    <Select
-                        options={
-                        containers
-                            .filter((i) =>
-                                formData.invoiceType === "purchase"
-                                ? true
-                                : Number(i.netStock) > 0
-                            )
-                            .map((i) => ({
-                                label: `${i.containerNo} - ${i.netStock} ${i.stockUnit} ${formData.invoiceType}`,
-                                value: i.id,
-                            })) || []
-                        }
-                        placeholder="Search and select item"
-                        value={
-                            containers
-                            ?.filter((i) => i.id === formData.containerId)
-                            .map((i) => ({ label: i.containerNo, value: i.id }))[0] || null
-                        }
-                        onChange={(selectedOption) =>
-                            setFormData((prev) => ({
-                                ...prev,
-                                containerId: Number(selectedOption?.value),
-                            }))
-                        }
-                        isClearable
-                        styles={selectStyles}
-                        classNamePrefix="react-select"
-                    />
-                </div>
-
-                <div>
-                    <Label>Select Warehouse</Label>
-                    <Select
-                        options={
-                        warehouses
-                            .map((w) => ({
-                                label: `${w.name}`,
-                                value: w.id,
-                            })) || []
-                        }
-                        placeholder="Search and select warehouse"
-                        value={
-                            warehouses
-                            ?.filter((w) => w.id === formData.warehouseId)
-                            .map((w) => ({ label: w.name, value: w.id }))[0] || null
-                        }
-                        onChange={(selectedOption) =>
-                            setFormData((prev) => ({
-                                ...prev,
-                                warehouseId: selectedOption?.value ?? 0,
-                            }))
-                        }
-                        isClearable
-                        styles={selectStyles}
-                        classNamePrefix="react-select"
-                    />
-                </div>
-
-                {/* Date */}
-                <div>
-                    <DatePicker
-                        id="date-picker"
-                        label="Date"
-                        placeholder="Select a date"
-                        defaultDate={formData.date}
-                        onChange={(dates, currentDateString) => {
-                            console.log({ dates, currentDateString });
-                            setFormData((prev) => ({
-                            ...prev!,
-                            paymentDate: currentDateString, 
-                            }));
-                        }}
-                    />
-                </div>
-
-                
-
-                {/* Paid Amount */}
-                <div>
-                <Label>Quantity</Label>
-                <Input
-                    type="number"
-                    name="quantity"
-                    placeholder="Enter quantity"
-                    value={formData.quantity}
-                    onChange={handleChange}
-                />
-                </div>
-
-                
-            </div>
-
-            
-
-            <div className="flex justify-end">
-                <Button type="submit" variant="success">
-                Submit
-                </Button>
-            </div>
-            </form>
-        </ComponentCard>
-        </div>
+  const filteredData = useMemo(() => {
+    return stocks.filter(
+      (i) =>
+        i.id
     );
+  }, [stocks, filterText]);
+
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredData.slice(start, start + itemsPerPage);
+  }, [filteredData, currentPage, itemsPerPage]);
+
+  const handleView = (stock: Stock) => {
+    navigate(`/stock/${stock.id}/view`);
+  };
+
+  const handleEdit = (stock: Stock) => {
+
+    navigate(`/stock/${stock.id}/edit`);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedStock) return;
+
+    try {
+      // You can implement a deleteSupplier thunk and use it here:
+      await dispatch(destroy(selectedStock.id!)).unwrap();
+      toast.success("Stock deleted successfully");
+      closeAndResetModal();
+    } catch (error) {
+      toast.error("Failed to delete invoice");
+    }
+  };
+
+  const closeAndResetModal = () => {
+    setSelectedStock(null);
+    closeModal();
+  };
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [totalPages, currentPage]);
+
+  return (
+    <>
+      <PageMeta
+        title="Stock List"
+        description="Stock Table with Search, Sort, Pagination"
+      />
+      <PageBreadcrumb pageTitle="Stock List" />
+
+      <div className="space-y-6">
+        <div className="rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+          <div className="max-w-full">
+            <SearchControl value={filterText} onChange={setFilterText} />
+
+            <Table>
+              <TableHeader className="border-b border-t border-gray-100 dark:border-white/[0.05] bg-gray-200 text-black text-sm dark:bg-gray-800 dark:text-gray-400">
+                <TableRow>
+                  <TableCell isHeader className="text-center px-4 py-2">Sl</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Invoice Ref</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Date</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Movement Type</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Container</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Item</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Warehouse</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Qty</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Unit</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Action</TableCell>
+                </TableRow>
+              </TableHeader>
+
+              <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                {status === 'loading' ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-4 text-gray-500 dark:text-gray-300">
+                      Loading data...
+                    </TableCell>
+                  </TableRow>
+                ) : paginatedData.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-4 text-gray-500 dark:text-gray-300">
+                      No data found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  paginatedData.map((stock, index) => (
+                    <TableRow key={stock.id} className="border-b border-gray-100 dark:border-white/[0.05]">
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {(currentPage - 1) * itemsPerPage + index + 1}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {stock.invoiceId}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {stock.date}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {stock.movementType}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {stock?.container?.containerNo}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {stock.item?.name}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {stock.warehouse?.name}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {stock.quantity}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {stock.stockUnit}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm overflow-visible">
+                        <Menu as="div" className="relative inline-block text-left">
+                          <MenuButton className="inline-flex items-center gap-1 rounded-full bg-sky-500 px-2 py-1 text-sm font-semibold text-white hover:bg-sky-700 focus:outline-none">
+                            Actions
+                            <ChevronDownIcon className="h-4 w-4 text-white" />
+                          </MenuButton>
+
+                          <MenuItems className="absolute right-0 z-50 mt-2 w-40 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-sky-500 ring-opacity-5 focus:outline-none">
+                            <div className="py-1">
+                              <MenuItem>
+                                {({ active }) => (
+                                  <button
+                                    onClick={() => handleView(stock)}
+                                    className={`${active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'} flex w-full items-center gap-2 px-4 py-2 text-sm`}
+                                  >
+                                    <EyeIcon className="h-4 w-4" />
+                                    View
+                                  </button>
+                                )}
+                              </MenuItem>
+                              <MenuItem>
+                                {({ active }) => (
+                                  <button
+                                    onClick={() => handleEdit(stock)}
+                                    className={`${active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'} flex w-full items-center gap-2 px-4 py-2 text-sm`}
+                                  >
+                                    <PencilIcon className="h-4 w-4" />
+                                    Edit
+                                  </button>
+                                )}
+                              </MenuItem>
+                              <MenuItem>
+                                {({ active }) => (
+                                  <button
+                                    onClick={() => {
+                                      setSelectedStock(stock);
+                                      openModal();
+                                    }}
+                                    className={`${active ? 'bg-red-100 text-red-700' : 'text-red-600'} flex w-full items-center gap-2 px-4 py-2 text-sm`}
+                                  >
+                                    <TrashIcon className="h-4 w-4" />
+                                    Delete
+                                  </button>
+                                )}
+                              </MenuItem>
+                            </div>
+                          </MenuItems>
+                        </Menu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Pagination Controls */}
+          <PaginationControl
+            currentPage={currentPage}
+            totalPages={totalPages}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
+        </div>
+      </div>
+
+      <ConfirmationModal
+        isOpen={isOpen}
+        title="Are you sure you want to delete this supplier?"
+        width="400px"
+        onCancel={closeAndResetModal}
+        onConfirm={handleDelete}
+      />
+    </>
+  );
 }

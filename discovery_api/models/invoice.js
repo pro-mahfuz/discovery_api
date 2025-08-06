@@ -15,6 +15,14 @@ export default (sequelize, DataTypes) => {
         key: 'id',
       },
     },
+    invoiceRefId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    prefix: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     invoiceType: {
       type: DataTypes.ENUM,
       values: ['purchase', 'sale'],

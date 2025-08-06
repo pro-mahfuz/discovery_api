@@ -32,7 +32,7 @@ export const getStockById = async (req, res, next) => {
 
 export const updateStock = async (req, res, next) => {
     try {
-        const data = await StockService.updateStock(req.params.id, req);
+        const data = await StockService.updateStock(req);
         return success(res, data, "Stock updated successfully", 200);
     } catch (err) {
         return error(res, err.message, err.status || 500);

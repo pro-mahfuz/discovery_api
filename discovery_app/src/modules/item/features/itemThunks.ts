@@ -4,7 +4,7 @@ import { Item } from './itemTypes';
 import * as itemAPI from '../features/itemAPI';
 
 export const fetchAllItem = createAsyncThunk<Item[], void, { rejectValue: string }>(
-  'invoice/fetchAll', async (_, thunkAPI) => {
+  'item/fetchAll', async (_, thunkAPI) => {
     try {
 
       const data = await itemAPI.fetchAll();
@@ -19,7 +19,7 @@ export const fetchAllItem = createAsyncThunk<Item[], void, { rejectValue: string
 );
 
 export const create = createAsyncThunk<Item, Item, { rejectValue: string }>(
-  'invoice/create', async (createData, thunkAPI) => {
+  'item/create', async (createData, thunkAPI) => {
     try {
       const data = await itemAPI.create(createData);
       return data;
@@ -36,7 +36,7 @@ export const create = createAsyncThunk<Item, Item, { rejectValue: string }>(
 );
 
 export const fetchById = createAsyncThunk<Item, number, { rejectValue: string }>(
-  'invoice/fetchById', async (id, thunkAPI) => {
+  'item/fetchById', async (id, thunkAPI) => {
     try {
 
       const data = await itemAPI.fetchById(id);
@@ -54,7 +54,7 @@ export const fetchById = createAsyncThunk<Item, number, { rejectValue: string }>
 );
 
 export const update = createAsyncThunk<Item, Item, { rejectValue: string }>(
-  'invoice/update', async (updatedData, thunkAPI) => {
+  'item/update', async (updatedData, thunkAPI) => {
     try {
 
       if (typeof updatedData.id !== 'number') {
@@ -76,7 +76,7 @@ export const update = createAsyncThunk<Item, Item, { rejectValue: string }>(
 );
 
 export const destroy = createAsyncThunk<any, number, { rejectValue: string }>(
-  'invoice/delete', async (id, thunkAPI) => {
+  'item/delete', async (id, thunkAPI) => {
     try {
 
       await itemAPI.destroy(id);

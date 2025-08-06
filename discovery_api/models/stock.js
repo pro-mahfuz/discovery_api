@@ -8,6 +8,10 @@ export default (sequelize, DataTypes) => {
         key: 'id',
       },
     },
+    date: {
+      type: DataTypes.DATEONLY,
+      allowNull: false,
+    },
     invoiceType: {
       type: DataTypes.STRING(20), // 'purchase' or 'sale'
       allowNull: true,
@@ -21,7 +25,11 @@ export default (sequelize, DataTypes) => {
       allowNull: false,
     },
     quantity: {
-      type: DataTypes.DECIMAL(12, 2),
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    stockUnit: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
     warehouseId: {

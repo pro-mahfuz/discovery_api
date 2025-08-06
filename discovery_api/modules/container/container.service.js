@@ -25,7 +25,7 @@ export const getAllContainer = async () => {
         // if(container.stock){
             const rawNetStock = container.stocks.reduce((total, stock) => {
             const quantity = Number(stock.quantity ?? 0);
-            return stock.invoiceType === "purchase"
+            return stock.movementType === "in" | "saleReturen"
                 ? total + quantity
                 : total - quantity;
             }, 0);

@@ -18,6 +18,20 @@ export const getAllInvoice = async () => {
         ],
     });
 
+    const invoiceData = data
+    .map(invoice => {
+        let invoiceNo = '';
+        invoiceNo = invoice.prefix + String(invoice.id).padStart(6, '0');
+       
+
+        return {
+            ...invoice.toJSON(),
+            invoiceNo: invoiceNo.toString(), 
+        };
+    });
+    
+    return invoiceData;
+
     
 
     if (!data || data.length === 0) throw { status: 400, message: "No Invoice found" };
@@ -29,16 +43,27 @@ export const createInvoice = async (req) => {
 
     const t = await sequelize.transaction();
     try {
+        const prefixMap = {
+            purchase: "PO",
+            sale: "SO",
+            purchaseReturn: "PR",
+            saleReturn: "SR",
+        };
+
+        const prefix = prefixMap[invoiceData.invoiceType] || "";
+
+        invoiceData.prefix = prefix;
+        
 
         
         // Step 1: Create Invoice
         const invoice = await Invoice.create(invoiceData, { transaction: t });
 
         // Determine movementType based on invoice type
-        let movementType = null;
-        if (invoice.invoiceType === 'purchase') movementType = 'in';
-        else if (invoice.invoiceType === 'sale') movementType = 'out';
-        else if (invoice.invoiceType === 'return') movementType = 'in';
+        // let movementType = null;
+        // if (invoice.invoiceType === 'purchase') movementType = 'in';
+        // else if (invoice.invoiceType === 'sale') movementType = 'out';
+        // else if (invoice.invoiceType === 'return') movementType = 'in';
 
         // Step 2: Create Invoice Items and Stocks
         if (items && Array.isArray(items)) {
@@ -54,18 +79,18 @@ export const createInvoice = async (req) => {
             await InvoiceItem.bulkCreate(invoiceItems, { transaction: t });
 
             // Create Stock entries
-            const stockEntries = items.map((item) => ({
-                businessId: invoice.businessId,
-                invoiceType: invoice.invoiceType,
-                invoiceId: invoice.id,
-                movementType: movementType,
-                quantity: item.quantity,
-                warehouseId: item.warehouseId || null, // allow null
-                containerId: item.containerId,
-                itemId: item.itemId,
-            }));
+            // const stockEntries = items.map((item) => ({
+            //     businessId: invoice.businessId,
+            //     invoiceType: invoice.invoiceType,
+            //     invoiceId: invoice.id,
+            //     movementType: movementType,
+            //     quantity: item.quantity,
+            //     warehouseId: item.warehouseId || null, // allow null
+            //     containerId: item.containerId,
+            //     itemId: item.itemId,
+            // }));
 
-            await Stock.bulkCreate(stockEntries, { transaction: t });
+            // await Stock.bulkCreate(stockEntries, { transaction: t });
         }
 
         let debitAmount = 0;
@@ -151,14 +176,14 @@ export const updateInvoice = async (req) => {
         await invoice.update(invoiceData, { transaction: t });
 
         // Determine movementType based on updated invoiceType
-        let movementType = null;
-        if (invoice.invoiceType === 'purchase') movementType = 'in';
-        else if (invoice.invoiceType === 'sale') movementType = 'out';
-        else if (invoice.invoiceType === 'return') movementType = 'in';
+        // let movementType = null;
+        // if (invoice.invoiceType === 'purchase') movementType = 'in';
+        // else if (invoice.invoiceType === 'sale') movementType = 'out';
+        // else if (invoice.invoiceType === 'return') movementType = 'in';
 
         // Step 3: Remove old items and stocks
         await InvoiceItem.destroy({ where: { invoiceId: id }, transaction: t });
-        await Stock.destroy({ where: { invoiceId: id }, transaction: t });
+        //await Stock.destroy({ where: { invoiceId: id }, transaction: t });
 
         // Step 4: Re-create Invoice Items and Stocks
         if (items && Array.isArray(items)) {
@@ -173,17 +198,17 @@ export const updateInvoice = async (req) => {
 
             await InvoiceItem.bulkCreate(invoiceItems, { transaction: t });
 
-            const stockEntries = items.map((item) => ({
-                businessId: invoice.businessId,
-                invoiceType: invoice.invoiceType,
-                invoiceId: invoice.id,
-                movementType: movementType,
-                quantity: item.quantity,
-                warehouseId: item.warehouseId || null, // allow null
-                itemId: item.itemId,
-            }));
+            // const stockEntries = items.map((item) => ({
+            //     businessId: invoice.businessId,
+            //     invoiceType: invoice.invoiceType,
+            //     invoiceId: invoice.id,
+            //     movementType: movementType,
+            //     quantity: item.quantity,
+            //     warehouseId: item.warehouseId || null, // allow null
+            //     itemId: item.itemId,
+            // }));
 
-            await Stock.bulkCreate(stockEntries, { transaction: t });
+            // await Stock.bulkCreate(stockEntries, { transaction: t });
         }
 
         // Step 5: update ledger
@@ -268,10 +293,10 @@ export const deleteInvoice = async (req) => {
     });
 
     // Delete the stock
-    await Stock.destroy({
-      where: { invoiceId: id },
-      transaction: t,
-    });
+    // await Stock.destroy({
+    //   where: { invoiceId: id },
+    //   transaction: t,
+    // });
 
     // Delete related invoice items first
     await InvoiceItem.destroy({

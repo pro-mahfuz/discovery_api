@@ -162,6 +162,12 @@ export default function App() {
               </PrivateRoute>} 
             />
 
+            <Route index path="/payment/:id/edit" element={
+              <PrivateRoute permissions={['manage_invoice']}>
+                <PaymentEditForm />
+              </PrivateRoute>} 
+            />
+
             {/* Stock */}
             <Route index path="/stock/create" element={
               <PrivateRoute permissions={['create_invoice']}>

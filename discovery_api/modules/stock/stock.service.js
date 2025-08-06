@@ -1,7 +1,26 @@
-import { Stock } from "../../models/model.js";
+import { Stock, Business, Item, Container, Warehouse } from "../../models/model.js";
 
 export const getAllStock = async () => {
-    const data = await Stock.findAll();
+    const data = await Stock.findAll({
+        include: [
+            {
+                model: Business,
+                as: "business",
+            },
+            {
+                model: Item,
+                as: "item",
+            },
+            {
+                model: Container,
+                as: "container",
+            },
+            {
+                model: Warehouse,
+                as: "warehouse",
+            },
+        ],
+    });
     if (!data || data.length === 0) throw { status: 400, message: "No stock found" };
     return data;
 }

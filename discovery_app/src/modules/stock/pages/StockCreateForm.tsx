@@ -21,16 +21,18 @@ import { fetchAllInvoice } from "../../invoice/features/invoiceThunks.ts";
 import { fetchAll as fetchContainer } from "../../container/features/containerThunks.ts";
 import { fetchAllItem } from "../../item/features/itemThunks.ts";
 import { fetchAllWarehouse } from "../../warehouse/features/warehouseThunks.ts";
+import { fetchAllCategory } from "../../category/features/categoryThunks.ts";
 
 import { selectAuth } from "../../auth/features/authSelectors.ts";
 import { selectUserById } from "../../user/features/userSelectors.ts";
-import { selectAllInvoice } from "../../invoice/features/invoiceSelectors.ts";
-import { selectAllContainer } from "../../container/features/containerSelectors.ts";
+import { selectAllInvoice, selectInvoiceById } from "../../invoice/features/invoiceSelectors.ts";
 import { selectAllItem } from "../../item/features/itemSelectors.ts";
 import { selectAllWarehouse } from "../../warehouse/features/warehouseSelectors.ts";
+import { selectCategoryById } from "../../category/features/categorySelectors";
+import { selectAllContainerByItemId } from "../../container/features/containerSelectors";
 
 
-export default function PaymentCreateForm() {
+export default function StockCreateForm() {
 
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
@@ -39,21 +41,18 @@ export default function PaymentCreateForm() {
     const user = useSelector(selectUserById(Number(authUser.user?.id)));
     // console.log("Invoice authUser: ", authUser);
     // console.log("Invoice user: ", user);
-    const containers = useSelector(selectAllContainer);
-    const invoices = useSelector(selectAllInvoice);
-    console.log("invoices: ", invoices);
+
     const items = useSelector(selectAllItem);
+    const invoices = useSelector(selectAllInvoice);
     const warehouses = useSelector(selectAllWarehouse);
 
     useEffect(() => {
         dispatch(fetchAllInvoice());
         dispatch(fetchContainer());
         dispatch(fetchAllWarehouse());
+        dispatch(fetchAllCategory());
         dispatch(fetchAllItem());
     }, [dispatch]);
-
-    
-
 
     const [formData, setFormData] = useState<Stock>({
         businessId: 0,
@@ -65,7 +64,17 @@ export default function PaymentCreateForm() {
         movementType: '',
         warehouseId: 0,
         quantity: 0,
+        stockUnit: ''
     });
+
+    const invoice = useSelector(selectInvoiceById(Number(formData.invoiceId)));
+    console.log("invoice- ", invoice);
+
+    const categoryItem = useSelector(selectCategoryById(Number(invoice?.categoryId)));
+    console.log("categoryItem- ",categoryItem);
+
+    const containers = useSelector(selectAllContainerByItemId((Number(formData.itemId))));
+    console.log("containers-", containers);
 
     useEffect(() => {
         if (user?.business?.id) {
@@ -90,11 +99,11 @@ export default function PaymentCreateForm() {
        
         try {
             // Dispatch create action, including totalAmount
-            console.log("Payment formData: ", formData);
+            console.log("Stock formData: ", formData);
             await dispatch(create(formData));
             toast.success("Payment created successfully!");
 
-            //navigate(`/payment/list`);
+            navigate(`/payment/list`);
         } catch (err) {
             toast.error("Failed to create payment.");
         }
@@ -113,10 +122,10 @@ export default function PaymentCreateForm() {
                 {/* Invoice Type */}
                 <div>
                     <Label>Select Invoice Ref (if have)</Label>
-                    <Select<OptionStringType>
+                    <Select
                         options={invoices.map((i) => ({
                             label: `#${i.id} | ${i.party?.name ?? "No name"}`,
-                            value: String(i.party?.name)
+                            value: i.id
                         }))}
                         placeholder="Select invoice type"
 
@@ -133,7 +142,7 @@ export default function PaymentCreateForm() {
 
                 {/* Invoice Type */}
                 <div>
-                    <Label>Select Invoice Type</Label>
+                    <Label>Select Movement Type</Label>
                     <Select<OptionStringType>
                         options={MovementTypeOptions}
                         placeholder="Select movement type"
@@ -160,9 +169,7 @@ export default function PaymentCreateForm() {
                         }
                         placeholder="Search and select item"
                         value={
-                            items
-                            ?.filter((i) => i.id === formData.itemId)
-                            .map((i) => ({ label: i.name, value: i.id }))[0] || null
+                            items?.map((i) => ({ label: i.name, value: i.id }))[0] || null
                         }
                         onChange={(selectedOption) =>
                             setFormData((prev) => ({
@@ -179,34 +186,33 @@ export default function PaymentCreateForm() {
                 <div>
                     <Label>Select Container</Label>
                     <Select
-                        options={
-                        containers
-                            .filter((i) =>
-                                formData.invoiceType === "purchase"
-                                ? true
-                                : Number(i.netStock) > 0
-                            )
-                            .map((i) => ({
-                                label: `${i.containerNo} - ${i.netStock} ${i.stockUnit}`,
-                                value: i.id,
-                            })) || []
-                        }
+                        options={containers.map((i) => ({
+                            label: `${i.containerNo} - ${i.netStock} ${i.stockUnit}`,
+                            value: i.id,
+                            stockUnit: i.stockUnit, // consistent key name
+                        })) || []}
                         placeholder="Search and select item"
                         value={
                             containers
-                            ?.filter((i) => i.id === formData.containerId)
-                            .map((i) => ({ label: i.containerNo, value: i.id }))[0] || null
+                            .map((i) => ({
+                                label: `${i.containerNo} - ${i.netStock} ${i.stockUnit}`,
+                                value: i.id,
+                                stockUnit: i.stockUnit,
+                            }))
+                            .find((opt) => opt.value === formData.containerId) || null
                         }
                         onChange={(selectedOption) =>
                             setFormData((prev) => ({
                                 ...prev,
-                                containerId: Number(selectedOption?.value),
+                                containerId: Number(selectedOption!.value),
+                                stockUnit: selectedOption?.stockUnit || '',
                             }))
                         }
                         isClearable
                         styles={selectStyles}
                         classNamePrefix="react-select"
                     />
+
                 </div>
 
                 <div>
@@ -247,8 +253,8 @@ export default function PaymentCreateForm() {
                         onChange={(dates, currentDateString) => {
                             console.log({ dates, currentDateString });
                             setFormData((prev) => ({
-                            ...prev!,
-                            paymentDate: currentDateString, 
+                                ...prev!,
+                                date: currentDateString, 
                             }));
                         }}
                     />

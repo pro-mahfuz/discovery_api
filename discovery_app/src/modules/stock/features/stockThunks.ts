@@ -3,7 +3,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { Stock } from './stockTypes';
 import * as stockAPI from '../features/stockAPI';
 
-export const fetchAll = createAsyncThunk<Stock[], void, { rejectValue: string }>(
+export const fetchAllStock = createAsyncThunk<Stock[], void, { rejectValue: string }>(
   'stock/fetchAll', async (_, thunkAPI) => {
     try {
 

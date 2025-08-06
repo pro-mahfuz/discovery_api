@@ -133,10 +133,11 @@ export default function PaymentCreateForm() {
                 {/* Invoice Type */}
                 <div>
                     <Label>Select Invoice Ref (if have)</Label>
-                    <Select<OptionNumberType>
+                    <Select
                         options={invoices.map((i) => ({
                             label: String(i.id),
-                            value: Number(i.id)
+                            value: Number(i.id),
+                            partyId: Number(i.partyId)
                         }))}
                         placeholder="Select invoice type"
 
@@ -144,6 +145,7 @@ export default function PaymentCreateForm() {
                             setFormData(prev => ({
                                 ...prev,
                                 invoiceId: selectedOption!.value ?? null,
+                                partyId: selectedOption?.partyId,
                             }));
                         }}
                         styles={selectStyles}
@@ -263,9 +265,9 @@ export default function PaymentCreateForm() {
                     <Label>Payment Details (if have)</Label>
                     <Input
                         type="text"
-                        name="note"
-                        placeholder="Optional note"
-                        value={formData.note}
+                        name="paymentDetails"
+                        placeholder="Optional payment details"
+                        value={formData.paymentDetails}
                         onChange={handleChange}
                     />
                 </div>

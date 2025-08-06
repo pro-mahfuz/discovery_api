@@ -120,7 +120,7 @@ const AppSidebar: React.FC<any> = () => {
       name: "Stock",
       icon: <ListIcon />,
       subItems: [
-        { name: "Stock List", path: "/stock/0/list", pro: false },
+        { name: "Stock List", path: "/stock/list", pro: false },
         { name: "Stock Add", path: "/stock/create", pro: false }
       ],
     },

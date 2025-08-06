@@ -11,27 +11,19 @@ import Input from "../../../components/form/input/InputField";
 import DatePicker from "../../../components/form/date-picker.tsx";
 import Button from "../../../components/ui/button/Button";
 import Select from "react-select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from "../../../components/ui/table/index.tsx";
 
 import { AppDispatch } from "../../../store/store";
 import { OptionStringType, InvoiceType, InvoiceTypeOptions, OptionNumberType } from "../../types.ts";
 import { Payment, paymentMethodOptions, paymentOptions } from "../features/paymentTypes.ts";
 
 import { create } from "../features/paymentThunks";
-import { fetchAll as fetchPayment } from "../../invoice/features/invoiceThunks.ts";
+import { fetchAll as fetchPayment } from "../../payment/features/paymentThunks.ts";
 import { fetchParty } from "../../party/features/partyThunks.ts";
 
 import { selectAuth } from "../../auth/features/authSelectors";
 import { selectUserById } from "../../user/features/userSelectors";
 import { selectAllParties } from "../../party/features/partySelectors";
 import { selectAllInvoice } from "../../invoice/features/invoiceSelectors.ts";
-import { LabelsBuilder } from "@react-jvectormap/core";
 
 
 export default function PaymentEditForm() {
@@ -56,7 +48,7 @@ export default function PaymentEditForm() {
     const [formData, setFormData] = useState<Payment>({
         businessId: 0,
         invoiceId: null,
-        categoryId: 1,
+        categoryId: null,
         partyId: 0,
         paymentType: '',
         paymentDate: "",
@@ -85,16 +77,6 @@ export default function PaymentEditForm() {
         }));
     };
 
-    const handleCurrentItemChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setCurrentItem(prev => ({
-            ...prev,
-            [name]: name === "price" || name === "quantity" ? Number(value) : value,
-        }));
-    };
-
-    
-
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
        
@@ -104,7 +86,7 @@ export default function PaymentEditForm() {
             await dispatch(create(formData));
             toast.success("Payment created successfully!");
 
-            navigate(`/payment/list`);
+            //navigate(`/payment/list`);
         } catch (err) {
             toast.error("Failed to create payment.");
         }
@@ -150,7 +132,7 @@ export default function PaymentEditForm() {
 
                 {/* Invoice Type */}
                 <div>
-                    <Label>Select Invoice Ref</Label>
+                    <Label>Select Invoice Ref (if have)</Label>
                     <Select<OptionNumberType>
                         options={invoices.map((i) => ({
                             label: String(i.id),
@@ -171,7 +153,7 @@ export default function PaymentEditForm() {
 
                 {/* Search Party */}
                 <div>
-                    <Label>Select Party</Label>
+                    <Label>Search & Select Party (if have)</Label>
                     <Select
                         options={matchingParties.map((p) => ({
                             label: p.name,
@@ -203,38 +185,89 @@ export default function PaymentEditForm() {
                         placeholder="Select a date"
                         defaultDate={formData.paymentDate}
                         onChange={(dates, currentDateString) => {
-                            // Handle your logic
                             console.log({ dates, currentDateString });
                             setFormData((prev) => ({
-                                ...prev!,
-                                date: currentDateString,
-                            }))
+                            ...prev!,
+                            paymentDate: currentDateString, 
+                            }));
                         }}
                     />
                 </div>
 
-                {/* Total Amount */}
+                {/* Payment Type */}
                 <div>
-                <Label>Total Amount</Label>
+                    <Label>Select Payment Type</Label>
+                    <Select<OptionStringType>
+                        options={paymentOptions}
+                        placeholder="Select Payment type"
+                        value={paymentOptions.find(option => option.value === formData.paymentType) || null}
+                        onChange={(selectedOption) => {
+                        if (selectedOption) {
+                            setFormData((prev) => ({
+                                ...prev,
+                                paymentType: selectedOption.value,
+                            }));
+                        }
+                        }}
+                        styles={selectStyles}
+                        classNamePrefix="react-select"
+                    />
+                </div>
+
+                {/* Paid Amount */}
+                <div>
+                <Label>Amount</Label>
                 <Input
                     type="number"
-                    name="totalAmount"
-                    placeholder="Enter total amount"
-                    value={totalAmount}
-                    readonly={true}
+                    name="amountPaid"
+                    placeholder="Enter amount"
+                    value={formData.amountPaid}
+                    onChange={handleChange}
                 />
                 </div>
 
                 {/* Note */}
                 <div className="md:col-span-3">
-                <Label>Note</Label>
-                <Input
-                    type="text"
-                    name="note"
-                    placeholder="Optional note"
-                    value={formData.note}
-                    onChange={handleChange}
-                />
+                    <Label>Note</Label>
+                    <Input
+                        type="text"
+                        name="note"
+                        placeholder="Optional note"
+                        value={formData.note}
+                        onChange={handleChange}
+                    />
+                </div>
+
+                {/* Payment Type */}
+                <div>
+                    <Label>Select Payment Method</Label>
+                    <Select<OptionStringType>
+                        options={paymentMethodOptions}
+                        placeholder="Select Payment Method"
+                        value={paymentMethodOptions.find(option => option.value === formData.paymentMethod) || null}
+                        onChange={(selectedOption) => {
+                        if (selectedOption) {
+                            setFormData((prev) => ({
+                                ...prev,
+                                paymentMethod: selectedOption.value,
+                            }));
+                        }
+                        }}
+                        styles={selectStyles}
+                        classNamePrefix="react-select"
+                    />
+                </div>
+
+                {/* Note */}
+                <div className="md:col-span-3">
+                    <Label>Payment Details (if have)</Label>
+                    <Input
+                        type="text"
+                        name="paymentDetails"
+                        placeholder="Optional payment details"
+                        value={formData.paymentDetails}
+                        onChange={handleChange}
+                    />
                 </div>
             </div>
 

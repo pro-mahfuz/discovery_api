@@ -17,8 +17,10 @@ export interface Item {
 // Invoice interface
 export interface Invoice {
   id?: number; 
+  invoiceRefId?: number;
   businessId?: number;                 
   categoryId: number | string;
+  prefix?: string;
   invoiceType: string;
   partyId: number | string;
   party?: Party;

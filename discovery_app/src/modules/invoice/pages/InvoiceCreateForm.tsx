@@ -80,10 +80,7 @@ export default function InvoiceCreateForm() {
         }));
     }, [user, invoiceType]);
 
-    console.log("Invoice FormData: ", formData);
-
     const categoryItem = useSelector(selectCategoryById(Number(formData.categoryId)));
-    console.log("categoryItem-", categoryItem);
 
     const [totalAmount, setTotalAmount] = useState(0);
 
@@ -138,8 +135,7 @@ export default function InvoiceCreateForm() {
 
         try {
             // Dispatch create action, including totalAmount
-            console.log("formData: ", formData);
-            console.log("currentItemData: ", currentItem);
+            console.log("Invoice FormData: ", formData);
             await dispatch(create({ ...formData, totalAmount }));
             toast.success("Invoice created successfully!");
             const categoryId = 0;
