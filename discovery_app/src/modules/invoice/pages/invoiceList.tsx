@@ -147,7 +147,7 @@ export default function InvoiceList() {
                         {(currentPage - 1) * itemsPerPage + index + 1}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {invoice.prefix + '-' + String(invoice.id).padStart(6, '0')}
+                        {invoice.invoiceNo}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {invoice.category?.name}

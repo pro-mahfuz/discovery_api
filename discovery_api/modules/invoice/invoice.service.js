@@ -18,10 +18,12 @@ export const getAllInvoice = async () => {
         ],
     });
 
+    if (!data || data.length === 0) throw { status: 400, message: "No Invoice found" };
+
     const invoiceData = data
     .map(invoice => {
         let invoiceNo = '';
-        invoiceNo = invoice.prefix + String(invoice.id).padStart(6, '0');
+        invoiceNo = invoice.prefix + "-" + String(invoice.id).padStart(6, '0');
        
 
         return {
@@ -31,11 +33,6 @@ export const getAllInvoice = async () => {
     });
     
     return invoiceData;
-
-    
-
-    if (!data || data.length === 0) throw { status: 400, message: "No Invoice found" };
-    return data;
 }
 
 export const createInvoice = async (req) => {
@@ -44,10 +41,10 @@ export const createInvoice = async (req) => {
     const t = await sequelize.transaction();
     try {
         const prefixMap = {
-            purchase: "PO",
-            sale: "SO",
-            purchaseReturn: "PR",
-            saleReturn: "SR",
+            purchase: "PCO",
+            sale: "SLO",
+            purchaseReturn: "PCR",
+            saleReturn: "SLR",
         };
 
         const prefix = prefixMap[invoiceData.invoiceType] || "";

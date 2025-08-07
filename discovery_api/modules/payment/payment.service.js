@@ -3,23 +3,47 @@ import { Payment, Ledger, sequelize } from "../../models/model.js";
 export const getAllPayment = async () => {
     const data = await Payment.findAll();
     if (!data || data.length === 0) throw { status: 400, message: "No payment found" };
-    return data;
+
+    const paymentData = data
+    .map(payment => {
+        let paymentRefNo = '';
+        paymentRefNo = payment.prefix + String(payment.id).padStart(6, '0');
+       
+
+        return {
+            ...payment.toJSON(),
+            paymentRefNo: paymentRefNo.toString(), 
+        };
+    });
+
+    return paymentData;
 }
 
 export const createPayment = async (req) => {
 
     const t = await sequelize.transaction();
 
-    const data = await Payment.create(req.body, { transaction: t });
+    try {
+        const prefixMap = {
+            payment_in: "PMI",
+            payment_out: "PMO",
+            expense: "PME",
+        };
 
-    let debitAmount = 0;
-    let creditAmount = 0;
-    if (req.body.paymentType === 'payment_in'){
-        creditAmount = req.body.amountPaid;
-    }
-    else if (req.body.paymentType === 'payment_out'){
-        debitAmount = req.body.amountPaid;
-    }else{
+        const prefix = prefixMap[req.body.paymentType] || "";
+
+        req.body.prefix = prefix;
+
+        const data = await Payment.create(req.body, { transaction: t });
+
+        let debitAmount = 0;
+        let creditAmount = 0;
+        if (req.body.paymentType === 'payment_in'){
+            creditAmount = req.body.amountPaid;
+        }
+        if (req.body.paymentType === 'payment_out'){
+            debitAmount = req.body.amountPaid;
+        }
         await Ledger.create(
             {
                 businessId: req.body.businessId,
@@ -35,14 +59,17 @@ export const createPayment = async (req) => {
             }, 
             { transaction: t }
         );
+
+        await t.commit();
+        console.log("Payment response body:", data);
+        
+        return data;
+
+    } catch (error) {
+        await t.rollback();
+        console.error("Failed to create invoice:", error);
+        throw error;
     }
-
-    
-
-    await t.commit();
-    console.log("Payment response body:", data);
-    
-    return data;
 }
 
 export const getPaymentById = async (id) => {

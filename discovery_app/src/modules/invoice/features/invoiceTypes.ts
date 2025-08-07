@@ -21,6 +21,7 @@ export interface Invoice {
   businessId?: number;                 
   categoryId: number | string;
   prefix?: string;
+  invoiceNo: string;
   invoiceType: string;
   partyId: number | string;
   party?: Party;

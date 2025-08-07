@@ -132,7 +132,7 @@ export default function StockCreateForm() {
                         onChange={(selectedOption) => {
                             setFormData(prev => ({
                                 ...prev,
-                                invoiceId: Number(selectedOption!.value) ?? null,
+                                invoiceId: Number(selectedOption!.value),
                             }));
                         }}
                         styles={selectStyles}
@@ -174,7 +174,7 @@ export default function StockCreateForm() {
                         onChange={(selectedOption) =>
                             setFormData((prev) => ({
                                 ...prev,
-                                itemId: Number(selectedOption?.value) ?? undefined,
+                                itemId: Number(selectedOption?.value),
                             }))
                         }
                         isClearable

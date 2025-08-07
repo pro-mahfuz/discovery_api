@@ -79,8 +79,8 @@ export default (sequelize, DataTypes) => {
     });
 
     // Optional associations depending on transactionType
-    Ledger.belongsTo(models.Invoice, { foreignKey: 'referenceId', constraints: false });
-    Ledger.belongsTo(models.Payment, { foreignKey: 'referenceId', constraints: false });
+    Ledger.belongsTo(models.Invoice, { foreignKey: 'referenceId', as: 'invoice' });
+    Ledger.belongsTo(models.Payment, { foreignKey: 'referenceId', as: 'payment' });
   };
 
   return Ledger;

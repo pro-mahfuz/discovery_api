@@ -19,8 +19,12 @@ export default (sequelize, DataTypes) => {
         key: 'id',
       },
     },
+    prefix: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     paymentType: {
-      type: DataTypes.ENUM('payment_in', 'payment_out'),
+      type: DataTypes.ENUM('payment_in', 'payment_out', 'expense'),
       allowNull: false,
     },
     invoiceId: {

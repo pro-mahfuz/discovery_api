@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, Fragment } from "react";
 
 import {
   PaginationControl,
@@ -38,6 +38,7 @@ export default function CustomerLedger() {
 
   const authUser = useSelector(selectUser);
   const ledgers = useSelector(selectLedgers(Number(authUser?.business?.id), Number(categoryId), partyId));
+  console.log("ledgers- ", ledgers);
   
   const [selectedTab, setSelectedTab] = useState(0);
   const { isOpen, openModal, closeModal } = useModal();
@@ -119,46 +120,53 @@ export default function CustomerLedger() {
   }, [sortedLedgers, currentPage, itemsPerPage]);
 
   // Calculate total debit and credit
-  const {
-    purchaseDebit,
-    purchaseCredit,
-    saleDebit,
-    saleCredit,
-    purchaseBalance,
-    saleBalance,
-    closeBalance,
-  } = useMemo(() => {
-    return sortedLedgers.reduce(
-      (totals, ledger) => {
-        const debit = Number(ledger.debit) || 0;
-        const credit = Number(ledger.credit) || 0;
+  type CurrencyTotals = {
+    purchaseDebit: number;
+    purchaseCredit: number;
+    saleDebit: number;
+    saleCredit: number;
+    purchaseBalance: number;
+    saleBalance: number;
+    closeBalance: number;
+  };
 
-        if (ledger.transactionType === "purchase" || ledger.transactionType === "payment_out") {
-          totals.purchaseDebit += debit;
-          totals.purchaseCredit += credit;
-        } else if (ledger.transactionType === "sale" || ledger.transactionType === "payment_in") {
-          totals.saleDebit += debit;
-          totals.saleCredit += credit;
-        }
+  const ledgerTotalsByCurrency = useMemo(() => {
+    return sortedLedgers.reduce<Record<string, CurrencyTotals>>((totals, ledger) => {
+      const currency = ledger.currency || 'UNKNOWN';
+      const debit = Number(ledger.debit) || 0;
+      const credit = Number(ledger.credit) || 0;
 
-        // Calculate balances
-        totals.purchaseBalance =  totals.purchaseCredit - totals.purchaseDebit;
-        totals.saleBalance = totals.saleCredit - totals.saleDebit;
-        totals.closeBalance = (totals.saleBalance) + (totals.purchaseBalance);
-
-        return totals;
-      },
-      {
-        purchaseDebit: 0,
-        purchaseCredit: 0,
-        saleDebit: 0,
-        saleCredit: 0,
-        purchaseBalance: 0,
-        saleBalance: 0,
-        closeBalance: 0,
+      if (!totals[currency]) {
+        totals[currency] = {
+          purchaseDebit: 0,
+          purchaseCredit: 0,
+          saleDebit: 0,
+          saleCredit: 0,
+          purchaseBalance: 0,
+          saleBalance: 0,
+          closeBalance: 0,
+        };
       }
-    );
+
+      const current = totals[currency];
+
+      if (ledger.transactionType === "purchase" || ledger.transactionType === "payment_out") {
+        current.purchaseDebit += debit;
+        current.purchaseCredit += credit;
+      } else if (ledger.transactionType === "sale" || ledger.transactionType === "payment_in") {
+        current.saleDebit += debit;
+        current.saleCredit += credit;
+      }
+
+      current.purchaseBalance = current.purchaseCredit - current.purchaseDebit;
+      current.saleBalance = current.saleCredit - current.saleDebit;
+      current.closeBalance = current.purchaseBalance + current.saleBalance;
+
+      return totals;
+    }, {});
   }, [sortedLedgers]);
+
+
 
 
   
@@ -213,27 +221,34 @@ export default function CustomerLedger() {
             <Table>
               <TableHeader className="border border-gray-500 dark:border-white/[0.05] bg-gray-200 text-black text-sm dark:bg-gray-800 dark:text-gray-400">
                 <TableRow>
-                  <TableCell colSpan={7} isHeader className="border border-gray-500 text-center px-4 py-2">{' '}</TableCell>
-                  <TableCell colSpan={2} isHeader className="border border-gray-500 text-center px-4 py-2">Purchase</TableCell>
-                  <TableCell colSpan={2} isHeader className="border border-gray-500 text-center px-4 py-2">Sale</TableCell>
-                  <TableCell isHeader className="border border-gray-500 text-center px-4 py-2">{' '}</TableCell>
-                </TableRow>
-                <TableRow>
                   <TableCell isHeader className="text-center px-4 py-2">Sl</TableCell>
-                  {/* <TableCell isHeader className="text-center px-4 py-2">Category</TableCell> */}
                   <TableCell isHeader className="text-center px-4 py-2">Transaction Type</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Reference</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Date</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Party Name</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Description</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Currency</TableCell>
-                  <TableCell isHeader className="border border-gray-500 text-center px-4 py-2">Debit</TableCell>
-                  <TableCell isHeader className="border border-gray-500 text-center px-4 py-2">Credit</TableCell>
-                  <TableCell isHeader className="border border-gray-500 text-center px-4 py-2">Debit</TableCell>
-                  <TableCell isHeader className="border border-gray-500 text-center px-4 py-2">Credit</TableCell>
+
+                  <TableCell isHeader colSpan={2} className="border border-gray-500 text-center">
+                    <TableRow className="flex items-center justify-center text-center border-b border-gray-500 px-4 py-2">Purchase</TableRow>
+                    <TableRow className="flex items-center justify-center">
+                      <TableCell isHeader className="text-center px-4 py-2">Debit</TableCell>
+                      <TableCell isHeader className="border-l border-gray-500 text-center px-4 py-2">Credit</TableCell>
+                    </TableRow>
+                  </TableCell>
+
+                  <TableCell isHeader colSpan={2} className="border border-gray-500 text-center">
+                    <TableRow className="flex items-center justify-center text-center border-b border-gray-500 px-4 py-2">Sale</TableRow>
+                    <TableRow>
+                      <TableCell isHeader className="text-center px-4 py-2">Debit</TableCell>
+                      <TableCell isHeader className="border-l border-gray-500 text-center px-4 py-2">Credit</TableCell>
+                    </TableRow>
+                  </TableCell>
+
                   <TableCell isHeader className="text-center px-4 py-2">Action</TableCell>
                 </TableRow>
               </TableHeader>
+
 
               <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                {status === 'loading' ? (
@@ -261,7 +276,7 @@ export default function CustomerLedger() {
                         {ledger.transactionType}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {'P'+String(ledger.referenceId).padStart(6, '0')}
+                        {ledger.refNo}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {ledger.date}
@@ -321,27 +336,81 @@ export default function CustomerLedger() {
                   ))
                   
                 )}
-                <TableRow>
-                  <TableCell colSpan={7} isHeader className="border border-gray-500 text-center px-4 py-1">Total:</TableCell>
-                  <TableCell isHeader className="border border-gray-500 text-center px-4 py-1">{purchaseDebit.toFixed(2)}</TableCell>
-                  <TableCell isHeader className="border border-gray-500 text-center px-4 py-1">{purchaseCredit.toFixed(2)}</TableCell>
-                  <TableCell isHeader className="border border-gray-500 text-center px-4 py-1">{saleDebit.toFixed(2)}</TableCell>
-                  <TableCell isHeader className="border border-gray-500 text-center px-4 py-1">{saleCredit.toFixed(2)}</TableCell>
-                  <TableCell isHeader className="border border-gray-500 text-center px-4 py-1">{' '}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell colSpan={7} isHeader className="border border-gray-500 text-center px-4 py-1">Balance:</TableCell>
-                  <TableCell colSpan={2} isHeader className="border border-gray-500 text-center px-4 py-1">{purchaseBalance.toFixed(2)}</TableCell>
-                  <TableCell colSpan={2} isHeader className="border border-gray-500 text-center px-4 py-1">{saleBalance.toFixed(2)}</TableCell>
-                  <TableCell isHeader className="border border-gray-500 text-center px-4 py-1">{' '}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell colSpan={7} isHeader className="border border-gray-500 text-center px-4 py-1">Close Balance:</TableCell>
-                  <TableCell colSpan={4} isHeader className="border border-gray-500 text-center px-4 py-1">{closeBalance.toFixed(2)}</TableCell>
-                  <TableCell isHeader className="border border-gray-500 text-center px-4 py-1">{' '}</TableCell>
-                </TableRow>
+                
+
               </TableBody>
-              
+
+              {/* {Object.entries(ledgerTotalsByCurrency).map(([currency, totals]) => (
+                  <TableHeader className="border border-gray-500 dark:border-white/[0.05] bg-gray-200 text-black text-sm dark:bg-gray-800 dark:text-gray-400">
+                  <TableRow>
+                    <TableCell isHeader className="text-center px-4 py-2">{''}</TableCell>
+                    <TableCell isHeader className="text-center px-4 py-2">{''}</TableCell>
+                    <TableCell isHeader className="text-center px-4 py-2">{''}</TableCell>
+                    <TableCell isHeader className="text-center px-4 py-2">{''}</TableCell>
+                    <TableCell isHeader className="text-center px-4 py-2">{''}</TableCell>
+                    <TableCell isHeader className="text-center px-4 py-2">{currency}</TableCell>
+                    <TableCell isHeader colSpan={2} className="border border-gray-500 text-center px-4 py-2">
+                      <TableRow>
+                        <TableCell isHeader className="border-gray-500 text-center px-4 py-2">Total:</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell isHeader className="border-t border-gray-500 text-center px-4 py-2">Balance:</TableCell>
+                      </TableRow>
+                    </TableCell>
+                    <TableCell isHeader colSpan={2} className="border border-gray-500 text-center px-4 py-2">
+                    <TableRow className="flex items-center justify-center text-center px-4 py-2">
+                        <TableCell isHeader className="border-gray-500 text-center px-4 py-2">{totals.purchaseDebit.toFixed(2)}</TableCell>
+                        <TableCell isHeader className="border-l border-gray-500 text-center px-4 py-2">{totals.purchaseCredit.toFixed(2)}</TableCell>
+                      </TableRow>
+                      <TableRow className="flex items-center justify-center text-center px-4 py-2">
+                        {totals.purchaseBalance.toFixed(2)}
+                      </TableRow>
+                    </TableCell>
+                    <TableCell isHeader className="border border-gray-500 text-center px-4 py-2">
+                      <TableRow>
+                        <TableCell isHeader className="border-gray-500 text-center px-4 py-2">{totals.saleDebit.toFixed(2)}</TableCell>
+                        <TableCell isHeader className="border-l border-gray-500 text-center px-4 py-2">{totals.saleCredit.toFixed(2)}</TableCell>
+                      </TableRow>
+                      <TableRow className="flex items-center justify-center text-center px-4 py-2">
+                        {totals.saleBalance.toFixed(2)}
+                      </TableRow>
+                    </TableCell>
+                    <TableCell isHeader className="text-center px-4 py-2">{''}</TableCell>
+                  </TableRow>
+                  </TableHeader>
+                ))} */}
+
+{Object.entries(ledgerTotalsByCurrency).map(([currency, totals]) => (
+              <TableHeader className=" text-black text-sm dark:bg-gray-800">
+                <TableRow>
+                  <TableCell isHeader className="text-center px-4 py-2">{""}</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">{""}</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">{""}</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">{""}</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">{""}</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">{currency}</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Total:</TableCell>
+
+                  <TableCell isHeader colSpan={2} className="border border-gray-500 text-center">
+                    <TableRow className="flex items-center justify-center text-center border-b border-gray-500">
+                      <TableCell isHeader className="text-center px-4 py-2">{totals.purchaseDebit.toFixed(2)}</TableCell>
+                      <TableCell isHeader className="border-l border-gray-500 text-center px-4 py-2">{totals.purchaseCredit.toFixed(2)}</TableCell>
+                    </TableRow>
+                    <TableRow className="flex items-center justify-center text-center px-4 py-2">{totals.purchaseBalance.toFixed(2)}</TableRow>
+                  </TableCell>
+
+                  <TableCell isHeader colSpan={2} className="border border-gray-500 text-center">
+                    <TableRow className="flex items-center justify-center text-center border-b border-gray-500">
+                      <TableCell isHeader className="text-center px-4 py-2">{totals.saleDebit.toFixed(2)}</TableCell>
+                      <TableCell isHeader className="border-l border-gray-500 text-center px-4 py-2">{totals.saleCredit.toFixed(2)}</TableCell>
+                    </TableRow>
+                    <TableRow className="flex items-center justify-center text-center px-4 py-2">{totals.saleBalance.toFixed(2)}</TableRow>
+                  </TableCell>
+
+                  <TableCell isHeader className="text-center px-4 py-2">{""}</TableCell>
+                </TableRow>
+              </TableHeader>
+     ))}         
             </Table>
           </div>
 

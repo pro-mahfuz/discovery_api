@@ -1,4 +1,4 @@
-import { Ledger, Party, Category } from "../../models/model.js";
+import { Ledger, Payment, Invoice, Party, Category } from "../../models/model.js";
 
 export const getAllLedger = async () => {
     const data = await Ledger.findAll({
@@ -11,10 +11,41 @@ export const getAllLedger = async () => {
                 model: Category,
                 as: 'category',
             },
+            {
+                model: Payment,
+                as: 'payment',
+            },
+            {
+                model: Invoice,
+                as: 'invoice',
+            },
         ],
     });
     if (!data || data.length === 0) throw { status: 400, message: "No Ledger found" };
-    return data;
+
+    const ledgerData = data.map((ledger) => {
+        const ledgerJson = ledger.toJSON();
+
+        const isPayment =
+            ledgerJson.transactionType === "payment_in" ||
+            ledgerJson.transactionType === "payment_out" ||
+            ledgerJson.transactionType === "expense";
+
+        let refNo = "";
+
+        if (isPayment && ledgerJson.payment) {
+            refNo = ledgerJson.payment.prefix + "-" + String(ledgerJson.referenceId).padStart(6, "0");
+        } else if (ledgerJson.invoice) {
+            refNo = ledgerJson.invoice.prefix + "-" + String(ledgerJson.referenceId).padStart(6, "0");
+        }
+
+        return {
+            ...ledgerJson,
+            refNo,
+        };
+    });
+
+    return ledgerData;
 }
 
 export const createLedger = async (req) => {
