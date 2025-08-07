@@ -31,9 +31,21 @@ export default (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: DataTypes.NOW,
     },
-    referenceId: {
+    invoiceId: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      references: {
+        model: 'Invoices',
+        key: 'id'
+      }
+    },
+    paymentId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Payments',
+        key: 'id'
+      }
     },
     description: {
       type: DataTypes.TEXT,
@@ -79,8 +91,8 @@ export default (sequelize, DataTypes) => {
     });
 
     // Optional associations depending on transactionType
-    Ledger.belongsTo(models.Invoice, { foreignKey: 'referenceId', as: 'invoice' });
-    Ledger.belongsTo(models.Payment, { foreignKey: 'referenceId', as: 'payment' });
+    Ledger.belongsTo(models.Invoice, { foreignKey: 'invoiceId', as: 'invoice' });
+    Ledger.belongsTo(models.Payment, { foreignKey: 'paymentId', as: 'payment' });
   };
 
   return Ledger;

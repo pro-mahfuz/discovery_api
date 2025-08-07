@@ -34,7 +34,7 @@ export const createPayment = async (req) => {
 
         req.body.prefix = prefix;
 
-        const data = await Payment.create(req.body, { transaction: t });
+        const payment = await Payment.create(req.body, { transaction: t });
 
         let debitAmount = 0;
         let creditAmount = 0;
@@ -51,7 +51,7 @@ export const createPayment = async (req) => {
                 transactionType: req.body.paymentType,
                 partyId: req.body.partyId,
                 date: req.body.date,
-                referenceId: data.id,
+                paymentId: payment.id,
                 description: req.body.note,
                 currency: req.body.currency,
                 debit: debitAmount,
@@ -61,7 +61,7 @@ export const createPayment = async (req) => {
         );
 
         await t.commit();
-        console.log("Payment response body:", data);
+        console.log("Payment response body:", payment);
         
         return data;
 
@@ -89,7 +89,7 @@ export const updatePayment = async (req) => {
     const t = await sequelize.transaction();
 
     try {
-        const data = await Payment.update(req.body, { transaction: t });
+        const updatePayment = await Payment.update(req.body, { transaction: t });
 
         let debitAmount = 0;
         let creditAmount = 0;
@@ -100,7 +100,7 @@ export const updatePayment = async (req) => {
         }
 
         const ledger = await Ledger.findOne({
-            where: { referenceId: req.body.id },
+            where: { paymentId: req.body.id },
             transaction: t, // Also add transaction here to be safe
             lock: t.LOCK.UPDATE
         });
@@ -115,7 +115,7 @@ export const updatePayment = async (req) => {
             transactionType: req.body.paymentType,
             partyId: req.body.partyId,
             date: req.body.date,
-            referenceId: data.id,
+            paymentId: updatePayment.id,
             description: req.body.note,
             currency: req.body.currency,
             debit: debitAmount,
@@ -144,7 +144,7 @@ export const deletePayment = async (id) => {
     try {
         // Find the related ledger entry
         const ledger = await Ledger.findOne({
-            where: { referenceId: payment.id },
+            where: { paymentId: payment.id },
             transaction: t
         });
 

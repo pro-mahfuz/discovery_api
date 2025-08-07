@@ -107,7 +107,7 @@ export const createInvoice = async (req) => {
                 transactionType: invoice.invoiceType,
                 partyId: invoice.partyId,
                 date: invoice.date,
-                referenceId: invoice.id,
+                invoiceId: invoice.id,
                 description: Array.isArray(items)
                 ? `${items
                     .map((item) => `${item.name} x${item.quantity} @${item.price}`)
@@ -219,7 +219,7 @@ export const updateInvoice = async (req) => {
         }
 
         const ledger = await Ledger.findOne({
-            where: { referenceId: invoice.id },
+            where: { invoiceId: invoice.id },
             transaction: t,
         });
 
@@ -231,7 +231,7 @@ export const updateInvoice = async (req) => {
                     transactionType: invoice.invoiceType,
                     partyId: invoice.partyId,
                     date: invoice.date,
-                    referenceId: invoice.id,
+                    invoiceId: invoice.id,
                     description: Array.isArray(items)
                     ? `${items
                         .map((item) => `${item.name} x${item.quantity} @${item.price}`)
@@ -285,7 +285,7 @@ export const deleteInvoice = async (req) => {
 
     // Delete the ledger
     await Ledger.destroy({
-      where: { referenceId: id },
+      where: { invoiceId: id },
       transaction: t,
     });
 

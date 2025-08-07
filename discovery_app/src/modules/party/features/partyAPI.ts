@@ -7,8 +7,6 @@ export const fetchParty = async (type: string) => {
 
     const res = await axiosInstance.get(`protected/party/${type}/list`);
     
-    console.log('Fetched parties:', res.data.data);
-    
     return res.data.data;
 
   } catch {

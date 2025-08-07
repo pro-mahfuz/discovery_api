@@ -81,7 +81,7 @@ const AppSidebar: React.FC<any> = () => {
     {
       name: "Voucher & Ledger",
       icon: <ListIcon />,
-      path: "/ledger/1/list",
+      path: "/ledger/all/1/list",
     },
     {
       name: "Container",
@@ -122,6 +122,14 @@ const AppSidebar: React.FC<any> = () => {
       subItems: [
         { name: "Stock List", path: "/stock/list", pro: false },
         { name: "Stock Add", path: "/stock/create", pro: false }
+      ],
+    },
+    {
+      name: "Ledger",
+      icon: <ListIcon />,
+      subItems: [
+        { name: "Supplier Ledger", path: "/ledger/supplier/list", pro: false },
+        { name: "Customer Ledger", path: "/ledger/customer/list", pro: false }
       ],
     },
     // {

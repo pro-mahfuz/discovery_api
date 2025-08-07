@@ -34,9 +34,9 @@ export const getAllLedger = async () => {
         let refNo = "";
 
         if (isPayment && ledgerJson.payment) {
-            refNo = ledgerJson.payment.prefix + "-" + String(ledgerJson.referenceId).padStart(6, "0");
+            refNo = ledgerJson.payment.prefix + "-" + String(ledgerJson.paymentId).padStart(6, "0");
         } else if (ledgerJson.invoice) {
-            refNo = ledgerJson.invoice.prefix + "-" + String(ledgerJson.referenceId).padStart(6, "0");
+            refNo = ledgerJson.invoice.prefix + "-" + String(ledgerJson.invoiceId).padStart(6, "0");
         }
 
         return {

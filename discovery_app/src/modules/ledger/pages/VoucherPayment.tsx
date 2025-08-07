@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { FormEvent, ChangeEvent, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
+import { fetchAllInvoice } from "../../invoice/features/invoiceThunks.ts";
 import { fetchParty } from "../../party/features/partyThunks.ts";
 import { create, update, fetchById } from "../../payment/features/paymentThunks.ts";
 import { selectAllParties } from "../../party/features/partySelectors.ts";
@@ -16,6 +17,7 @@ import { selectPaymentById } from "../../payment/features/paymentSelectors.ts";
 import { Payment, paymentOptions, paymentMethodOptions, OptionType } from "../../payment/features/paymentTypes.ts";
 import { selectUserById } from "../../user/features/userSelectors.ts";
 import { selectAuth } from "../../auth/features/authSelectors.ts";
+import { selectAllInvoice } from "../../invoice/features/invoiceSelectors.ts";
 import { CurrencyOptions, OptionStringType } from "../../types.ts";
 // import { useNavigate } from "react-router-dom";
 
@@ -33,6 +35,8 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
   // console.log("VoucherPayment authUser: ", authUser);
   // console.log("VoucherPayment user: ", user);
 
+  const invoices = useSelector(selectAllInvoice);
+ 
   const matchingParties = useSelector(selectAllParties);
   const selectedPayment = useSelector(selectPaymentById(Number(editingPaymentId)));
 
@@ -51,6 +55,14 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
   });
 
   useEffect(() => {
+      dispatch(fetchAllInvoice());
+      dispatch(fetchParty('all'));
+      if (editingPaymentId) {
+        dispatch(fetchById(editingPaymentId));
+      }
+  }, [editingPaymentId, dispatch]); 
+
+  useEffect(() => {
     if (user?.business?.id) {
       setForm((prev) => ({
         ...prev,
@@ -61,13 +73,7 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
 
   // console.log("VoucherPayment Update FormData: ", form);
 
-  useEffect(() => {
-    
-     dispatch(fetchParty('all'));
-     if (editingPaymentId) {
-       dispatch(fetchById(editingPaymentId));
-     }
-  }, [editingPaymentId, dispatch]); 
+  
 
   useEffect(() => {
     // console.log("selectedPayment", selectedPayment);
@@ -78,6 +84,7 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
       categoryId: selectedPayment.categoryId ?? 1,
       paymentType: selectedPayment.paymentType ?? '',
       partyId: selectedPayment.partyId ?? 0,
+      invoiceId: selectedPayment.invoiceId ?? 0,
       paymentDate: selectedPayment.paymentDate,
       note: selectedPayment.note ?? '',
       amountPaid: selectedPayment.amountPaid ?? 0,
@@ -114,11 +121,11 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
       await dispatch(update(updatedForm));
       toast.success("Payment updated successfully!");
     }else{
-      // console.log("formData: ", form);
+      console.log("formData: ", form);
       await dispatch(create(form));
       toast.success("Payment created successfully!");
     }
-    window.location.reload();
+    //window.location.reload();
     //navigate("/currency/ledger");
   };
 
@@ -156,6 +163,32 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
       <div className="w-full">
         <form onSubmit={handlePaymentSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div>
+                <Label>Select Invoice Ref (if have)</Label>
+                <Select
+                    options={invoices.map((i) => ({
+                        label: `${String(i.invoiceNo)}`,
+                        value: Number(i.id),
+                        partyId: Number(i.partyId)
+                    }))}
+                    placeholder="Select invoice type"
+                    value={
+                      invoices
+                          .filter((i) => i.id === form.invoiceId)
+                          .map((i) => ({ label: `${String(i.invoiceNo)}`, partyId: i.partyId, value: i.id }))[0] || null
+                    }
+                    onChange={(selectedOption) => {
+                        setForm(prev => ({
+                            ...prev,
+                            invoiceId: selectedOption!.value ?? 0,
+                            partyId: Number(selectedOption?.partyId) ?? 0,
+                        }));
+                    }}
+                    styles={selectStyles}
+                    classNamePrefix="react-select"
+                />
+            </div>
+            
             {!paymentPartyId && (
               <div>
                 <Label>Select Party</Label>
@@ -279,6 +312,16 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
               />
             </div>
 
+            <div className="col-span-2">
+              <Label>Description / Note</Label>
+              <Input
+                  type="text"
+                  name="note"
+                  value={form.note}
+                  onChange={handlePaymentChange}
+              />
+            </div>
+
             <div>
               <Label>Payment Method</Label>
               <Select<OptionType>
@@ -307,15 +350,6 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
               />
             </div>
 
-            <div className="col-span-2">
-              <Label>Description / Note</Label>
-              <Input
-                  type="text"
-                  name="note"
-                  value={form.note}
-                  onChange={handlePaymentChange}
-              />
-            </div>
           </div>
 
           <div className="flex justify-end mt-6">

@@ -13,7 +13,8 @@ export interface Ledger {
   transactionType: "purchase" | "sale" | "return" | "payment_in" | "payment_out";
   partyId: number;              // Vendor or customer
   date: string;  
-  referenceId: number; 
+  invoiceId?: number; 
+  paymentId?: number; 
   refNo: string;              // ISO string or date format (e.g. "2025-07-28")
   description: string; 
   currency: string;
