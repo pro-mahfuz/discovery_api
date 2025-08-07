@@ -37,6 +37,7 @@ export default function PartyCreateForm() {
     countryCode: 'AE',
     phoneCode: '+971',
     phoneNumber: '',
+    trnNo: '',
     address: '',
     city: '',
     country: '',
@@ -154,6 +155,29 @@ export default function PartyCreateForm() {
               {errors.phoneNumber && <p className="text-red-500 text-sm">{errors.phoneNumber}</p>}
             </div>
 
+            <div>
+              <Label>Trade License</Label>
+              <Input
+                type="text"
+                name="tradeLicense"
+                placeholder="Trade license number"
+                value={formData.tradeLicense}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <Label>TRN No</Label>
+              <Input
+                type="text"
+                name="trnNo"
+                placeholder="Enter TRN No"
+                value={formData.trnNo}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
             <div className="md:col-span-2">
               <Label>Address</Label>
               <Input
@@ -199,16 +223,7 @@ export default function PartyCreateForm() {
               />
             </div>
 
-            <div>
-              <Label>Trade License</Label>
-              <Input
-                type="text"
-                name="tradeLicense"
-                placeholder="Trade license number"
-                value={formData.tradeLicense}
-                onChange={handleChange}
-              />
-            </div>
+            
 
             <div>
               <Label>Opening Balance</Label>

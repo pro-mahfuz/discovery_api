@@ -58,11 +58,15 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    trnNo: { 
+      type: DataTypes.STRING, 
+      allowNull: true 
+    },
     openingBalance: {
       type: DataTypes.FLOAT, // You had `DataTypes.Integer` (should be capital `INTEGER`)
       allowNull: true,
       defaultValue: 0,
-    },
+    },    
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,

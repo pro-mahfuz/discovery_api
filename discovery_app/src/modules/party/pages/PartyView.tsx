@@ -130,6 +130,24 @@ export default function PartyView() {
 
                     <div>
                       <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                        Trade License
+                      </p>
+                      <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                        {party?.tradeLicense}
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                        TRN No
+                      </p>
+                      <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                        {party?.trnNo}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
                         EID/Passport No
                       </p>
                       <p className="text-sm font-medium text-gray-800 dark:text-white/90">
@@ -137,14 +155,7 @@ export default function PartyView() {
                       </p>
                     </div>
         
-                    <div>
-                      <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                        Trade License
-                      </p>
-                      <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                        {party?.tradeLicense}
-                      </p>
-                    </div>
+                    
         
                     <div>
                       <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">

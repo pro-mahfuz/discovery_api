@@ -39,6 +39,8 @@ export default function BusinessEditForm() {
         countryCode: "AE",
         phoneCode: "+971",
         phoneNumber: "",
+        trnNo: "",
+        vatPercentage: 0,
         address: "",
         city: "",
         country: "",
@@ -63,6 +65,8 @@ export default function BusinessEditForm() {
               countryCode: business.countryCode,
               phoneCode: business.phoneCode,
               phoneNumber: business.phoneNumber,
+              trnNo: business.trnNo,
+              vatPercentage: business.vatPercentage,
               address: business.address,
               city: business.city,
               country: business.country,
@@ -107,6 +111,7 @@ export default function BusinessEditForm() {
       data.append("countryCode", formData.countryCode ?? '');
       data.append("phoneCode", formData.phoneCode ?? '');
       data.append("phoneNumber", formData.phoneNumber ?? '');
+      data.append("vatPercentage", String(formData.vatPercentage));
       data.append("address", formData.address ?? '');
       data.append("city", formData.city ?? '');
       data.append("country", formData.country ?? '');
@@ -191,7 +196,6 @@ export default function BusinessEditForm() {
                 placeholder="Enter your Business License No"
                 value={formData.businessLicenseNo}
                 onChange={handleChange}
-                required
               />
             </div>
 
@@ -259,6 +263,30 @@ export default function BusinessEditForm() {
                   phoneNumber: formData.phoneNumber ?? '',
                 }}
                 onChange={handlePhoneNumberChange}
+              />
+            </div>
+
+            <div>
+              <Label>TRN No</Label>
+              <Input
+                type="text"
+                name="trnNo"
+                placeholder="Enter TRN No"
+                value={formData.trnNo}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Vat (%)</Label>
+              <Input
+                type="text"
+                name="vatPercentage"
+                placeholder="Enter Vat"
+                value={formData.vatPercentage}
+                onChange={handleChange}
+                required
               />
             </div>
 

@@ -9,6 +9,8 @@ export interface Business {
   countryCode?: string;
   phoneCode?: string;
   phoneNumber?: string;
+  trnNo?: string;
+  vatPercentage: number;
   address?: string;
   city?: string;
   country?: string;

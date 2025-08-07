@@ -9,7 +9,7 @@ export const validate = (schema) => {
       });
       next();
     } catch (err) {
-      const errors = err.inner.map((e) => ({
+      const errors = err.inner?.map((e) => ({
         field: e.path,
         message: e.message,
       }));

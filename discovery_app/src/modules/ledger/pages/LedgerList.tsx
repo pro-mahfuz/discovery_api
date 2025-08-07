@@ -10,11 +10,9 @@ import {
   TableFooter,
   TableRow,
 } from "../../../components/ui/table/index.tsx";
-import Button from "../../../components/ui/button/Button.tsx";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
 
-import { Ledger } from "../features/ledgerTypes.ts";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
 import { fetchAll } from "../features/ledgerThunks.ts";
@@ -26,7 +24,7 @@ import { useParams } from "react-router";
 
 export default function LedgerList() {
   const { partyType } = useParams();
-  console.log("partyType- ", partyType);
+  
   
   // const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
@@ -37,6 +35,8 @@ export default function LedgerList() {
 
   const authUser = useSelector(selectUser);
   const ledgers = useSelector(selectLedgerByPartyType(Number(authUser?.business?.id), String(partyType)));
+  console.log("partyType- ", partyType);
+  console.log("authUser- ", authUser);
   console.log("ledgers- ", ledgers);
 
   useEffect(() => {
@@ -226,24 +226,40 @@ export default function LedgerList() {
                         {ledger.currency}
                       </TableCell>
 
-                      {partyType === "customer" && (
-                      <TableCell className="text-center py-2 text-sm">
-                        <Table>
-                          <TableRow className="text-center py-2">
-                            <TableCell className="text-center px-4 py-2">{ ledger.transactionType === "purchase" || ledger.transactionType === "payment_out" ? ledger.debit : 0 }</TableCell>
-                            <TableCell className="text-center px-4 py-2">{ ledger.transactionType === "purchase" ? ledger.credit : 0 }</TableCell>
-                          </TableRow>
-                        </Table>
-                      </TableCell>
-                      <TableCell className="text-center py-2 text-sm">
-                        <Table>
-                          <TableRow className="text-center py-2">
-                            <TableCell className="text-center px-4 py-2">{ ledger.transactionType === "sale" ? ledger.debit : 0 }</TableCell>
-                            <TableCell className="text-center px-4 py-2">{ ledger.transactionType === "sale" || ledger.transactionType === "payment_in" ? ledger.credit : 0 }</TableCell>
-                          </TableRow>
-                        </Table>
-                      </TableCell>
+                      {partyType === "supplier" && (
+                        <>
+                          <TableCell className="text-center py-2 text-sm">
+                            <Table>
+                              <TableRow className="text-center py-2">
+                                <TableCell className="text-center px-4 py-2">
+                                  {["purchase", "payment_out"].includes(ledger.transactionType) ? ledger.debit : 0}
+                                </TableCell>
+                                <TableCell className="text-center px-4 py-2">
+                                  {ledger.transactionType === "purchase" ? ledger.credit : 0}
+                                </TableCell>
+                              </TableRow>
+                            </Table>
+                          </TableCell>
+                        </>
                       )}
+
+                      {partyType === "customer" && (
+                        <>
+                          <TableCell className="text-center py-2 text-sm">
+                            <Table>
+                              <TableRow className="text-center py-2">
+                                <TableCell className="text-center px-4 py-2">
+                                  {ledger.transactionType === "sale" ? ledger.debit : 0}
+                                </TableCell>
+                                <TableCell className="text-center px-4 py-2">
+                                  {["sale", "payment_in"].includes(ledger.transactionType) ? ledger.credit : 0}
+                                </TableCell>
+                              </TableRow>
+                            </Table>
+                          </TableCell>
+                        </>
+                      )}
+
 
                     </TableRow>
                   ))
@@ -278,6 +294,7 @@ export default function LedgerList() {
                         
                       </TableCell>
 
+                    {partyType === "supplier" && (
                       <TableCell isHeader className="border border-gray-500 text-center">
                         <Table>
                           <TableRow className="text-center border-b border-gray-500 py-2">
@@ -289,7 +306,9 @@ export default function LedgerList() {
                           </TableRow>
                         </Table>
                       </TableCell>
+                    )}
 
+                    {partyType === "customer" && (
                       <TableCell isHeader className="border border-gray-500 text-center">
                         <Table>
                           <TableRow className="text-center border-b border-gray-500 py-2">
@@ -301,7 +320,7 @@ export default function LedgerList() {
                           </TableRow>
                         </Table>
                       </TableCell>
-
+                    )}
                       
                     </TableRow>
                     

@@ -76,6 +76,7 @@ export default function PartyEditForm() {
           countryCode: party.countryCode,
           phoneCode: party.phoneCode,
           phoneNumber: party.phoneNumber,
+          trnNo: party.trnNo,
           address: party.address,
           city: party.city,
           country: party.country,
@@ -207,6 +208,29 @@ export default function PartyEditForm() {
               {errors.phoneNumber && <p className="text-red-500 text-sm">{errors.phoneNumber}</p>}
             </div>
 
+            <div>
+              <Label>Trade License</Label>
+              <Input
+                type="text"
+                name="tradeLicense"
+                placeholder="Trade license number"
+                value={formData.tradeLicense}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <Label>TRN No</Label>
+              <Input
+                type="text"
+                name="trnNo"
+                placeholder="Enter TRN No"
+                value={formData.trnNo}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
             <div className="col-span-2">
               <Label>Address</Label>
               <Input
@@ -248,17 +272,6 @@ export default function PartyEditForm() {
                 name="nationalId"
                 placeholder="ID / Passport Number"
                 value={formData.nationalId}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <Label>Trade License</Label>
-              <Input
-                type="text"
-                name="tradeLicense"
-                placeholder="Trade license number"
-                value={formData.tradeLicense}
                 onChange={handleChange}
               />
             </div>

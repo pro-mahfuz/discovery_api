@@ -37,6 +37,8 @@ const AppSidebar: React.FC<any> = () => {
   
   const authUser = useSelector(selectAuth);
   const user = useSelector(selectUserById(Number(authUser.user?.id)));
+  console.log("App Sidebar- authUser: ", authUser);
+  console.log("App Sidebar- user: ", authUser);
 
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
@@ -174,26 +176,20 @@ const AppSidebar: React.FC<any> = () => {
 
 
   const othersItems: NavItem[] = [
-    
-    
-    ...(user?.role?.id === 1
-    ? [
-        {
-          name: "Business",
-          icon: <ListIcon />,
-          subItems: [
-            { name: "Business List", path: "/business/list", pro: false },
-            { name: "Business Add", path: "/business/create", pro: false },
-          ],
-        },
-      ]
-    : [
-      {
-        icon: <ListIcon />,
-        name: "Business Profile",
-        path: `/business/view/${user?.business?.id}`,
-      }
-    ]),
+    {
+      name: "Business",
+      icon: <ListIcon />,
+      subItems: [
+        { name: "Business List", path: "/business/list", pro: false },
+        { name: "Business Add", path: "/business/create", pro: false },
+      ],
+    },
+  
+    {
+      icon: <ListIcon />,
+      name: "Business Profile",
+      path: `/business/view/${user?.business?.id}`,
+    },
     
     {
       name: "User",
@@ -212,34 +208,7 @@ const AppSidebar: React.FC<any> = () => {
         { name: "Permission List", path: "/permission/list", pro: false }
       ],
     },
-    // {
-    //   icon: <PieChartIcon />,
-    //   name: "Charts",
-    //   subItems: [
-    //     { name: "Line Chart", path: "/line-chart", pro: false },
-    //     { name: "Bar Chart", path: "/bar-chart", pro: false },
-    //   ],
-    // },
-    // {
-    //   icon: <BoxCubeIcon />,
-    //   name: "UI Elements",
-    //   subItems: [
-    //     { name: "Alerts", path: "/alerts", pro: false },
-    //     { name: "Avatar", path: "/avatars", pro: false },
-    //     { name: "Badge", path: "/badge", pro: false },
-    //     { name: "Buttons", path: "/buttons", pro: false },
-    //     { name: "Images", path: "/images", pro: false },
-    //     { name: "Videos", path: "/videos", pro: false },
-    //   ],
-    // },
-    // {
-    //   icon: <PlugInIcon />,
-    //   name: "Authentication",
-    //   subItems: [
-    //     { name: "Sign In", path: "/signin", pro: false },
-    //     { name: "Sign Up", path: "/signup", pro: false },
-    //   ],
-    // },
+    
   ];
 
   const [openSubmenu, setOpenSubmenu] = useState<{
@@ -309,7 +278,7 @@ const AppSidebar: React.FC<any> = () => {
   };
 
   const renderMenuItems = (items: NavItem[], menuType: "main" | "others") => (
-    <ul className="flex flex-col gap-4">
+    <ul className="flex flex-col gap-2">
       {items.map((nav, index) => (
         <li key={nav.name}>
           {nav.subItems ? (

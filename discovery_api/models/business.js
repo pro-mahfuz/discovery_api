@@ -28,6 +28,14 @@ export default (sequelize, DataTypes) => {
       countryCode: DataTypes.STRING,
       phoneCode: DataTypes.STRING,
       phoneNumber: DataTypes.STRING,
+      trnNo: { 
+        type: DataTypes.STRING, 
+        allowNull: true 
+      },
+      vatPercentage: { 
+        type: DataTypes.INTEGER, 
+        allowNull: false 
+      },
       address: DataTypes.STRING,
       city: DataTypes.STRING,
       country: DataTypes.STRING,

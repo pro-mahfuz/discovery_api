@@ -1,11 +1,15 @@
 import { hash, compare } from "bcryptjs";
-import { User, Role, Business, Profile } from "../../models/model.js";
+import { User, Role, Permission, Business, Profile } from "../../models/model.js";
 
 export const getAllUser = async () => {
   const users = await User.findAll({
     include: [
       { model: Business, as: 'business' },
-      { model: Role, as: 'role' },
+      { 
+        model: Role,
+        include: [Permission], 
+        as: 'role' 
+      },
       { model: Profile, as: 'profile' }
     ]
   });
@@ -41,7 +45,11 @@ export const getUserById = async (id) => {
     const user = await User.findByPk(id, { 
         include: [
             { model: Business, as: 'business' },
-            { model: Role, as: 'role' },
+            { 
+                model: Role,
+                include: [Permission], 
+                as: 'role' 
+            },
             { model: Profile, as: 'profile' }
         ]
     });

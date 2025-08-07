@@ -35,6 +35,7 @@ export interface Party {
   city?: string;
   country?: string;  
   nationalId?: string;           // national ID
+  trnNo?: string;
   tradeLicense?: string;        // for suppliers
   openingBalance?: number;
   isActive: boolean;

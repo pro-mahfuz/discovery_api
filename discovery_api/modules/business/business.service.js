@@ -40,7 +40,7 @@ export const updateBusiness = async (req) => {
     
 
     const data = await Business.findByPk(req.body.id);
-    console.log("Business: ", data);
+    console.log("Update Business: ", data);
 
     if (!data) {
         throw { status: 404, message: "Business not found" };

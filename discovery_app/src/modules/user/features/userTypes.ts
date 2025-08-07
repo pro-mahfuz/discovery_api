@@ -12,7 +12,7 @@ export interface Role {
   id: number;
   name: string;
   action: string;
-  Permission?: Permission[];
+  Permissions?: Permission[];
 }
 
 export interface Profile {
