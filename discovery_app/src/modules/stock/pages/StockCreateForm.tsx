@@ -68,13 +68,8 @@ export default function StockCreateForm() {
     });
 
     const invoice = useSelector(selectInvoiceById(Number(formData.invoiceId)));
-    console.log("invoice- ", invoice);
-
     const categoryItem = useSelector(selectCategoryById(Number(invoice?.categoryId)));
-    console.log("categoryItem- ",categoryItem);
-
     const containers = useSelector(selectAllContainerByItemId((Number(formData.itemId))));
-    console.log("containers-", containers);
 
     useEffect(() => {
         if (user?.business?.id) {
@@ -99,7 +94,7 @@ export default function StockCreateForm() {
        
         try {
             // Dispatch create action, including totalAmount
-            console.log("Stock formData: ", formData);
+            
             await dispatch(create(formData));
             toast.success("Stock created successfully!");
 

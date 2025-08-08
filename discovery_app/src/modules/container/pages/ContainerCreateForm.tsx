@@ -30,8 +30,6 @@ export default function ContainerCreateForm() {
 
     const authUser = useSelector(selectAuth);
     const user = useSelector(selectUserById(Number(authUser.user?.id)));
-    console.log("container authUser: ", authUser);
-    console.log("container user: ", user);
 
     const categories = useSelector(selectAllCategory);
 
@@ -66,10 +64,7 @@ export default function ContainerCreateForm() {
         createdUserId: user?.id
     });
 
-    
-
     const categoryItem = useSelector(selectCategoryById(Number(formData.categoryId)));
-    console.log(categoryItem);
 
     const handleStatusChange = (value: boolean) => {
         setFormData((prev) => ({

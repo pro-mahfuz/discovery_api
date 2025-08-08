@@ -40,7 +40,6 @@ export default function InvoiceList() {
 
   const invoices = useSelector(selectAllInvoiceByType(invoiceType));
   const status = useSelector(selectInvoiceStatus);
-  console.log("all invoice: ", invoices);
 
   const [filterText, setFilterText] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -72,7 +71,6 @@ export default function InvoiceList() {
   };
 
   const handleEdit = (invoice: Invoice) => {
-
     navigate(`/invoice/${invoice.id}/edit`);
   };
 

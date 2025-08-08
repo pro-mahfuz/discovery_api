@@ -35,9 +35,6 @@ export default function LedgerList() {
 
   const authUser = useSelector(selectUser);
   const ledgers = useSelector(selectLedgerByPartyType(Number(authUser?.business?.id), String(partyType)));
-  console.log("partyType- ", partyType);
-  console.log("authUser- ", authUser);
-  console.log("ledgers- ", ledgers);
 
   useEffect(() => {
       dispatch(fetchAll());

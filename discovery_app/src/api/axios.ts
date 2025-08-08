@@ -31,8 +31,6 @@ axiosInstance.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem('accessToken');
 
-    console.log("accessToken from request interceptor: ", accessToken);
-
     if (accessToken) {
       config.headers['Authorization'] = `Bearer ${accessToken}`;
     }
@@ -69,14 +67,11 @@ axiosInstance.interceptors.response.use((response) => response,
 
       try {
         const refreshToken = localStorage.getItem('refreshToken');
-        console.log("response interceptor: ", error.response?.status);
-        console.log("refreshToken: ", refreshToken);
+        //console.log("response interceptor: ", error.response?.status);
 
         const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {refreshToken: refreshToken}, {
           withCredentials: true
         });
-
-        console.log("response: ", response.data.data);
 
         if(response){
           localStorage.removeItem('accessToken');
@@ -88,8 +83,6 @@ axiosInstance.interceptors.response.use((response) => response,
 
         localStorage.setItem('accessToken', newAccessToken);
         //localStorage.setItem('refreshToken', newRefreshToken);
-
-        console.log("token: ",localStorage.getItem('accessToken'));
 
         processQueue(null, newAccessToken);
 

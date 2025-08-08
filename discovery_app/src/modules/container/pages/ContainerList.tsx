@@ -38,7 +38,6 @@ export default function ContainerList() {
 
   const containers = useSelector(selectAllContainer);
   const status = useSelector(selectContainerStatus);
-  console.log("containers: ", containers);
 
   const [filterText, setFilterText] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -70,7 +69,6 @@ export default function ContainerList() {
   // };
 
   const handleEdit = (container: Container) => {
-
     navigate(`/container/${container.id}/edit`);
   };
 

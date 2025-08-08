@@ -38,7 +38,6 @@ export default function StockList() {
 
   const stocks = useSelector(selectAllStock);
   const status = useSelector(selectStockStatus);
-  console.log("all stock: ", stocks);
 
   const [filterText, setFilterText] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);

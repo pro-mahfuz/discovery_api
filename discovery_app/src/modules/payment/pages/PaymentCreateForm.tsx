@@ -34,8 +34,6 @@ export default function PaymentCreateForm() {
 
     const authUser = useSelector(selectAuth);
     const user = useSelector(selectUserById(Number(authUser.user?.id)));
-    console.log("Invoice authUser: ", authUser);
-    console.log("Invoice user: ", user);
 
     useEffect(() => {
         dispatch(fetchPayment());
@@ -45,7 +43,6 @@ export default function PaymentCreateForm() {
 
     const matchingParties = useSelector(selectAllParties);
     const invoices = useSelector(selectAllInvoice);
-
 
     const [formData, setFormData] = useState<Payment>({
         businessId: 0,
@@ -84,7 +81,7 @@ export default function PaymentCreateForm() {
        
         try {
             // Dispatch create action, including totalAmount
-            console.log("Payment formData: ", formData);
+            
             await dispatch(create(formData));
             toast.success("Payment created successfully!");
 

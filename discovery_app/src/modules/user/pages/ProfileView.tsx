@@ -15,7 +15,6 @@ export default function ProfileView() {
     const navigate = useNavigate();
 
     const user = useSelector(selectUserById(Number(id)));
-    console.log("user- ", user);
     
     useEffect(() => {
       dispatch(fetchUserById(Number(id)));
@@ -23,7 +22,6 @@ export default function ProfileView() {
 
 
     const handleEdit = () => {
-        console.log("Editing profile:", id);
         navigate(`/user/profile/edit/${Number(id)}`);
     };
     

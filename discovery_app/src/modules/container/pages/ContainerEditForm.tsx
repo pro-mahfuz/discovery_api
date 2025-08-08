@@ -32,11 +32,9 @@ export default function ContainerFormForm() {
 
     const authUser = useSelector(selectAuth);
     const user = useSelector(selectUserById(Number(authUser.user?.id)));
-    // console.log("container authUser: ", authUser);
-    // console.log("container user: ", user);
+
     const categories = useSelector(selectAllCategory);
     const container = useSelector(selectContainerById(Number(id)));
-    console.log("container - ", container);
 
     useEffect(() => {
         dispatch(fetchParty("all"));
@@ -70,7 +68,6 @@ export default function ContainerFormForm() {
     });
 
     const categoryItem = useSelector(selectCategoryById(Number(formData.categoryId)));
-        console.log(categoryItem);
 
     const handleStatusChange = (value: boolean) => {
         setFormData((prev) => ({
@@ -93,7 +90,7 @@ export default function ContainerFormForm() {
         e.preventDefault();
         
         try {
-            console.log("container updateFormData: ", formData);
+
             await dispatch(update(formData));
             toast.success("Container updated successfully!");
             
@@ -129,9 +126,6 @@ export default function ContainerFormForm() {
         padding: "0.5rem 0.75rem",
         }),
     };
-
-    
-
 
     return (
         <div>

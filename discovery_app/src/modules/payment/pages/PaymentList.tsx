@@ -40,7 +40,6 @@ export default function InvoiceList() {
 
   const payments = useSelector(selectAllPayment);
   const status = useSelector(selectPaymentStatus);
-  console.log("all payments: ", payments);
 
   const [filterText, setFilterText] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);

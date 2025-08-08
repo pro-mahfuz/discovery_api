@@ -35,8 +35,6 @@ export default function PaymentEditForm() {
 
     const authUser = useSelector(selectAuth);
     const user = useSelector(selectUserById(Number(authUser.user?.id)));
-    console.log("Invoice authUser: ", authUser);
-    console.log("Invoice user: ", user);
 
     useEffect(() => {
         dispatch(fetchPayment());
@@ -96,7 +94,7 @@ export default function PaymentEditForm() {
        
         try {
             // Dispatch create action, including totalAmount
-            console.log("Payment formData: ", formData);
+            
             await dispatch(update(formData));
             toast.success("Payment updated successfully!");
 

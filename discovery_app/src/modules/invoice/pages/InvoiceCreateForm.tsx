@@ -50,8 +50,6 @@ export default function InvoiceCreateForm() {
 
     const authUser = useSelector(selectAuth);
     const user = useSelector(selectUserById(Number(authUser.user?.id)));
-    console.log("Invoice authUser: ", authUser);
-    console.log("Invoice user: ", user);
 
     const matchingParties = useSelector(selectAllParties);
     const categories = useSelector(selectAllCategory);
@@ -104,8 +102,6 @@ export default function InvoiceCreateForm() {
     });
 
     const containers = useSelector(selectContainerByItemId(Number(formData.categoryId), (Number(currentItem.itemId))));
-    console.log("containers-", containers);
-
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;

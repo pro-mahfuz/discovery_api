@@ -77,12 +77,10 @@ export default function CustomerLedger() {
   const handleDelete = async () => {
 
     if(editingLedgerId) {
-      console.log("editingLedgerId: ",editingLedgerId);
       await dispatch(destroy(editingLedgerId));
     }
 
     if(editingPaymentId) {
-      console.log("editingPaymentId: ",editingPaymentId);
       await dispatch(PaymentDestroy(editingPaymentId));
     }
 
