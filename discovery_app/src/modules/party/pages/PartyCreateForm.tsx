@@ -100,7 +100,7 @@ export default function PartyCreateForm() {
     try {
       await dispatch(createParty(formData));
       toast.success("Party created successfully!");
-      formData.type === 'supplier' ? navigate("/party/supplier/list") : navigate("/party/customer/list");
+      navigate(`/party/${formData.type}/list`);
     } catch (err) {
       toast.error("Failed to create party.");
       console.error("Submit error:", err);

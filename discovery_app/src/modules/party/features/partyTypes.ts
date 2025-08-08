@@ -31,11 +31,11 @@ export interface Party {
   countryCode: string;
   phoneCode: string;
   phoneNumber: string;
+  trnNo?: string;
   address: string;
   city?: string;
   country?: string;  
   nationalId?: string;           // national ID
-  trnNo?: string;
   tradeLicense?: string;        // for suppliers
   openingBalance?: number;
   isActive: boolean;

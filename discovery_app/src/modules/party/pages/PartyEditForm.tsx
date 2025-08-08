@@ -41,6 +41,7 @@ export default function PartyEditForm() {
     countryCode: 'AE',
     phoneCode: '+971',
     phoneNumber: '',
+    trnNo: '',
     address: '',
     city: '',
     country: '',
@@ -75,7 +76,7 @@ export default function PartyEditForm() {
           countryCode: party.countryCode,
           phoneCode: party.phoneCode,
           phoneNumber: party.phoneNumber,
-          trnNo: party.trnNo,
+          trnNo: party.trnNo ?? '',
           address: party.address,
           city: party.city,
           country: party.country,
@@ -85,7 +86,7 @@ export default function PartyEditForm() {
           isActive: party.isActive,
         }));
     }
-  }, [parties, id, dispatch]);
+  }, [parties, id, user, dispatch]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -141,7 +142,7 @@ export default function PartyEditForm() {
         id: Number(id)
       }));
       toast.success("Party updated successfully!");
-      // formData.type === 'supplier' ? navigate("/party/supplier/list") : navigate("/party/customer/list");
+      navigate(`/party/${formData.type}/list`);
     } catch (err) {
       toast.error("Failed to create party.");
       console.error("Submit error:", err);
@@ -150,8 +151,8 @@ export default function PartyEditForm() {
 
   return (
     <div>
-      <PageMeta title={`${partyType ? partyType.charAt(0).toUpperCase() + partyType.slice(1).toLowerCase() : ''} Create`} description="Form to edit new supplier or customer" />
-      <PageBreadcrumb pageTitle={`${partyType ? partyType.charAt(0).toUpperCase() + partyType.slice(1).toLowerCase() : ''} Create`} />
+      <PageMeta title={`${partyType ? partyType.charAt(0).toUpperCase() + partyType.slice(1).toLowerCase() : ''} Update`} description="Form to edit new supplier or customer" />
+      <PageBreadcrumb pageTitle={`${partyType ? partyType.charAt(0).toUpperCase() + partyType.slice(1).toLowerCase() : ''} Update`} />
 
       <ComponentCard title="Fill up all fields to edit a supplier or customer">
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -226,7 +227,6 @@ export default function PartyEditForm() {
                 placeholder="Enter TRN No"
                 value={formData.trnNo}
                 onChange={handleChange}
-                required
               />
             </div>
 
