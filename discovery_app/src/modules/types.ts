@@ -59,7 +59,7 @@ export type InvoiceType = "purchase" | "sale" | "return" | "adjustment";
 export const InvoiceTypeOptions: OptionStringType[] = [
   { value: "purchase", label: "Purchase" },
   { value: "sale", label: "Sale" },
-  { value: "return", label: "Return" },
+  { value: "saleReturn", label: "Sale Return" },
   { value: "adjustment", label: "Adjustment" }
 ];
 

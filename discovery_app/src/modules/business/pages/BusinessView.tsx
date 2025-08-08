@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
 import { useNavigate, useParams } from "react-router-dom";
 import { selectBusinessById } from "../features/businessSelectors.ts";
-import { fetchAll } from "../features/businessThunks.ts";
+import { fetchById } from "../features/businessThunks.ts";
 
 export default function BusinessView() {
     const { id } = useParams();
@@ -14,10 +14,11 @@ export default function BusinessView() {
     const navigate = useNavigate();
 
     const business = useSelector(selectBusinessById(Number(id)));
+    console.log("business: ", id);
 
     
     useEffect(() => {
-        dispatch(fetchAll());
+        dispatch(fetchById(Number(id)));
     }, [dispatch]);
 
 

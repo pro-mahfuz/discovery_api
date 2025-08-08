@@ -98,6 +98,9 @@ export const createInvoice = async (req) => {
         else if (invoice.invoiceType === 'sale'){
             debitAmount = invoice.totalAmount;
         }
+        else if (invoice.invoiceType === 'saleReturn'){
+            creditAmount = invoice.totalAmount;
+        }
         
         // Step 3: create ledger
         await Ledger.create(
@@ -161,6 +164,17 @@ export const updateInvoice = async (req) => {
   const { id } = req.body;
     const { items, ...invoiceData } = req.body;
 
+    const prefixMap = {
+        purchase: "PCO",
+        sale: "SLO",
+        purchaseReturn: "PCR",
+        saleReturn: "SLR",
+    };
+
+    const prefix = prefixMap[invoiceData.invoiceType] || "";
+
+    invoiceData.prefix = prefix;
+
     const t = await sequelize.transaction();
     try {
         // Step 1: Find existing invoice
@@ -216,6 +230,9 @@ export const updateInvoice = async (req) => {
         }
         else if (invoice.invoiceType === 'sale'){
             debitAmount = invoice.totalAmount;
+        }
+        else if (invoice.invoiceType === 'saleReturn'){
+            creditAmount = invoice.totalAmount;
         }
 
         const ledger = await Ledger.findOne({

@@ -60,16 +60,21 @@ export default function InvoiceView() {
                 <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
                     <div className="space-y-6">
                         <div className="p-5 rounded-2xl lg:p-6">
-                            <div className="flex flex-col items-center text-center gap-5 xl:flex-row xl:justify-between">
+                            <div className="flex flex-row items-center text-center gap-5 xl:flex-row xl:justify-between">
                                 <div className="flex flex-col items-center w-full gap-1">
                                     <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                                         {user?.business?.businessName}
                                     </h4>
+                                    {user?.business?.trnNo && (
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                                            TRN No: {user.business.trnNo}
+                                        </p>
+                                    )}
                                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        Address: {user?.business?.address}
+                                        Address: {user?.business?.address} , Email: {user?.business?.email} , Phone: {(user?.business?.phoneCode ?? '') + user?.business?.phoneNumber}
                                     </p>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        Phone: {(user?.business?.phoneCode ?? '') + user?.business?.phoneNumber}
+                                        
                                     </p>
                                 </div>
                                 
@@ -77,23 +82,17 @@ export default function InvoiceView() {
                             
                         </div>
 
-                        <div className="flex flex-col items-start text-center gap-5 xl:flex-row xl:justify-between">
-                                <div className="flex flex-col items-start w-full gap-1 xl:justify-between">
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        Date: {invoice?.date}
-                                    </p>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        # Ref: {invoice?.id}
-                                    </p>
-                                </div>
-                            </div>
-
-                        <div className="flex flex-col items-start text-left gap-5 xl:flex-row xl:justify-between">
+                        <div className="flex flex-row items-start text-center gap-5 xl:flex-row xl:justify-between">
                             <div className="flex flex-col items-start w-full gap-1 xl:justify-between">
                                 <h6 className="text-lg font-semibold text-gray-800 dark:text-white/90">To,</h6>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">
                                     <b>Customer Name:</b> {invoice?.party?.name}
                                 </p>
+                                {user?.business?.trnNo && (
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        TRN No: {invoice?.party?.trnNo}
+                                    </p>
+                                )}
                                 <p className="text-sm text-gray-500 dark:text-gray-400">
                                     <b>Address:</b> {invoice?.party?.address}
                                 </p>
@@ -101,7 +100,26 @@ export default function InvoiceView() {
                                     <b>Phone:</b> {(invoice?.party?.phoneCode ?? '') + invoice?.party?.phoneNumber}
                                 </p>
                             </div>
+
+                            <div className="flex flex-col items-end w-full gap-1 xl:justify-between">
+
+                                <ul className="space-y-2">
+                                    <li className="flex items-center justify-between">
+                                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                                            Date:
+                                        </span>
+                                        <span className="text-sm text-gray-500 dark:text-white/90 pr-4">{invoice?.date}</span>
+                                    </li>
+                                    <li className="flex items-center justify-between">
+                                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                                            Ref #
+                                        </span>
+                                        <span className="text-sm text-gray-500 dark:text-white/90 pr-4">{invoice?.invoiceNo}</span>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
+
 
                         <Table>
                             <TableHeader className="border-b border-t border-gray-100 dark:border-white/[0.05] bg-gray-200 text-black text-sm dark:bg-gray-800 dark:text-gray-400">
@@ -145,18 +163,35 @@ export default function InvoiceView() {
                         </Table>
 
                         <div className="my-6 flex justify-end pb-6 text-right">
-                            <div className="w-[220px]">
+                            <div className="w-[300px]">
                                 <p className="my-4 text-left text-sm font-medium text-gray-800 dark:text-white/90">
-                                Order summary
+                                    Order summary
                                 </p>
                                 <ul className="space-y-2">
-                                
-                                <li className="flex items-center justify-between">
-                                    <span className="font-medium text-gray-700 dark:text-gray-400">
-                                    Total (Dhs.) :
-                                    </span>
-                                    <span className="text-lg font-semibold text-gray-800 dark:text-white/90 pr-4">{invoice?.totalAmount.toFixed(2)}</span>
-                                </li>
+                                    <li className="flex items-center justify-between">
+                                        <span className="font-medium text-gray-700 dark:text-gray-400">
+                                            Total (Dhs.) :
+                                        </span>
+                                        <span className="text-lg font-semibold text-gray-800 dark:text-white/90 pr-4">{invoice?.totalAmount.toFixed(2)}</span>
+                                    </li>
+                                    <li className="flex items-center justify-between">
+                                        <span className="font-medium text-gray-700 dark:text-gray-400">
+                                            Discount (Dhs.) :
+                                        </span>
+                                        <span className="text-lg font-semibold text-gray-800 dark:text-white/90 pr-4">{invoice?.discount.toFixed(2)}</span>
+                                    </li>
+                                    <li className="flex items-center justify-between">
+                                        <span className="font-medium text-gray-700 dark:text-gray-400">
+                                            Vat (%) :
+                                        </span>
+                                        <span className="text-lg font-semibold text-gray-800 dark:text-white/90 pr-4">{invoice?.vatPercentage}</span>
+                                    </li>
+                                    <li className="flex items-center justify-between">
+                                        <span className="font-medium text-gray-700 dark:text-gray-400">
+                                            Grand Total (Dhs.) :
+                                        </span>
+                                        <span className="text-lg font-semibold text-gray-800 dark:text-white/90 pr-4">{invoice?.grandTotal.toFixed(2)}</span>
+                                    </li>
                                 </ul>
                             </div>
                         </div>

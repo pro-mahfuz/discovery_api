@@ -28,6 +28,10 @@ export interface Invoice {
   date: string;
   note: string;
   totalAmount: number;
+  discount: number;
+  isVat: boolean;
+  vatPercentage: number;
+  grandTotal: number;
   category?: Category;
   items: Item[]; 
   currency: string;

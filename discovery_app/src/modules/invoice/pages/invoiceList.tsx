@@ -123,6 +123,9 @@ export default function InvoiceList() {
                   <TableCell isHeader className="text-center px-4 py-2">Date</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Party Name</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Total Amount</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Discount</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Vat (%)</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Grand Total</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Action</TableCell>
                 </TableRow>
               </TableHeader>
@@ -163,6 +166,15 @@ export default function InvoiceList() {
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {invoice.totalAmount}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {invoice.discount}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {invoice.vatPercentage}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {invoice.grandTotal}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm overflow-visible">
                         <Menu as="div" className="relative inline-block text-left">

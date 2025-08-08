@@ -18,6 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "../../../components/ui/table";
+import Checkbox from "../../../components/form/input/Checkbox.tsx";
 
 import {
   OptionStringType,
@@ -52,7 +53,6 @@ export default function InvoiceEditForm() {
   const categories = useSelector(selectAllCategory);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [totalAmount, setTotalAmount] = useState(0);
 
   const [currentItem, setCurrentItem] = useState<Item>({
     itemId: 0,
@@ -63,7 +63,7 @@ export default function InvoiceEditForm() {
     subTotal: 0,
   });
 
-  const [formData, setFormData] = useState<Omit<Invoice, "totalAmount">>({
+  const [formData, setFormData] = useState<Invoice>({
     id: 0,
     businessId: 0,
     categoryId: 1,
@@ -73,6 +73,11 @@ export default function InvoiceEditForm() {
     note: "",
     items: [],
     currency: "AED",
+    totalAmount: 0,
+    isVat: false,
+    vatPercentage: 0,
+    discount: 0,
+    grandTotal: 0
   });
 
   useEffect(() => {
@@ -94,6 +99,11 @@ export default function InvoiceEditForm() {
         note: invoice.note,
         items: invoice.items,
         currency: invoice.currency,
+        totalAmount: invoice.totalAmount,
+        isVat: invoice.isVat,
+        vatPercentage: user?.business?.vatPercentage,
+        discount: invoice.discount,
+        grandTotal: invoice.grandTotal
       });
     }
   }, [user, invoice]);
@@ -158,13 +168,23 @@ export default function InvoiceEditForm() {
       (sum, item) => sum + item.price * item.quantity,
       0
     );
-    setTotalAmount(total);
-  }, [formData.items]);
+
+    const discountedTotal = total - formData.discount;
+    const vatAmount = formData.isVat === true ? discountedTotal * (Number(user?.business?.vatPercentage) / 100) : 0;
+    const grandTotal = discountedTotal + vatAmount;
+
+    setFormData((prev) => ({
+      ...prev,
+      totalAmount: total,
+      grandTotal: grandTotal,
+      vatPercentage: formData.isVat === true ? user?.business?.vatPercentage ?? 0 : 0,
+    }));
+  }, [formData.items, formData.isVat, formData.discount]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await dispatch(update({ ...formData, totalAmount }));
+      await dispatch(update(formData));
       toast.success("Invoice created successfully!");
       const categoryId = 0;
       navigate(`/invoice/${formData.invoiceType}/${categoryId}/list`);
@@ -295,17 +315,21 @@ export default function InvoiceEditForm() {
                 {errors.date && <p className="text-red-500 text-sm">{errors.date}</p>}
             </div>
 
-            {/* Total Amount */}
+            {/* isVat */}
             <div>
-            <Label>Total Amount</Label>
-            <Input
-                type="number"
-                name="totalAmount"
-                placeholder="Enter total amount"
-                value={totalAmount}
-                readonly={true}
-            />
-            {errors.totalAmount && <p className="text-red-500 text-sm">{errors.totalAmount}</p>}
+                <Label>Select Vat (if have)</Label>
+                <Checkbox
+                    key={formData.id}
+                    id={`is-vat-check`}
+                    label={`Is Vated`}
+                    checked={formData.isVat}
+                    onChange={(checked: boolean) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        isVat: checked,
+                      }));
+                    }}
+                />
             </div>
 
             {/* Note */}
@@ -420,46 +444,92 @@ export default function InvoiceEditForm() {
 
           {/* Items Table */}
           <Table>
-                <TableHeader className="border-b border-t border-gray-100 dark:border-white/[0.05] bg-gray-200 text-black text-sm dark:bg-gray-800 dark:text-gray-400">
+              <TableHeader className="border-b border-t border-gray-100 dark:border-white/[0.05] bg-gray-200 text-black text-sm dark:bg-gray-800 dark:text-gray-400">
                 <TableRow>
-                    <TableCell isHeader className="text-center px-4 py-2">Sl</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Item</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Price</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Quantity</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Sub-Total</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Action</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Sl</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Item</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Price</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Quantity</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Sub-Total</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Action</TableCell>
                 </TableRow>
-                </TableHeader>
+              </TableHeader>
 
-                <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+              <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                 {formData.items.length === 0 ? (
-                    <TableRow>
+                  <TableRow>
                     <TableCell colSpan={6} className="text-center py-4">
-                        No items added yet.
+                      No items added yet.
                     </TableCell>
-                    </TableRow>
+                  </TableRow>
                 ) : (
-                    formData.items.map((item, index) => (
+                  formData.items.map((item, index) => (
                     <TableRow key={`${item.itemId}-${index}`}>
-                        <TableCell className="text-center px-4 py-2">{index + 1}</TableCell>
-                        <TableCell className="text-center px-4 py-2">{item.name}</TableCell>
-                        <TableCell className="text-center px-4 py-2">{item.price.toFixed(2)}</TableCell>
-                        <TableCell className="text-center px-4 py-2">{item.quantity}</TableCell>
-                        <TableCell className="text-center px-4 py-2">{(item.price * item.quantity).toFixed(2)}</TableCell>
-                        <TableCell className="text-center px-4 py-2">
+                      <TableCell className="text-center px-4 py-2">{index + 1}</TableCell>
+                      <TableCell className="text-center px-4 py-2">{item.name}</TableCell>
+                      <TableCell className="text-center px-4 py-2">{item.price.toFixed(2)}</TableCell>
+                      <TableCell className="text-center px-4 py-2">{item.quantity}</TableCell>
+                      <TableCell className="text-center px-4 py-2">{(item.price * item.quantity).toFixed(2)}</TableCell>
+                      <TableCell className="text-center px-4 py-2">
                         <button
-                            onClick={() => removeItem(Number(item.id))}
-                            className="text-red-500 hover:underline"
-                            type="button"
+                          onClick={() => removeItem(Number(item.id))}
+                          className="text-red-500 hover:underline"
+                          type="button"
                         >
-                            Remove
+                          Remove
                         </button>
-                        </TableCell>
+                      </TableCell>
                     </TableRow>
-                    ))
+                  ))
                 )}
-                </TableBody>
-            </Table>
+              </TableBody>
+          </Table>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-20">
+            {/* Total Amount */}
+            <div>
+                <Label>Total Amount</Label>
+                <Input
+                  type="number"
+                  name="totalAmount"
+                  placeholder="0"
+                  value={formData.totalAmount}
+                  readonly={true}
+                />
+            </div>
+
+            {/* Total Amount */}
+            <div>
+              <Label>Discount</Label>
+              <Input
+                type="number"
+                name="discount"
+                placeholder="0"
+                value={formData.discount}
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value) || 0;
+                  setFormData((prev) => ({
+                    ...prev!,
+                    discount: value
+                  }));
+                }}
+              />
+            </div>
+
+            {/* Total Amount */}
+            <div>
+              <Label>Grand Total</Label>
+              <Input
+                type="number"
+                name="grandTotal"
+                placeholder="0"
+                value={formData.grandTotal}
+                readonly={true}
+              />
+            </div>
+
+              
+          </div>
 
           {/* Submit Button */}
           <div className="flex justify-end">

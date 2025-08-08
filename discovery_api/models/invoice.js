@@ -41,11 +41,30 @@ export default (sequelize, DataTypes) => {
       allowNull: false,
     },
     totalAmount: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.FLOAT,
       allowNull: false,
       validate: {
         min: 0,
       },
+    },
+    isVat: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    vatPercentage: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    discount: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+      defaultValue: 0,
+    },
+    grandTotal: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
     },
     note: {
       type: DataTypes.STRING,

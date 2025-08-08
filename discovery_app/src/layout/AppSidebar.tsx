@@ -37,8 +37,8 @@ const AppSidebar: React.FC<any> = () => {
   
   const authUser = useSelector(selectAuth);
   const user = useSelector(selectUserById(Number(authUser.user?.id)));
-  console.log("App Sidebar- authUser: ", authUser);
-  console.log("App Sidebar- user: ", authUser);
+  // console.log("App Sidebar- authUser: ", authUser);
+  // console.log("App Sidebar- user: ", authUser);
 
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
@@ -140,36 +140,6 @@ const AppSidebar: React.FC<any> = () => {
     //   subItems: [
     //     { name: "Invoice List", path: "/invoice/0/list", pro: false },
     //     { name: "Invoice Add", path: "/invoice/create", pro: false }
-    //   ],
-    // },
-    
-    
-    // {
-    //   icon: <CalenderIcon />,
-    //   name: "Calendar",
-    //   path: "/calendar",
-    // },
-    // {
-    //   icon: <UserCircleIcon />,
-    //   name: "User Profile",
-    //   path: "/profile",
-    // },
-    // {
-    //   name: "Forms",
-    //   icon: <ListIcon />,
-    //   subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
-    // },
-    // {
-    //   name: "Tables",
-    //   icon: <TableIcon />,
-    //   subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-    // },
-    // {
-    //   name: "Pages",
-    //   icon: <PageIcon />,
-    //   subItems: [
-    //     { name: "Blank Page", path: "/blank", pro: false },
-    //     { name: "404 Error", path: "/error-404", pro: false },
     //   ],
     // },
   ];
