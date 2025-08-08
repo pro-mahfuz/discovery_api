@@ -59,7 +59,6 @@ export default function PartyEditForm() {
     }
   }, [user]);
 
-  console.log("formData: ", formData)
 
   useEffect(() => {
     const party = parties.find((p) => p.id === Number(id));
@@ -136,7 +135,7 @@ export default function PartyEditForm() {
     }
 
     try {
-      console.log("updateFormData: ", formData);
+
       await dispatch(updateParty({
         ...formData,
         id: Number(id)

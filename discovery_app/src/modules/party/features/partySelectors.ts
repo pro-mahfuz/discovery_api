@@ -7,12 +7,20 @@ export const selectPartyStatus = (state: RootState) => state.party.status;
 export const selectPartyError = (state: RootState) => state.party.error;
 
 export const selectAllParties = (state: RootState): Party[] => state.party.parties || [];
-export const selectParties = (businessId: number, partyType: string) => (state: RootState): Party[] => 
-  businessId === 0 && partyType === "all" ? state.party.parties :
-  businessId === 0 && partyType ? state.party.parties.filter(party => party.type === partyType) :
-  businessId > 0 && partyType === "all" ? state.party.parties.filter(party => party.businessId === businessId) :
-  businessId > 0 && partyType ? state.party.parties.filter(party => party.type === partyType && party.businessId === businessId) :
-  [];
+
+export const selectParties = (businessId: number, partyType: string) =>
+  createSelector([selectAllParties], (parties) => {
+    if (businessId === 0 && partyType === "all") return parties;
+    if (businessId === 0 && partyType)
+      return parties.filter(party => party.type === partyType);
+    if (businessId > 0 && partyType === "all")
+      return parties.filter(party => party.businessId === businessId);
+    if (businessId > 0 && partyType)
+      return parties.filter(
+        party => party.type === partyType && party.businessId === businessId
+      );
+    return [];
+  });
 
 export const selectPartyById = (id: number) => (state: RootState) => state.party.parties.find(party => party.id === id);
 export const searchPartyByText = (text: string) => (state: RootState) => {
