@@ -39,7 +39,6 @@ export default function PartyLedger() {
   const authUser = useSelector(selectUser);
   const ledgers = useSelector(selectLedgers(Number(authUser?.business?.id), Number(categoryId), Number(partyId)));
   const party = useSelector(selectPartyById(Number(partyId)));
-  console.log("party data: ", party);
   
   const [selectedTab, setSelectedTab] = useState(0);
   const { isOpen, openModal, closeModal } = useModal();
@@ -64,11 +63,11 @@ export default function PartyLedger() {
   // Edit handler
   const handleEdit = (ledger: Ledger) => {
     if(ledger.transactionType == "purchase" || ledger.transactionType == "sale"){
-      setEditingLedgerId(Number(ledger.referenceId));
+      setEditingLedgerId(Number(ledger.invoiceId));
       setSelectedTab(0);
     }
     if(ledger.transactionType == "payment_in" || ledger.transactionType == "payment_out"){
-      setEditingPaymentId(Number(ledger.referenceId));
+      setEditingPaymentId(Number(ledger.paymentId));
       setSelectedTab(1);
     }
   };
@@ -101,7 +100,6 @@ export default function PartyLedger() {
   const filteredLedgers = useMemo(() => {
     return ledgers.filter((ledger) =>
       ledger.transactionType.toLowerCase().includes(filterText.toLowerCase()) ||
-      String(ledger.referenceId).toLowerCase().includes(filterText.toLowerCase()) ||
       ledger.party?.name?.toLowerCase().includes(filterText.toLowerCase())
     );
   }, [ledgers, filterText]);
@@ -259,7 +257,7 @@ export default function PartyLedger() {
                         {ledger.transactionType}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {'P'+String(ledger.referenceId).padStart(6, '0')}
+                        {ledger.refNo}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {ledger.date}

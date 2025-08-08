@@ -14,7 +14,6 @@ export default function BusinessView() {
     const navigate = useNavigate();
 
     const business = useSelector(selectBusinessById(Number(id)));
-    console.log("business: ", id);
 
     
     useEffect(() => {
