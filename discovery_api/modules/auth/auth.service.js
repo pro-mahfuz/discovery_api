@@ -26,7 +26,7 @@ export const login = async ({ email, password }) => {
             { model: Business, as: 'business' },
             { 
                 model: Role,
-                include: [Permission], 
+                include: [{ model: Permission, as: 'permissions' }], 
                 as: 'role' 
             },
             { model: Profile, as: 'profile' }
@@ -68,7 +68,7 @@ export const login = async ({ email, password }) => {
                 id: user.role.id,
                 name: user.role.name,
                 action: user.role.action,
-                Permission: user.role.Permissions.map(p => ({
+                permissions: user.role.permissions.map(p => ({
                     id: p.id,
                     name: p.name,
                     action: p.action
@@ -93,31 +93,32 @@ export const isAccessTokenExpired = async ({ accessToken }) => {
 }
 
 export const refreshToken = async ({ refreshToken }) => {
+    console.log("refreshToken- ", refreshToken);
     const decoded = await isValidRefreshToken(refreshToken); 
     const payload = { id: decoded.id, roleId: decoded.roleId, role: decoded.role };
 
-    const stored = await TokenStore.findOne({ where: { token: refreshToken } });
-    if (!stored) throw { status: 403, message: "Token not found or expired" };
-    if (stored.expiresAt < new Date()) {
-        throw { status: 403, message: "Refresh token has expired, Please login again" };
-    }
+    // const stored = await TokenStore.findOne({ where: { token: refreshToken } });
+    // if (!stored) throw { status: 403, message: "Token not found or expired" };
+    // if (stored.expiresAt < new Date()) {
+    //     throw { status: 403, message: "Refresh token has expired, Please login again" };
+    // }
     
     
     const accessToken = generateAccessToken(payload);
 
-    const tokenInDB = await TokenStore.findOne({ where: { token: refreshToken } });
-    if (!tokenInDB) {
-        await TokenStore.destroy({ where: { userId: decoded?.id } });
-        return res.status(403).json({ message: "Token reuse detected, session revoked" });
-    }
+    // const tokenInDB = await TokenStore.findOne({ where: { token: refreshToken } });
+    // if (!tokenInDB) {
+    //     await TokenStore.destroy({ where: { userId: decoded?.id } });
+    //     return res.status(403).json({ message: "Token reuse detected, session revoked" });
+    // }
 
     const newRefreshToken = generateRefreshToken(payload);
-    await tokenInDB.destroy();
-    await TokenStore.create({
-        userId: payload.id,
-        token: newRefreshToken,
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // example: 7 days
-    });
+    // await tokenInDB.destroy();
+    // await TokenStore.create({
+    //     userId: payload.id,
+    //     token: newRefreshToken,
+    //     expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // example: 7 days
+    // });
     
     return { accessToken: accessToken, refreshToken: newRefreshToken };
 };

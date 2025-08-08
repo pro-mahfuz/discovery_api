@@ -16,18 +16,20 @@ import { AppDispatch } from "../../../store/store";
 import { OptionStringType, InvoiceType, InvoiceTypeOptions, OptionNumberType } from "../../types.ts";
 import { Payment, paymentMethodOptions, paymentOptions } from "../features/paymentTypes.ts";
 
-import { create } from "../features/paymentThunks";
+import { update } from "../features/paymentThunks";
 import { fetchAll as fetchPayment } from "../../payment/features/paymentThunks.ts";
 import { fetchParty } from "../../party/features/partyThunks.ts";
+import { fetchAllInvoice } from "../../invoice/features/invoiceThunks.ts";
 
 import { selectAuth } from "../../auth/features/authSelectors";
 import { selectUserById } from "../../user/features/userSelectors";
 import { selectAllParties } from "../../party/features/partySelectors";
+import { selectPaymentById } from "../../payment/features/paymentSelectors.ts";
 import { selectAllInvoice } from "../../invoice/features/invoiceSelectors.ts";
 
 
 export default function PaymentEditForm() {
-
+    const { id } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
 
@@ -39,10 +41,12 @@ export default function PaymentEditForm() {
     useEffect(() => {
         dispatch(fetchPayment());
         dispatch(fetchParty("all"));
+        dispatch(fetchAllInvoice());
     }, [dispatch]);
 
     const matchingParties = useSelector(selectAllParties);
     const invoices = useSelector(selectAllInvoice);
+    const payment = useSelector(selectPaymentById(Number(id)));
 
 
     const [formData, setFormData] = useState<Payment>({
@@ -60,13 +64,23 @@ export default function PaymentEditForm() {
     });
 
     useEffect(() => {
-        if (user?.business?.id) {
-          setFormData((prev) => ({
-            ...prev,
+        if (user?.business?.id && payment) {
+          setFormData({
+            id: payment.id,
             businessId: user?.business?.id,
-          }));
+            invoiceId: payment.invoiceId,
+            categoryId: payment.categoryId,
+            partyId: payment.partyId,
+            paymentType: payment.paymentType,
+            paymentDate: payment.paymentDate,
+            note: payment.note,
+            amountPaid: payment.amountPaid,
+            paymentMethod: payment.paymentMethod,
+            paymentDetails: payment.paymentDetails,
+            currency: payment.currency
+          });
         }
-    }, [user]);
+      }, [user, payment]);
 
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -83,12 +97,12 @@ export default function PaymentEditForm() {
         try {
             // Dispatch create action, including totalAmount
             console.log("Payment formData: ", formData);
-            await dispatch(create(formData));
-            toast.success("Payment created successfully!");
+            await dispatch(update(formData));
+            toast.success("Payment updated successfully!");
 
-            //navigate(`/payment/list`);
+            navigate(`/payment/list`);
         } catch (err) {
-            toast.error("Failed to create payment.");
+            toast.error("Failed to update payment.");
         }
     };
 
@@ -122,10 +136,10 @@ export default function PaymentEditForm() {
 
     return (
         <div>
-        <PageMeta title="Payment Create" description="Form to create a new payment" />
-        <PageBreadcrumb pageTitle="Payment Create" />
+        <PageMeta title="Payment Update" description="Form to create a payment" />
+        <PageBreadcrumb pageTitle="Payment Update" />
 
-        <ComponentCard title="Fill up all fields to create a new invoice">
+        <ComponentCard title="Modify fields to update a payment">
             <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 

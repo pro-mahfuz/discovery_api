@@ -32,6 +32,8 @@ import { selectUserById } from "../../user/features/userSelectors";
 import { selectAuth } from "../../auth/features/authSelectors";
 import { selectContainerByItemId } from "../../container/features/containerSelectors";
 import { fetchAll } from "../../container/features/containerThunks.ts";
+import { selectAllInvoice } from "../../invoice/features/invoiceSelectors.ts";
+import { fetchAllInvoice } from "../features/invoiceThunks.ts";
 
 
 export default function InvoiceCreateForm() {
@@ -43,6 +45,7 @@ export default function InvoiceCreateForm() {
         dispatch(fetchParty("all"));
         dispatch(fetchAllCategory());
         dispatch(fetchAll());
+        dispatch(fetchAllInvoice());
     }, [dispatch]);
 
     const authUser = useSelector(selectAuth);
@@ -52,6 +55,7 @@ export default function InvoiceCreateForm() {
 
     const matchingParties = useSelector(selectAllParties);
     const categories = useSelector(selectAllCategory);
+    const invoices = useSelector(selectAllInvoice);
     
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -60,6 +64,7 @@ export default function InvoiceCreateForm() {
         businessId: 0,
         categoryId: 1,
         invoiceType: invoiceType,
+        invoiceRefId: 0,
         partyId: 0,
         date: "",
         note: "",
@@ -275,6 +280,32 @@ export default function InvoiceCreateForm() {
                         />
                     </div>
 
+                    {/* Invoice Ref ID */}
+                    { formData.invoiceType === "saleReturn" && (
+                        <div>
+                            <Label>Search Invoice Ref (if have)</Label>
+                            <Select
+                                options={invoices.map((i) => ({
+                                    label: String(i.id),
+                                    value: Number(i.id),
+                                    partyId: Number(i.partyId)
+                                }))}
+                                placeholder="Select invoice type"
+
+                                onChange={(selectedOption) => {
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        invoiceRefId: selectedOption!.value,
+                                        partyId: selectedOption!.partyId,
+                                    }));
+                                }}
+                                styles={selectStyles}
+                                classNamePrefix="react-select"
+                            />
+                        </div>
+                    )}
+                    
+
                     {/* Search Party */}
                     <div>
                         <Label>Select Party</Label>
@@ -322,9 +353,9 @@ export default function InvoiceCreateForm() {
                     </div>
 
                     {/* isVat */}
-                    <div>
+                    <div className="flex flex-col items-center text-center">
                         <Label>Select Vat (if have)</Label>
-                        <Checkbox
+                        <Checkbox className="justify-center"
                             key={formData.id}
                             id={`is-vat-check`}
                             label={`Is Vated`}
@@ -340,15 +371,15 @@ export default function InvoiceCreateForm() {
 
 
                     {/* Note */}
-                    <div className="md:col-span-3">
-                    <Label>Note</Label>
-                    <Input
-                        type="text"
-                        name="note"
-                        placeholder="Optional note"
-                        value={formData.note}
-                        onChange={handleChange}
-                    />
+                    <div className="md:col-span-2">
+                        <Label>Note</Label>
+                        <Input
+                            type="text"
+                            name="note"
+                            placeholder="Optional note"
+                            value={formData.note}
+                            onChange={handleChange}
+                        />
                     </div>
                 </div>
 

@@ -1,3 +1,9 @@
+
+import { Category } from "../../category/features/categoryTypes";
+import { Party } from "../../party/features/partyTypes";
+import { Invoice } from "../../invoice/features/invoiceTypes";
+
+
 export type OptionType = {
   label: string;
   value: string;
@@ -19,6 +25,7 @@ export interface Payment {
   businessId?: number;        
   invoiceId?: number | null;
   categoryId?: number | null;
+  invoiceRefId?: string;
   partyId?: number;
   paymentRefNo?: string;
   paymentType: string;
@@ -28,6 +35,9 @@ export interface Payment {
   paymentMethod: string;
   paymentDetails?: string;
   currency: string;
+  category?: Category;
+  invoice?: Invoice;
+  party?: Party;
 }
 
 export interface PaymentState {

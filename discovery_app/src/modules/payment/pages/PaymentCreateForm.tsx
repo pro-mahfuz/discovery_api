@@ -19,6 +19,7 @@ import { Payment, paymentMethodOptions, paymentOptions } from "../features/payme
 import { create } from "../features/paymentThunks";
 import { fetchAll as fetchPayment } from "../../payment/features/paymentThunks.ts";
 import { fetchParty } from "../../party/features/partyThunks.ts";
+import { fetchAllInvoice } from "../../invoice/features/invoiceThunks.ts";
 
 import { selectAuth } from "../../auth/features/authSelectors";
 import { selectUserById } from "../../user/features/userSelectors";
@@ -39,6 +40,7 @@ export default function PaymentCreateForm() {
     useEffect(() => {
         dispatch(fetchPayment());
         dispatch(fetchParty("all"));
+        dispatch(fetchAllInvoice());
     }, [dispatch]);
 
     const matchingParties = useSelector(selectAllParties);
@@ -86,7 +88,7 @@ export default function PaymentCreateForm() {
             await dispatch(create(formData));
             toast.success("Payment created successfully!");
 
-            //navigate(`/payment/list`);
+            navigate(`/payment/list`);
         } catch (err) {
             toast.error("Failed to create payment.");
         }

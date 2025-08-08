@@ -7,7 +7,7 @@ export const getAllUser = async () => {
       { model: Business, as: 'business' },
       { 
         model: Role,
-        include: [Permission], 
+        include: [{ model: Permission, as: 'permissions' }], 
         as: 'role' 
       },
       { model: Profile, as: 'profile' }
@@ -47,7 +47,7 @@ export const getUserById = async (id) => {
             { model: Business, as: 'business' },
             { 
                 model: Role,
-                include: [Permission], 
+                include: [{ model: Permission, as: 'permissions' }], 
                 as: 'role' 
             },
             { model: Profile, as: 'profile' }

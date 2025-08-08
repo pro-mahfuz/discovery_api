@@ -29,10 +29,6 @@ type NavItem = {
 };
 
 
-
-
-
-
 const AppSidebar: React.FC<any> = () => {
   
   const authUser = useSelector(selectAuth);

@@ -153,25 +153,25 @@ export default function App() {
 
             {/* Payment */}
             <Route index path="/payment/create" element={
-              <PrivateRoute permissions={['create_invoice']}>
+              <PrivateRoute permissions={['create_payment']}>
                 <PaymentCreateForm />
               </PrivateRoute>} 
             />
             <Route index path="/payment/list" element={
-              <PrivateRoute permissions={['manage_invoice']}>
+              <PrivateRoute permissions={['manage_payment']}>
                 <PaymentList />
               </PrivateRoute>} 
             />
 
             <Route index path="/payment/:id/edit" element={
-              <PrivateRoute permissions={['manage_invoice']}>
+              <PrivateRoute permissions={['edit_payment']}>
                 <PaymentEditForm />
               </PrivateRoute>} 
             />
 
             {/* Stock */}
             <Route index path="/stock/create" element={
-              <PrivateRoute permissions={['create_invoice']}>
+              <PrivateRoute permissions={['create_stock']}>
                 <StockCreateForm />
               </PrivateRoute>} 
             />
@@ -182,7 +182,7 @@ export default function App() {
             />
 
             <Route index path="/stock/:id/edit" element={
-              <PrivateRoute permissions={['manage_invoice']}>
+              <PrivateRoute permissions={['edit_stock']}>
                 <StockEditForm />
               </PrivateRoute>} 
             />
@@ -194,14 +194,14 @@ export default function App() {
               </PrivateRoute>} 
             />
             <Route index path="/ledger/:categoryId/party/:partyId" element={
-              <PrivateRoute permissions={['manage_party']}>
+              <PrivateRoute permissions={['manage_ledger']}>
                 <PartyLedger />
               </PrivateRoute>} 
             />
 
             {/* Ledger */}
             <Route index path="/ledger/:partyType/list" element={
-              <PrivateRoute permissions={['manage_party']}>
+              <PrivateRoute permissions={['manage_ledger']}>
                 <LedgerList />
               </PrivateRoute>} 
             />
@@ -222,7 +222,7 @@ export default function App() {
             />
 
             <Route index path="/business/edit/:id" element={
-              <PrivateRoute permissions={['manage_business']}>
+              <PrivateRoute permissions={['edit_business']}>
                 <BusinessEditForm />
               </PrivateRoute>
             }

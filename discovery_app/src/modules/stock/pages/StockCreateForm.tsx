@@ -101,11 +101,11 @@ export default function StockCreateForm() {
             // Dispatch create action, including totalAmount
             console.log("Stock formData: ", formData);
             await dispatch(create(formData));
-            toast.success("Payment created successfully!");
+            toast.success("Stock created successfully!");
 
-            navigate(`/payment/list`);
+            navigate(`/stock/list`);
         } catch (err) {
-            toast.error("Failed to create payment.");
+            toast.error("Failed to create stock.");
         }
     };
 

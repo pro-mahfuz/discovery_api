@@ -40,6 +40,8 @@ import { selectAuth } from "../../auth/features/authSelectors";
 import { selectContainerByItemId } from "../../container/features/containerSelectors";
 import { selectInvoiceById } from "../features/invoiceSelectors";
 import { fetchAll } from "../../container/features/containerThunks.ts";
+import { selectAllInvoice } from "../../invoice/features/invoiceSelectors.ts";
+import { fetchAllInvoice } from "../features/invoiceThunks.ts";
 
 export default function InvoiceEditForm() {
   const { id, invoiceType } = useParams();
@@ -51,6 +53,7 @@ export default function InvoiceEditForm() {
   const user = useSelector(selectUserById(Number(authUser.user?.id)));
   const matchingParties = useSelector(selectAllParties);
   const categories = useSelector(selectAllCategory);
+  const invoices = useSelector(selectAllInvoice);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -68,6 +71,7 @@ export default function InvoiceEditForm() {
     businessId: 0,
     categoryId: 1,
     invoiceType: invoiceType ?? "",
+    invoiceRefId: 0,
     partyId: 0,
     date: "",
     note: "",
@@ -84,6 +88,7 @@ export default function InvoiceEditForm() {
     dispatch(fetchParty("all"));
     dispatch(fetchAllCategory());
     dispatch(fetchAll());
+    dispatch(fetchAllInvoice());
     if (id && !invoice) dispatch(fetchById(Number(id)));
   }, [dispatch]);
 
@@ -94,6 +99,7 @@ export default function InvoiceEditForm() {
         businessId: user.business.id,
         categoryId: invoice.categoryId,
         invoiceType: invoice.invoiceType,
+        invoiceRefId: invoice.invoiceRefId,
         partyId: invoice.partyId,
         date: invoice.date,
         note: invoice.note,
@@ -218,8 +224,8 @@ export default function InvoiceEditForm() {
 
   return (
     <div>
-      <PageMeta title={`${invoiceType?.toUpperCase()} Create`} description="Edit Invoice" />
-      <PageBreadcrumb pageTitle={`${invoiceType?.toUpperCase()} Create`} />
+      <PageMeta title={`${formData.invoiceType ? formData.invoiceType.charAt(0).toUpperCase() + formData.invoiceType.slice(1).toLowerCase() : ''} Update`} description="Edit Invoice" />
+      <PageBreadcrumb pageTitle={`${formData.invoiceType ? formData.invoiceType.charAt(0).toUpperCase() + formData.invoiceType.slice(1).toLowerCase() : ''} Update`} />
       <ComponentCard title="Edit Invoice">
         <form className="space-y-5" onSubmit={handleSubmit}>
           {/* Invoice Details */}
@@ -269,6 +275,31 @@ export default function InvoiceEditForm() {
                 {errors.invoiceType && <p className="text-red-500 text-sm">{errors.invoiceType}</p>}
             </div>
 
+            {/* Invoice Ref ID */}
+            { formData.invoiceType === "saleReturn" && (
+                <div>
+                    <Label>Search Invoice Ref (if have)</Label>
+                    <Select
+                        options={invoices.map((i) => ({
+                            label: String(i.id),
+                            value: Number(i.id),
+                            partyId: Number(i.partyId)
+                        }))}
+                        placeholder="Select invoice type"
+
+                        onChange={(selectedOption) => {
+                            setFormData(prev => ({
+                                ...prev,
+                                invoiceRefId: selectedOption!.value,
+                                partyId: selectedOption!.partyId,
+                            }));
+                        }}
+                        styles={selectStyles}
+                        classNamePrefix="react-select"
+                    />
+                </div>
+            )}
+
             {/* Search Party */}
             <div>
                 <Label>Select Party</Label>
@@ -316,7 +347,7 @@ export default function InvoiceEditForm() {
             </div>
 
             {/* isVat */}
-            <div>
+            <div className="flex flex-col items-center text-center">
                 <Label>Select Vat (if have)</Label>
                 <Checkbox
                     key={formData.id}
@@ -333,7 +364,7 @@ export default function InvoiceEditForm() {
             </div>
 
             {/* Note */}
-            <div className="md:col-span-3">
+            <div className="md:col-span-2">
             <Label>Note</Label>
             <Input
                 type="text"

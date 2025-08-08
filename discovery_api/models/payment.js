@@ -65,7 +65,7 @@ export default (sequelize, DataTypes) => {
   });
 
   Payment.associate = (models) => {
-    Payment.belongsTo(models.Category, {
+    Payment.belongsTo(models.Party, {
       foreignKey: "partyId",
       as: "party",
     });

@@ -2,17 +2,18 @@ export default (sequelize, DataTypes) => {
   const Party = sequelize.define("Party", {
     businessId: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       references: {
-        model: 'Businesses', // name of Target model
-        key: 'id' // key in Target model that we're referencing
-      }
+        model: 'Businesses',
+        key: 'id',
+      },
     },
     type: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     name: {
-      type: DataTypes.STRING, // You had `DataTypes.DATE`, which is incorrect for a name
+      type: DataTypes.STRING,
       allowNull: false,
     },
     company: {
@@ -58,26 +59,37 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    trnNo: { 
-      type: DataTypes.STRING, 
-      allowNull: true 
+    trnNo: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     openingBalance: {
-      type: DataTypes.FLOAT, // You had `DataTypes.Integer` (should be capital `INTEGER`)
+      type: DataTypes.FLOAT,
       allowNull: true,
       defaultValue: 0,
-    },    
+    },
     isActive: {
       type: DataTypes.BOOLEAN,
+      allowNull: false,
       defaultValue: true,
     },
   });
 
+  // Associations
   Party.associate = (models) => {
-    // Example: Party.hasMany(models.Invoice);
     Party.belongsTo(models.Business, {
       foreignKey: "businessId",
-      as: "business"
+      as: "business",
+    });
+
+    Party.hasMany(models.Payment, {
+      foreignKey: "partyId",
+      as: "payments", // changed 'party' to 'payments' for clarity
+    });
+
+    Party.hasMany(models.Invoice, {
+      foreignKey: "partyId",
+      as: "invoices", // changed 'invoice' to 'invoices' for clarity
     });
   };
 

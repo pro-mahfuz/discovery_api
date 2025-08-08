@@ -12,11 +12,12 @@ export const authorize = (permissionAction) => {
       const userRole = await Role.findByPk(req.user.roleId, {
         include: {
           model: Permission,
-          through: { attributes: [] }, // exclude RolePermission fields
+          through: { attributes: [] },  // exclude RolePermission fields
+          as: "permissions" 
         },
       });
 
-      const hasPermission = userRole?.Permissions?.some(
+      const hasPermission = userRole?.permissions?.some(
         (perm) => perm.action === permissionAction
       );
 

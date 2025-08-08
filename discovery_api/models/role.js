@@ -27,7 +27,8 @@ export default (sequelize, DataTypes) => {
     Role.belongsToMany(models.Permission, {
       through: models.RolePermission,
       foreignKey: "roleId",
-      otherKey: "permissionId"
+      otherKey: "permissionId",
+      as: "permissions",
     });
 
     Role.belongsTo(models.Business, {

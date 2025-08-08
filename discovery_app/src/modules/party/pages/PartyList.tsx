@@ -38,7 +38,7 @@ export default function PartyList() {
 
   const authUser = useSelector(selectUser);
   const parties = useSelector(selectParties(Number(authUser?.business?.id), String(partyType)));
-  console.log("parties - ", parties);
+  // console.log("parties - ", parties);
 
   // const allParties = useSelector(selectAllParties);
   // const parties = partyType === "supplier"

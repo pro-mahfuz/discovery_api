@@ -179,7 +179,7 @@ export default function StockList() {
 
                           <MenuItems className="absolute right-0 z-50 mt-2 w-40 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-sky-500 ring-opacity-5 focus:outline-none">
                             <div className="py-1">
-                              <MenuItem>
+                              {/* <MenuItem>
                                 {({ active }) => (
                                   <button
                                     onClick={() => handleView(stock)}
@@ -189,7 +189,7 @@ export default function StockList() {
                                     View
                                   </button>
                                 )}
-                              </MenuItem>
+                              </MenuItem> */}
                               <MenuItem>
                                 {({ active }) => (
                                   <button

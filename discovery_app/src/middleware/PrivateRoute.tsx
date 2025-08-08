@@ -14,10 +14,8 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children, permissions = [] 
   const { user } = useSelector((state: RootState) => state.auth);
   const accessToken = localStorage.getItem('accessToken');
 
-  const userPermissions: string[] = user?.role?.Permission?.map((p: Permission) => p.action) || [];
+  const userPermissions: string[] = user?.role?.permissions?.map((p: Permission) => p.action) || [];
 
-  // Not logged in
-  // if (!accessToken || !user) {
   if (!accessToken) {
     return <Navigate to="/signin" replace />;
   }

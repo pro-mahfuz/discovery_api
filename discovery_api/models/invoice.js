@@ -25,7 +25,7 @@ export default (sequelize, DataTypes) => {
     },
     invoiceType: {
       type: DataTypes.ENUM,
-      values: ['purchase', 'sale'],
+      values: ['purchase', 'sale', 'saleReturn'],
       allowNull: false,
     },
     partyId: {
