@@ -204,7 +204,7 @@ export default function CustomerLedger() {
           <TabPanel>
             <div className="p-4 mb-4 border border-gray-300 rounded-lg bg-white dark:bg-gray-800 space-y-4">
               <h2 className="text-lg font-semibold">Add Payment</h2>
-              <VoucherPayment editingPaymentId={editingPaymentId ?? 0} paymentPartyId={0}/>
+              <VoucherPayment editingPaymentId={editingPaymentId ?? 0} paymentPartyId={partyID}/>
             </div>
           </TabPanel>
         </TabPanels>

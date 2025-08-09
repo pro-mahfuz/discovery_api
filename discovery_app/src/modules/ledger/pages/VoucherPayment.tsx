@@ -51,7 +51,7 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
     amountPaid: 0,
     paymentMethod: "cash",
     paymentDetails: '',
-    currency: '',
+    currency: 'AED',
   });
 
   useEffect(() => {
@@ -67,6 +67,13 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
       setForm((prev) => ({
         ...prev,
         businessId: user?.business?.id,
+      }));
+    }
+
+    if (user?.business?.id) {
+      setForm((prev) => ({
+        ...prev,
+        partyId: paymentPartyId
       }));
     }
   }, [user]);
