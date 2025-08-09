@@ -26,6 +26,7 @@ interface CurrencyPurchaseProps {
 }
 
 export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: CurrencyPurchaseProps) {
+
   // const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
@@ -63,8 +64,15 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
       }));
     }
 
+    if (user?.business?.id) {
+      setForm((prev) => ({
+        ...prev,
+        partyId: ledgerPartyId
+      }));
+    }
+
     
-  }, [user]);
+  }, [user, ledgerPartyId]);
 
   // console.log("VoucherInvoice Create FormData: ", form);
 

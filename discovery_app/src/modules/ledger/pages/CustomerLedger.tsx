@@ -27,22 +27,25 @@ import { selectUser } from "../../auth/features/authSelectors.ts";
 import { selectLedgers } from "../features/ledgerSelectors.ts";
 import { destroy } from "../../invoice/features/invoiceThunks.ts";
 import { destroy as PaymentDestroy } from "../../payment/features/paymentThunks.ts";
+import { selectPartyById } from "../../party/features/partySelectors.ts";
 import { useParams } from "react-router";
 // import { useNavigate } from "react-router-dom";
 
 
 export default function CustomerLedger() {
-  const { categoryId } = useParams();
-  const partyId = 0;
+  const { partyId, categoryId } = useParams();
   // const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
+
+  const [partyID, setpartyID] = useState(0);
 
   const authUser = useSelector(selectUser);
 
   const businessIdNum = Number(authUser?.business?.id);
   const categoryIdNum = Number(categoryId);
 
-  const ledgers = useSelector(selectLedgers(businessIdNum, categoryIdNum, partyId));
+  const ledgers = useSelector(selectLedgers(businessIdNum, categoryIdNum, partyID));
+  const party = useSelector(selectPartyById(partyID));
   
   const [selectedTab, setSelectedTab] = useState(0);
   const { isOpen, openModal, closeModal } = useModal();
@@ -53,12 +56,14 @@ export default function CustomerLedger() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   
   useEffect(() => {
+    setpartyID(Number(partyId));
+
     if (editingPaymentId) {
       setSelectedTab(1); // Open Payment tab
     } else if (editingLedgerId) {
       setSelectedTab(0); // Open Invoice tab
     }
-  }, [editingLedgerId, editingPaymentId]);
+  }, [editingLedgerId, editingPaymentId, partyId]);
 
   useEffect(() => {
       dispatch(fetchAll());
@@ -168,19 +173,13 @@ export default function CustomerLedger() {
     }, {});
   }, [sortedLedgers]);
 
-
-
-
-  
-
-
   return (
     <>
       <PageMeta
         title="Voucher & Ledger"
         description="Voucher & Ledger with Search, Sort, Pagination"
       />
-      <PageBreadcrumb pageTitle="Voucher & Ledger" />
+      <PageBreadcrumb pageTitle={`Voucher & Ledger ${party ? '- ' + 'Name: ' + party.name + ', Phone: ' + party.phoneCode + party.phoneNumber : ''}`} />
 
       <TabGroup selectedIndex={selectedTab} onChange={setSelectedTab}>
         <TabList className="flex gap-4 mb-2">
@@ -197,7 +196,7 @@ export default function CustomerLedger() {
           <TabPanel className="space-y-6">
             <div className="p-4 mb-4 border border-gray-300 rounded-lg bg-white dark:bg-gray-800 space-y-4">
               <h2 className="text-lg font-semibold">Add Purchase/Sale</h2>
-              <VoucherInvoice editingLedgerId={editingLedgerId ?? 0} ledgerPartyId={0}/>
+              <VoucherInvoice editingLedgerId={editingLedgerId ?? 0} ledgerPartyId={partyID}/>
             </div>
           </TabPanel>
 
@@ -242,8 +241,8 @@ export default function CustomerLedger() {
                         <TableCell colSpan={2} className="text-center px-4 py-2 font-semibold">Purchase</TableCell>
                       </TableRow>
                       <TableRow className="text-center border-t border-gray-500 px-4">
-                        <TableCell className="text-center px-4 py-2">Debit</TableCell>
-                        <TableCell className="border-l border-gray-500 text-center px-4 py-2">Credit</TableCell>
+                        <TableCell className="text-left px-4 py-2">Debit</TableCell>
+                        <TableCell className="text-right border-l border-gray-500 text-center px-4 py-2">Credit</TableCell>
                       </TableRow>
                       </TableBody>
                     </Table>
@@ -256,8 +255,8 @@ export default function CustomerLedger() {
                         <TableCell colSpan={2} className="text-center px-4 py-2 font-semibold">Sale</TableCell>
                       </TableRow>
                       <TableRow className="text-center border-t border-gray-500">
-                        <TableCell className="text-center px-4 py-2">Debit</TableCell>
-                        <TableCell className="border-l border-gray-500 text-center px-4 py-2">Credit</TableCell>
+                        <TableCell className="text-left px-4 py-2">Debit</TableCell>
+                        <TableCell className="text-right border-l border-gray-500 text-center px-4 py-2">Credit</TableCell>
                       </TableRow>
                       </TableBody>
                     </Table>
@@ -323,8 +322,8 @@ export default function CustomerLedger() {
                         <Table>
                           <TableBody>
                             <TableRow key={`inner-1-${ledger.id}`} className="text-center py-2">
-                              <TableCell className="text-center px-4 py-2">{ ledger.transactionType === "purchase" || ledger.transactionType === "payment_out" ? ledger.debit : 0 }</TableCell>
-                              <TableCell className="text-center px-4 py-2">{ ledger.transactionType === "purchase" ? ledger.credit : 0 }</TableCell>
+                              <TableCell className="text-left px-4 py-2">{ ledger.transactionType === "purchase" || ledger.transactionType === "payment_out" ? ledger.debit : 0 }</TableCell>
+                              <TableCell className="text-right px-4 py-2">{ ledger.transactionType === "purchase" ? ledger.credit : 0 }</TableCell>
                             </TableRow>
                           </TableBody>
                         </Table>
@@ -333,8 +332,8 @@ export default function CustomerLedger() {
                         <Table>
                           <TableBody>
                           <TableRow key={`inner-2-${ledger.id}`} className="text-center py-2">
-                            <TableCell className="text-center px-4 py-2">{ ledger.transactionType === "sale" ? ledger.debit : 0 }</TableCell>
-                            <TableCell className="text-center px-4 py-2">{ ledger.transactionType === "sale" || ledger.transactionType === "payment_in" ? ledger.credit : 0 }</TableCell>
+                            <TableCell className="text-left px-4 py-2">{ ledger.transactionType === "sale" ? ledger.debit : 0 }</TableCell>
+                            <TableCell className="text-right px-4 py-2">{ ledger.transactionType === "sale" || ledger.transactionType === "payment_in" ? ledger.credit : 0 }</TableCell>
                           </TableRow>
                           </TableBody>
                         </Table>
@@ -402,8 +401,8 @@ export default function CustomerLedger() {
                         <Table>
                           <TableBody>
                           <TableRow className="text-center border-b border-gray-500 py-2">
-                              <TableCell className="text-center px-4 py-2">{totals.purchaseDebit.toFixed(2)}</TableCell>
-                              <TableCell className="border-l border-gray-500 text-center px-4 py-2">{totals.purchaseCredit.toFixed(2)}</TableCell>
+                              <TableCell className="text-left px-4 py-2">{totals.purchaseDebit.toFixed(2)}</TableCell>
+                              <TableCell className="text-right border-l border-gray-500 text-center px-4 py-2">{totals.purchaseCredit.toFixed(2)}</TableCell>
                           </TableRow>
                           <TableRow className="text-center py-2">
                               <TableCell colSpan={2} className="text-center px-4 py-2 font-semibold">{totals.purchaseBalance.toFixed(2)}</TableCell>
@@ -416,8 +415,8 @@ export default function CustomerLedger() {
                         <Table>
                           <TableBody>
                           <TableRow className="text-center border-b border-gray-500 py-2">
-                              <TableCell className="text-center px-4 py-2">{totals.saleDebit.toFixed(2)}</TableCell>
-                              <TableCell className="border-l border-gray-500 text-center px-4 py-2">{totals.saleCredit.toFixed(2)}</TableCell>
+                              <TableCell className="text-left px-4 py-2">{totals.saleDebit.toFixed(2)}</TableCell>
+                              <TableCell className="text-right border-l border-gray-500 text-center px-4 py-2">{totals.saleCredit.toFixed(2)}</TableCell>
                           </TableRow>
                           <TableRow className="text-center px-4 py-2">
                               <TableCell colSpan={2} className="text-center px-4 py-2 font-semibold">{totals.saleBalance.toFixed(2)}</TableCell>

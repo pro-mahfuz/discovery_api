@@ -188,14 +188,15 @@ export default function App() {
             />
             
             {/* Ledger */}
-            <Route index path="/ledger/all/:categoryId/list" element={
+            {/* <Route index path="/ledger/all/:categoryId/list" element={
               <PrivateRoute permissions={['manage_users']}>
                 <CustomerLedger />
               </PrivateRoute>} 
-            />
+            /> */}
+            
             <Route index path="/ledger/:categoryId/party/:partyId" element={
               <PrivateRoute permissions={['manage_ledger']}>
-                <PartyLedger />
+                <CustomerLedger />
               </PrivateRoute>} 
             />
 

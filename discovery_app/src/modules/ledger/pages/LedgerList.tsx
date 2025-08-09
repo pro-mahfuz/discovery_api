@@ -153,8 +153,8 @@ export default function LedgerList() {
                           <TableCell colSpan={2} className="text-center px-4 py-2 font-semibold">Purchase</TableCell>
                         </TableRow>
                         <TableRow className="text-center border-t border-gray-500 px-4">
-                          <TableCell className="text-center px-4 py-2">Debit</TableCell>
-                          <TableCell className="border-l border-gray-500 text-center px-4 py-2">Credit</TableCell>
+                          <TableCell className="text-left px-4 py-2">Debit</TableCell>
+                          <TableCell className="text-right border-l border-gray-500 text-center px-4 py-2">Credit</TableCell>
                         </TableRow>
                         </TableBody>
                       </Table>
@@ -169,8 +169,8 @@ export default function LedgerList() {
                           <TableCell colSpan={2} className="text-center px-4 py-2 font-semibold">Sale</TableCell>
                         </TableRow>
                         <TableRow className="text-center border-t border-gray-500">
-                          <TableCell className="text-center px-4 py-2">Debit</TableCell>
-                          <TableCell className="border-l border-gray-500 text-center px-4 py-2">Credit</TableCell>
+                          <TableCell className="text-left px-4 py-2">Debit</TableCell>
+                          <TableCell className="text-right border-l border-gray-500 text-center px-4 py-2">Credit</TableCell>
                         </TableRow>
                         </TableBody>
                       </Table>
@@ -236,8 +236,8 @@ export default function LedgerList() {
                           <Table>
                             <TableBody>
                               <TableRow key={`inner-1-${ledger.id}`} className="text-center py-2">
-                                <TableCell className="text-center px-4 py-2">{ ledger.transactionType === "purchase" || ledger.transactionType === "payment_out" ? ledger.debit : 0 }</TableCell>
-                                <TableCell className="text-center px-4 py-2">{ ledger.transactionType === "purchase" ? ledger.credit : 0 }</TableCell>
+                                <TableCell className="text-left px-4 py-2">{ ledger.transactionType === "purchase" || ledger.transactionType === "payment_out" ? ledger.debit : 0 }</TableCell>
+                                <TableCell className="text-right px-4 py-2">{ ledger.transactionType === "purchase" ? ledger.credit : 0 }</TableCell>
                               </TableRow>
                             </TableBody>
                           </Table>
@@ -249,8 +249,8 @@ export default function LedgerList() {
                           <Table>
                             <TableBody>
                             <TableRow key={`inner-2-${ledger.id}`} className="text-center py-2">
-                              <TableCell className="text-center px-4 py-2">{ ledger.transactionType === "sale" ? ledger.debit : 0 }</TableCell>
-                              <TableCell className="text-center px-4 py-2">{ ledger.transactionType === "sale" || ledger.transactionType === "payment_in" ? ledger.credit : 0 }</TableCell>
+                              <TableCell className="text-left px-4 py-2">{ ledger.transactionType === "sale" ? ledger.debit : 0 }</TableCell>
+                              <TableCell className="text-right px-4 py-2">{ ledger.transactionType === "sale" || ledger.transactionType === "payment_in" ? ledger.credit : 0 }</TableCell>
                             </TableRow>
                             </TableBody>
                           </Table>
@@ -315,8 +315,8 @@ export default function LedgerList() {
                           <Table>
                             <TableBody>
                             <TableRow className="text-center border-b border-gray-500 py-2">
-                                <TableCell className="text-center px-4 py-2">{totals.saleDebit.toFixed(2)}</TableCell>
-                                <TableCell className="border-l border-gray-500 text-center px-4 py-2">{totals.saleCredit.toFixed(2)}</TableCell>
+                                <TableCell className="text-left px-4 py-2">{totals.saleDebit.toFixed(2)}</TableCell>
+                                <TableCell className="text-right border-l border-gray-500 text-center px-4 py-2">{totals.saleCredit.toFixed(2)}</TableCell>
                             </TableRow>
                             <TableRow className="text-center px-4 py-2">
                                 <TableCell colSpan={2} className="text-center px-4 py-2 font-semibold">{totals.saleBalance.toFixed(2)}</TableCell>

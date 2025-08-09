@@ -79,7 +79,7 @@ const AppSidebar: React.FC<any> = () => {
     {
       name: "Voucher & Ledger",
       icon: <ListIcon />,
-      path: "/ledger/all/1/list",
+      path: "/ledger/1/party/0",
     },
     {
       name: "Container",
