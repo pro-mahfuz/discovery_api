@@ -131,7 +131,7 @@ export default function LedgerList() {
           
           <div className="max-w-full mx-4">
             {/* Table */}
-            <Table>
+            <Table key="customer-ledger-table">
               <TableHeader className="border border-gray-500 dark:border-white/[0.05] bg-gray-200 text-black text-sm dark:bg-gray-800 dark:text-gray-400">
                 <TableRow>
                   <TableCell isHeader className="text-center px-4 py-2">Sl</TableCell>
@@ -140,12 +140,15 @@ export default function LedgerList() {
                   <TableCell isHeader className="text-center px-4 py-2">Date</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Party Name</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Description</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Created By</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Updated By</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Currency</TableCell>
 
                   
-                  {partyType === "supplier" && (
+                  { partyType == "supplier" && (
                     <TableCell isHeader className="border border-gray-500 text-center">
-                      <Table>
+                      <Table key="customer-ledger-inner-table-1">
+                        <TableBody>
                         <TableRow className="text-center">
                           <TableCell colSpan={2} className="text-center px-4 py-2 font-semibold">Purchase</TableCell>
                         </TableRow>
@@ -153,13 +156,15 @@ export default function LedgerList() {
                           <TableCell className="text-center px-4 py-2">Debit</TableCell>
                           <TableCell className="border-l border-gray-500 text-center px-4 py-2">Credit</TableCell>
                         </TableRow>
+                        </TableBody>
                       </Table>
                     </TableCell>
                   )}
                   
-                  {partyType === "customer" && (
+                  { partyType == "customer" && (
                     <TableCell isHeader className="border border-gray-500 text-center">
-                      <Table>
+                      <Table key="customer-ledger-inner-table-2">
+                        <TableBody>
                         <TableRow className="text-center">
                           <TableCell colSpan={2} className="text-center px-4 py-2 font-semibold">Sale</TableCell>
                         </TableRow>
@@ -167,10 +172,10 @@ export default function LedgerList() {
                           <TableCell className="text-center px-4 py-2">Debit</TableCell>
                           <TableCell className="border-l border-gray-500 text-center px-4 py-2">Credit</TableCell>
                         </TableRow>
+                        </TableBody>
                       </Table>
                     </TableCell>
                   )}
-                  
                 </TableRow>
               </TableHeader>
 
@@ -190,13 +195,10 @@ export default function LedgerList() {
                   </TableRow>
                 ) : (
                   paginatedLedgers.map((ledger, index) => (
-                    <TableRow key={index} className="border-b border-gray-100 dark:border-white/[0.05]">
+                    <TableRow key={`primary-${ledger.id}`} className="border-b border-gray-100 dark:border-white/[0.05]">
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         { index + 1 }
                       </TableCell>
-                      {/* <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        { ledger.category?.name }
-                      </TableCell> */}
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {ledger.transactionType}
                       </TableCell>
@@ -212,7 +214,7 @@ export default function LedgerList() {
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         <div>
                           {ledger.transactionType == "purchase" || ledger.transactionType == "sale" ? ledger.description.split('<br />').map((line, idx) => (
-                            <span key={idx}>
+                            <span key={`${line}-${idx}`}>
                               {line}
                               <br />
                             </span>
@@ -220,44 +222,41 @@ export default function LedgerList() {
                         </div>
                       </TableCell>
                       <TableCell className="text-center py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {ledger.createdByUser}
+                      </TableCell>
+                      <TableCell className="text-center py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {ledger.updatedByUser}
+                      </TableCell>
+                      <TableCell className="text-center py-2 text-sm text-gray-500 dark:text-gray-400">
                         {ledger.currency}
                       </TableCell>
 
-                      {partyType === "supplier" && (
-                        <>
-                          <TableCell className="text-center py-2 text-sm">
-                            <Table>
-                              <TableRow className="text-center py-2">
-                                <TableCell className="text-center px-4 py-2">
-                                  {["purchase", "payment_out"].includes(ledger.transactionType) ? ledger.debit : 0}
-                                </TableCell>
-                                <TableCell className="text-center px-4 py-2">
-                                  {ledger.transactionType === "purchase" ? ledger.credit : 0}
-                                </TableCell>
+                      { partyType == "supplier" && (
+                        <TableCell className="text-center py-2 text-sm">
+                          <Table>
+                            <TableBody>
+                              <TableRow key={`inner-1-${ledger.id}`} className="text-center py-2">
+                                <TableCell className="text-center px-4 py-2">{ ledger.transactionType === "purchase" || ledger.transactionType === "payment_out" ? ledger.debit : 0 }</TableCell>
+                                <TableCell className="text-center px-4 py-2">{ ledger.transactionType === "purchase" ? ledger.credit : 0 }</TableCell>
                               </TableRow>
-                            </Table>
-                          </TableCell>
-                        </>
+                            </TableBody>
+                          </Table>
+                        </TableCell>
                       )}
 
-                      {partyType === "customer" && (
-                        <>
-                          <TableCell className="text-center py-2 text-sm">
-                            <Table>
-                              <TableRow className="text-center py-2">
-                                <TableCell className="text-center px-4 py-2">
-                                  {ledger.transactionType === "sale" ? ledger.debit : 0}
-                                </TableCell>
-                                <TableCell className="text-center px-4 py-2">
-                                  {["sale", "payment_in"].includes(ledger.transactionType) ? ledger.credit : 0}
-                                </TableCell>
-                              </TableRow>
-                            </Table>
-                          </TableCell>
-                        </>
+                      { partyType == "customer" && (
+                        <TableCell className="text-center py-2 text-sm">
+                          <Table>
+                            <TableBody>
+                            <TableRow key={`inner-2-${ledger.id}`} className="text-center py-2">
+                              <TableCell className="text-center px-4 py-2">{ ledger.transactionType === "sale" ? ledger.debit : 0 }</TableCell>
+                              <TableCell className="text-center px-4 py-2">{ ledger.transactionType === "sale" || ledger.transactionType === "payment_in" ? ledger.credit : 0 }</TableCell>
+                            </TableRow>
+                            </TableBody>
+                          </Table>
+                        </TableCell>
                       )}
-
-
+                      
                     </TableRow>
                   ))
                   
@@ -268,9 +267,11 @@ export default function LedgerList() {
 
               {Object.entries(ledgerTotalsByCurrency).map(([currency, totals]) => (
                 
-                  <TableFooter className="border-separate border-spacing-y-2 text-black text-sm dark:bg-gray-800 mt-4">
+                  <TableFooter key={`footer-${currency}`} className="border-separate border-spacing-y-2 text-black text-sm dark:bg-gray-800 mt-4">
                     <TableRow><TableCell className="text-center px-4 py-2">{""}</TableCell></TableRow>
                     <TableRow>
+                      <TableCell isHeader className="text-center px-4 py-2">{""}</TableCell>
+                      <TableCell isHeader className="text-center px-4 py-2">{""}</TableCell>
                       <TableCell isHeader className="text-center px-4 py-2">{""}</TableCell>
                       <TableCell isHeader className="text-center px-4 py-2">{""}</TableCell>
                       <TableCell isHeader className="text-center px-4 py-2">{""}</TableCell>
@@ -279,6 +280,7 @@ export default function LedgerList() {
                       <TableCell isHeader className="text-center px-4 py-2">{currency}</TableCell>
                       <TableCell isHeader className="border border-gray-500 text-center">
                         <Table>
+                          <TableBody>
                           <TableRow>
                             <TableCell className="flex items-center justify-center text-center border-b border-gray-500 px-4 py-2">
                               Total:
@@ -287,37 +289,42 @@ export default function LedgerList() {
                               Balance:
                             </TableCell>
                           </TableRow>
+                          </TableBody>
                         </Table>
                         
                       </TableCell>
 
-                    {partyType === "supplier" && (
-                      <TableCell isHeader className="border border-gray-500 text-center">
-                        <Table>
-                          <TableRow className="text-center border-b border-gray-500 py-2">
-                              <TableCell className="text-center px-4 py-2">{totals.purchaseDebit.toFixed(2)}</TableCell>
-                              <TableCell className="border-l border-gray-500 text-center px-4 py-2">{totals.purchaseCredit.toFixed(2)}</TableCell>
-                          </TableRow>
-                          <TableRow className="text-center py-2">
-                              <TableCell colSpan={2} className="text-center px-4 py-2 font-semibold">{totals.purchaseBalance.toFixed(2)}</TableCell>
-                          </TableRow>
-                        </Table>
-                      </TableCell>
-                    )}
+                      { partyType == "supplier" && (
+                        <TableCell isHeader className="border border-gray-500 text-center">
+                          <Table>
+                            <TableBody>
+                            <TableRow className="text-center border-b border-gray-500 py-2">
+                                <TableCell className="text-center px-4 py-2">{totals.purchaseDebit.toFixed(2)}</TableCell>
+                                <TableCell className="border-l border-gray-500 text-center px-4 py-2">{totals.purchaseCredit.toFixed(2)}</TableCell>
+                            </TableRow>
+                            <TableRow className="text-center py-2">
+                                <TableCell colSpan={2} className="text-center px-4 py-2 font-semibold">{totals.purchaseBalance.toFixed(2)}</TableCell>
+                            </TableRow>
+                            </TableBody>
+                          </Table>
+                        </TableCell>
+                      )}
 
-                    {partyType === "customer" && (
-                      <TableCell isHeader className="border border-gray-500 text-center">
-                        <Table>
-                          <TableRow className="text-center border-b border-gray-500 py-2">
-                              <TableCell className="text-center px-4 py-2">{totals.saleDebit.toFixed(2)}</TableCell>
-                              <TableCell className="border-l border-gray-500 text-center px-4 py-2">{totals.saleCredit.toFixed(2)}</TableCell>
-                          </TableRow>
-                          <TableRow className="text-center px-4 py-2">
-                              <TableCell colSpan={2} className="text-center px-4 py-2 font-semibold">{totals.saleBalance.toFixed(2)}</TableCell>
-                          </TableRow>
-                        </Table>
-                      </TableCell>
-                    )}
+                      { partyType == "customer" && (
+                        <TableCell isHeader className="border border-gray-500 text-center">
+                          <Table>
+                            <TableBody>
+                            <TableRow className="text-center border-b border-gray-500 py-2">
+                                <TableCell className="text-center px-4 py-2">{totals.saleDebit.toFixed(2)}</TableCell>
+                                <TableCell className="border-l border-gray-500 text-center px-4 py-2">{totals.saleCredit.toFixed(2)}</TableCell>
+                            </TableRow>
+                            <TableRow className="text-center px-4 py-2">
+                                <TableCell colSpan={2} className="text-center px-4 py-2 font-semibold">{totals.saleBalance.toFixed(2)}</TableCell>
+                            </TableRow>
+                            </TableBody>
+                          </Table>
+                        </TableCell>
+                      )}
                       
                     </TableRow>
                     

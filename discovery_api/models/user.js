@@ -57,6 +57,14 @@ export default (sequelize, DataTypes) => {
       foreignKey: "businessId",
       as: "business"
     });
+    User.hasMany(models.Invoice, {
+      foreignKey: "createdBy",
+      as: "createdByUsers"
+    });
+    User.hasMany(models.Invoice, {
+      foreignKey: "updatedBy",
+      as: "updatedByUsers"
+    });
   };
 
   return User;

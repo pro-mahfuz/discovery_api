@@ -38,8 +38,11 @@ export default function CustomerLedger() {
   const dispatch = useDispatch<AppDispatch>();
 
   const authUser = useSelector(selectUser);
-  const ledgers = useSelector(selectLedgers(Number(authUser?.business?.id), Number(categoryId), partyId));
-  // console.log("ledgers- ", ledgers);
+
+  const businessIdNum = Number(authUser?.business?.id);
+  const categoryIdNum = Number(categoryId);
+
+  const ledgers = useSelector(selectLedgers(businessIdNum, categoryIdNum, partyId));
   
   const [selectedTab, setSelectedTab] = useState(0);
   const { isOpen, openModal, closeModal } = useModal();
@@ -226,6 +229,8 @@ export default function CustomerLedger() {
                   <TableCell isHeader className="text-center px-4 py-2">Date</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Party Name</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Description</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Created By</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Updated By</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Currency</TableCell>
 
                   
@@ -305,6 +310,12 @@ export default function CustomerLedger() {
                         </div>
                       </TableCell>
                       <TableCell className="text-center py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {ledger.createdByUser}
+                      </TableCell>
+                      <TableCell className="text-center py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {ledger.updatedByUser}
+                      </TableCell>
+                      <TableCell className="text-center py-2 text-sm text-gray-500 dark:text-gray-400">
                         {ledger.currency}
                       </TableCell>
 
@@ -363,6 +374,8 @@ export default function CustomerLedger() {
                   <TableFooter key={`footer-${currency}`} className="border-separate border-spacing-y-2 text-black text-sm dark:bg-gray-800 mt-4">
                     <TableRow><TableCell className="text-center px-4 py-2">{""}</TableCell></TableRow>
                     <TableRow>
+                      <TableCell isHeader className="text-center px-4 py-2">{""}</TableCell>
+                      <TableCell isHeader className="text-center px-4 py-2">{""}</TableCell>
                       <TableCell isHeader className="text-center px-4 py-2">{""}</TableCell>
                       <TableCell isHeader className="text-center px-4 py-2">{""}</TableCell>
                       <TableCell isHeader className="text-center px-4 py-2">{""}</TableCell>

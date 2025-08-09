@@ -1,4 +1,4 @@
-import { Payment, Party, Category, Invoice, Ledger, sequelize } from "../../models/model.js";
+import { Payment, User, Party, Category, Invoice, Ledger, sequelize } from "../../models/model.js";
 
 // ✅ Get All Payments
 export const getAllPayment = async () => {
@@ -16,6 +16,14 @@ export const getAllPayment = async () => {
         model: Invoice,
         as: "invoice",
       },
+      {
+        model: User,
+        as: "createdByUser",
+      },
+      {
+        model: User,
+        as: "updatedByUser",
+      },
     ],
   });
 
@@ -26,6 +34,8 @@ export const getAllPayment = async () => {
     return {
       ...payment.toJSON(),
       paymentRefNo,
+      createdByUser: payment.createdByUser?.name ?? null,
+      updatedByUser: payment.updatedByUser?.name ?? null,
     };
   });
 
@@ -67,6 +77,7 @@ export const createPayment = async (req) => {
       currency: req.body.currency,
       debit: debitAmount,
       credit: creditAmount,
+      createdBy: req.body.createdBy
     }, { transaction: t });
 
     await t.commit();
@@ -135,6 +146,7 @@ export const updatePayment = async (req) => {
       currency: req.body.currency,
       debit: debitAmount,
       credit: creditAmount,
+      updatedBy: req.body.updatedBy
     }, { transaction: t });
 
     await t.commit();

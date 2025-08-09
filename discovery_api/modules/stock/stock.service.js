@@ -1,4 +1,4 @@
-import { Stock, Business, Item, Container, Warehouse } from "../../models/model.js";
+import { Stock, Business, User, Item, Container, Warehouse } from "../../models/model.js";
 
 export const getAllStock = async () => {
     const data = await Stock.findAll({
@@ -19,10 +19,27 @@ export const getAllStock = async () => {
                 model: Warehouse,
                 as: "warehouse",
             },
+            {
+                model: User,
+                as: "createdByUser",
+            },
+            {
+                model: User,
+                as: "updatedByUser",
+            },
         ],
     });
     if (!data || data.length === 0) throw { status: 400, message: "No stock found" };
-    return data;
+
+    const stockData = data.map((stock) => {
+        return {
+            ...stock.toJSON(),
+            createdByUser: stock.createdByUser?.name ?? null,
+            updatedByUser: stock.updatedByUser?.name ?? null,
+        };
+    });
+
+    return stockData;
 }
 
 export const createStock = async (req) => {

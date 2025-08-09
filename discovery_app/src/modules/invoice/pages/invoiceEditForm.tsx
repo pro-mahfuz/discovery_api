@@ -81,7 +81,8 @@ export default function InvoiceEditForm() {
     isVat: false,
     vatPercentage: 0,
     discount: 0,
-    grandTotal: 0
+    grandTotal: 0,
+    updatedBy: 0,
   });
 
   useEffect(() => {
@@ -109,7 +110,8 @@ export default function InvoiceEditForm() {
         isVat: invoice.isVat,
         vatPercentage: user?.business?.vatPercentage,
         discount: invoice.discount,
-        grandTotal: invoice.grandTotal
+        grandTotal: invoice.grandTotal,
+        updatedBy: user.id
       });
     }
   }, [user, invoice]);
@@ -175,7 +177,8 @@ export default function InvoiceEditForm() {
       0
     );
 
-    const discountedTotal = total - formData.discount;
+    const discount = Number(formData.discount) || 0;
+    const discountedTotal = Math.max(0, total - discount);
     const vatAmount = formData.isVat === true ? discountedTotal * (Number(user?.business?.vatPercentage) / 100) : 0;
     const grandTotal = discountedTotal + vatAmount;
 
@@ -353,7 +356,7 @@ export default function InvoiceEditForm() {
                     key={formData.id}
                     id={`is-vat-check`}
                     label={`Is Vated`}
-                    checked={formData.isVat}
+                    checked={!!formData.isVat}
                     onChange={(checked: boolean) => {
                       setFormData((prev) => ({
                         ...prev,
@@ -530,7 +533,7 @@ export default function InvoiceEditForm() {
             </div>
 
             {/* Total Amount */}
-            <div>
+            {/* <div>
               <Label>Discount</Label>
               <Input
                 type="number"
@@ -545,7 +548,7 @@ export default function InvoiceEditForm() {
                   }));
                 }}
               />
-            </div>
+            </div> */}
 
             {/* Total Amount */}
             <div>

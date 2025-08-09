@@ -1,10 +1,15 @@
 import { Container } from './containerTypes.ts';
 import { RootState } from "../../../store/store.ts";
+import { createSelector } from 'reselect';
 
 export const selectContainerStatus = (state: RootState) => state.container.status;
 export const selectContainerError = (state: RootState) => state.container.error;
 
-export const selectAllContainer = (state: RootState): Container[] => state.container.data.filter(container => container.isActive === true) || [];
+export const selectAllContainer = createSelector(
+  [(state: RootState) => state.container.data],
+  (data) => data.filter((container) => container.isActive)
+);
+
 export const selectAllContainerByItemId = (itemId: number) => (state: RootState) => 
     state.container.data.filter(container => container.itemId === itemId);
 

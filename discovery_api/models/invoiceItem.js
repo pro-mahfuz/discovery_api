@@ -16,6 +16,14 @@ export default (sequelize, DataTypes) => {
         key: 'id',
       },
     },
+    containerId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Containers', // Ensure this matches your actual table name
+        key: 'id',
+      },
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -55,6 +63,10 @@ export default (sequelize, DataTypes) => {
     InvoiceItem.belongsTo(models.Item, {
       foreignKey: "itemId",
       as: "item",
+    });
+    InvoiceItem.belongsTo(models.Container, {
+      foreignKey: "containerId",
+      as: "container",
     });
   };
 

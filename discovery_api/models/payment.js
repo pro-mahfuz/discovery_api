@@ -58,6 +58,22 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    createdBy: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Users',
+        key: 'id',
+      },
+    },
+    updatedBy: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Users',
+        key: 'id',
+      },
+    },
   }, {
     tableName: "payments",
     timestamps: true, // createdAt & updatedAt
@@ -83,6 +99,16 @@ export default (sequelize, DataTypes) => {
     Payment.belongsTo(models.Business, {
       foreignKey: "businessId",
       as: "business"
+    });
+
+    Payment.belongsTo(models.User, {
+      foreignKey: "createdBy",
+      as: "createdByUser"
+    });
+
+    Payment.belongsTo(models.User, {
+      foreignKey: "updatedBy",
+      as: "updatedByUser"
     });
   };
 

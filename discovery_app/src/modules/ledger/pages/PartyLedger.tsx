@@ -296,10 +296,10 @@ export default function PartyLedger() {
                        <Button size="sm" className="ml-1" type="button" variant="outline" 
                           onClick={() => {
                             if (["purchase", "sale"].includes(ledger?.transactionType)) {
-                              setEditingLedgerId(ledger.referenceId);
+                              setEditingLedgerId(ledger.invoiceId ?? 0);
                             }
                             if (["payment_in", "payment_out"].includes(ledger?.transactionType)) {
-                              setEditingPaymentId(ledger.referenceId);
+                              setEditingPaymentId(ledger.paymentId ?? 0);
                             }
                             openModal();
                           }}>

@@ -55,7 +55,8 @@ export default function PaymentCreateForm() {
         amountPaid: 0,
         paymentMethod: "",
         paymentDetails: "",
-        currency: "AED"
+        currency: "AED",
+        createdBy: 0,
     });
 
     useEffect(() => {
@@ -63,6 +64,7 @@ export default function PaymentCreateForm() {
           setFormData((prev) => ({
             ...prev,
             businessId: user?.business?.id,
+            createdBy: user.id
           }));
         }
     }, [user]);

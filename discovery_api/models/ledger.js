@@ -66,7 +66,23 @@ export default (sequelize, DataTypes) => {
     balance: {
       type: DataTypes.DECIMAL(12, 2),
       allowNull: true,
-    }
+    },
+    createdBy: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Users',
+        key: 'id',
+      },
+    },
+    updatedBy: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Users',
+        key: 'id',
+      },
+    },
   }, {
     tableName: "ledgers",
     timestamps: true, // createdAt & updatedAt
@@ -93,6 +109,16 @@ export default (sequelize, DataTypes) => {
     // Optional associations depending on transactionType
     Ledger.belongsTo(models.Invoice, { foreignKey: 'invoiceId', as: 'invoice' });
     Ledger.belongsTo(models.Payment, { foreignKey: 'paymentId', as: 'payment' });
+
+    Ledger.belongsTo(models.User, {
+      foreignKey: "createdBy",
+      as: "createdByUser"
+    });
+
+    Ledger.belongsTo(models.User, {
+      foreignKey: "updatedBy",
+      as: "updatedByUser"
+    });
   };
 
   return Ledger;

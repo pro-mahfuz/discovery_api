@@ -58,6 +58,22 @@ export default (sequelize, DataTypes) => {
         key: 'id',
       },
     },
+    createdBy: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Users',
+        key: 'id',
+      },
+    },
+    updatedBy: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Users',
+        key: 'id',
+      },
+    },
   }, {
     tableName: 'stocks',
     timestamps: true,
@@ -82,6 +98,16 @@ export default (sequelize, DataTypes) => {
     Stock.belongsTo(models.Container, {
       foreignKey: 'containerId',
       as: 'container',
+    });
+
+    Stock.belongsTo(models.User, {
+      foreignKey: "createdBy",
+      as: "createdByUser"
+    });
+
+    Stock.belongsTo(models.User, {
+      foreignKey: "updatedBy",
+      as: "updatedByUser"
     });
   };
 

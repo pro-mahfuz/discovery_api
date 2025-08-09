@@ -72,7 +72,8 @@ export default function InvoiceCreateForm() {
         isVat: false,
         vatPercentage: 0,
         discount: 0,
-        grandTotal: 0
+        grandTotal: 0,
+        createdBy: 0,
     });
 
     useEffect(() => {
@@ -80,6 +81,7 @@ export default function InvoiceCreateForm() {
           setFormData((prev) => ({
             ...prev,
             businessId: user?.business?.id,
+            createdBy: user.id
           }));
         }
 
@@ -211,7 +213,8 @@ export default function InvoiceCreateForm() {
     useEffect(() => {
         const total = formData.items.reduce( (sum, item) => sum + item.price * item.quantity, 0 );
 
-        const discountedTotal = total - formData.discount;
+        const discount = Number(formData.discount) || 0;
+        const discountedTotal = Math.max(0, total - discount);
         const vatAmount = formData.isVat === true ? discountedTotal * (Number(user?.business?.vatPercentage) / 100) : 0;
         const grandTotal = discountedTotal + vatAmount;
 
@@ -355,7 +358,7 @@ export default function InvoiceCreateForm() {
                             key={formData.id}
                             id={`is-vat-check`}
                             label={`Is Vated`}
-                            checked={formData.isVat}
+                            checked={!!formData.isVat}
                             onChange={(checked: boolean) => {
                                 setFormData((prev) => ({
                                     ...prev!,
@@ -533,8 +536,8 @@ export default function InvoiceCreateForm() {
                         />
                     </div>
 
-                    {/* Total Amount */}
-                    <div>
+                    {/* Discount */}
+                    {/* <div>
                         <Label>Discount</Label>
                         <Input
                             type="number"
@@ -551,9 +554,9 @@ export default function InvoiceCreateForm() {
                                 }));
                             }}
                         />
-                    </div>
+                    </div> */}
 
-                    {/* Total Amount */}
+                    {/* Grand Amount */}
                     <div>
                         <Label>Grand Total</Label>
                         <Input

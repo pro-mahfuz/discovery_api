@@ -122,6 +122,8 @@ export default function StockList() {
                   <TableCell isHeader className="text-center px-4 py-2">Warehouse</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Qty</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Unit</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Created By</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Updated By</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Action</TableCell>
                 </TableRow>
               </TableHeader>
@@ -168,6 +170,12 @@ export default function StockList() {
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {stock.stockUnit}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {stock.createdByUser}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {stock.updatedByUser}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm overflow-visible">
                         <Menu as="div" className="relative inline-block text-left">

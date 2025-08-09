@@ -23,6 +23,10 @@ export interface Ledger {
   balance: number;
   party?: Party;
   category?: Category;
+  createdBy?: number;
+  updatedBy?: number;
+  createdByUser?: string;
+  updatedByUser?: string;
 }
 
 export interface LedgerState {

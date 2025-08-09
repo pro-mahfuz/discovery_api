@@ -80,6 +80,7 @@ export default function StockEditForm() {
           setFormData((prev) => ({
             ...prev,
             businessId: user?.business?.id,
+            updatedBy: user.id
           }));
         }
     }, [user]);

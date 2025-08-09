@@ -8,19 +8,20 @@ export const selectLedgerError = (state: RootState) => state.ledger.error;
 export const selectAllLedger = (state: RootState): Ledger[] => state.ledger.data || [];
 
 export const selectLedgers = (businessId: number, categoryId: number, partyId: number) => 
-    createSelector([selectAllLedger], (ledgers) => {
-    return businessId === 0 ? ledgers :
+  createSelector([selectAllLedger], (ledgers) => {
+  return businessId === 0 ? [...ledgers] :
     businessId > 0 && categoryId === 0 && partyId === 0 ? ledgers.filter(ledger => ledger.businessId === businessId) :
     businessId > 0 && categoryId > 0 && partyId === 0 ? ledgers.filter(ledger => ledger.categoryId === categoryId && ledger.businessId === businessId) :
-    businessId > 0 && categoryId > 0 && partyId > 0 ? ledgers.filter(ledger => ledger.categoryId === categoryId && ledger.partyId === partyId  && ledger.businessId === businessId) :
-    [];
-    });
+    businessId > 0 && categoryId > 0 && partyId > 0 ? ledgers.filter(ledger => ledger.categoryId === categoryId && ledger.partyId === partyId  && ledger.businessId === businessId) : [];
+  });
 
-export const selectLedgerByPartyType = (businessId: number, partyType: string) => (state: RootState): Ledger[] => {
-    if (businessId === 0) return state.ledger.data;
+export const selectLedgerByPartyType = (businessId: number, partyType: string) => 
+  createSelector([selectAllLedger], (ledgers) => {
+
+    if (businessId === 0) return [...ledgers];
 
     if (businessId > 0 && partyType === "supplier") {
-      return state.ledger.data.filter(
+      return ledgers.filter(
         (ledger) =>
           ledger.businessId === businessId &&
           (ledger.transactionType === "purchase" || ledger.transactionType === "payment_out")
@@ -28,7 +29,7 @@ export const selectLedgerByPartyType = (businessId: number, partyType: string) =
     }
 
     if (businessId > 0 && partyType === "customer") {
-      return state.ledger.data.filter(
+      return ledgers.filter(
         (ledger) =>
           ledger.businessId === businessId &&
           (ledger.transactionType === "sale" || ledger.transactionType === "payment_in")
@@ -36,5 +37,5 @@ export const selectLedgerByPartyType = (businessId: number, partyType: string) =
     }
 
     return [];
-}
+  });
 

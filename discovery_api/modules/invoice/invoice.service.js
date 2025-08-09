@@ -1,4 +1,4 @@
-import { Invoice, InvoiceItem, Stock, Ledger, Category, Party, sequelize } from "../../models/model.js";
+import { Invoice, InvoiceItem, User, Stock, Ledger, Category, Party, sequelize } from "../../models/model.js";
 
 export const getAllInvoice = async () => {
     const data = await Invoice.findAll({
@@ -15,10 +15,19 @@ export const getAllInvoice = async () => {
                 model: Party,
                 as: "party",
             },
+            {
+                model: User,
+                as: "createdByUser",
+            },
+            {
+                model: User,
+                as: "updatedByUser",
+            },
         ],
     });
 
     if (!data || data.length === 0) throw { status: 400, message: "No Invoice found" };
+
 
     const invoiceData = data
     .map(invoice => {
@@ -28,7 +37,9 @@ export const getAllInvoice = async () => {
 
         return {
             ...invoice.toJSON(),
-            invoiceNo: invoiceNo.toString(), 
+            invoiceNo,
+            createdByUser: invoice.createdByUser?.name ?? null,
+            updatedByUser: invoice.updatedByUser?.name ?? null,
         };
     });
     
@@ -67,6 +78,7 @@ export const createInvoice = async (req) => {
             const invoiceItems = items.map((item) => ({
                 invoiceId: invoice.id,
                 itemId: item.itemId,
+                containerId: item.containerId,
                 name: item.name,
                 quantity: item.quantity,
                 price: item.price,
@@ -119,6 +131,7 @@ export const createInvoice = async (req) => {
                 currency: req.body.currency,
                 debit: debitAmount,
                 credit: creditAmount,
+                createdBy: invoice.createdBy,
             }, 
             { transaction: t }
         );
@@ -201,6 +214,7 @@ export const updateInvoice = async (req) => {
             const invoiceItems = items.map((item) => ({
                 invoiceId: invoice.id,
                 itemId: item.itemId,
+                containerId: item.containerId,
                 name: item.name,
                 quantity: item.quantity,
                 price: item.price,
@@ -257,6 +271,7 @@ export const updateInvoice = async (req) => {
                     currency: req.body.currency,
                     debit: debitAmount,
                     credit: creditAmount,
+                    updatedBy: invoice.updatedBy,
                 },
                 { transaction: t }
             );

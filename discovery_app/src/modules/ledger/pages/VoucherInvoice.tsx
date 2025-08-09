@@ -41,13 +41,18 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
   const [form, setForm] = useState<Invoice>({
     businessId: 0,
     categoryId: 1,
-    invoiceType: "purchase",
-    partyId: ledgerPartyId ?? 0,
-    date: '',
-    note: '',
-    totalAmount: 0,
+    invoiceType: "",
+    partyId: 0,
+    date: "",
+    note: "",
     items: [],
     currency: "AED",
+    totalAmount: 0,
+    isVat: false,
+    vatPercentage: 0,
+    discount: 0,
+    grandTotal: 0,
+    createdBy: 0,
   });
 
   useEffect(() => {
@@ -57,6 +62,8 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
         businessId: user?.business?.id,
       }));
     }
+
+    
   }, [user]);
 
   // console.log("VoucherInvoice Create FormData: ", form);
@@ -85,14 +92,20 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
     if (!selectedInvoice) return;
 
     setForm({
+      businessId: user?.business?.id,
       categoryId: selectedInvoice.categoryId ?? 1,
-      invoiceType: selectedInvoice.invoiceType ?? "purchase",
+      invoiceType: selectedInvoice.invoiceType ?? "",
       partyId: selectedInvoice.partyId ?? 0,
       date: selectedInvoice.date,
       note: selectedInvoice.note ?? '',
-      totalAmount: selectedInvoice.totalAmount ?? 0,
       items: [],
-      currency: selectedInvoice.currency
+      currency: selectedInvoice.currency,
+      totalAmount: selectedInvoice.totalAmount ?? 0,
+
+      isVat: false,
+      vatPercentage: selectedInvoice.vatPercentage,
+      discount: selectedInvoice.discount,
+      grandTotal: selectedInvoice.grandTotal,
     });
 
     if (selectedInvoice.items && selectedInvoice.items.length > 0) {
@@ -150,28 +163,53 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
     // console.log("newItem", newItem);
     const updatedItems = [...form.items, newItem];
 
-    const updatedForm: Invoice = {
-      ...form,
-      items: updatedItems,
-      totalAmount: updatedItems.reduce((total, item) => total + item.subTotal, 0),
-    };
+    
 
-    setForm(updatedForm);
-    setCurrentItem({ id: 0, itemId: 0, name: "", price: 0, quantity: 1, subTotal: 0 });
+    // setForm(updatedForm);
+    // setCurrentItem({ id: 0, itemId: 0, name: "", price: 0, quantity: 1, subTotal: 0 });
 
     if (editingLedgerId) {
+      const total = updatedItems.reduce( (sum, item) => sum + item.price * item.quantity, 0 );
+      const discount = Number(form.discount) || 0;
+      const discountedTotal = Math.max(0, total - discount);
+      const vatAmount = form.isVat === true ? discountedTotal * (Number(user?.business?.vatPercentage) / 100) : 0;
+      const grandTotal = discountedTotal + vatAmount;
+
       const updatedForm: Invoice = {
         ...form,
         id: selectedInvoice?.id,
         items: updatedItems,
-        totalAmount: updatedItems.reduce((total, item) => total + item.subTotal, 0),
+        totalAmount: total,
+        grandTotal: grandTotal,
+        vatPercentage: form.isVat === true ? user?.business?.vatPercentage ?? 0 : 0,
+        updatedBy: user?.id,
       };
-      //console.log("Updated formData: ", updatedForm);
+
+      console.log("Updated formData: ", updatedForm);
+
       await dispatch(update(updatedForm));
       toast.success("Invoice updated successfully!");
     }else{
-      //console.log("Created formData: ", updatedForm);
-      await dispatch(create(updatedForm));
+
+      const total = updatedItems.reduce( (sum, item) => sum + item.price * item.quantity, 0 );
+      const discount = Number(form.discount) || 0;
+      const discountedTotal = Math.max(0, total - discount);
+      const vatAmount = form.isVat === true ? discountedTotal * (Number(user?.business?.vatPercentage) / 100) : 0;
+      const grandTotal = discountedTotal + vatAmount;
+
+      const createdForm: Invoice = {
+        ...form,
+        items: updatedItems,
+        //totalAmount: updatedItems.reduce((total, item) => total + item.subTotal, 0),
+        createdBy: user?.id,
+        totalAmount: total,
+        grandTotal: grandTotal,
+        vatPercentage: form.isVat === true ? user?.business?.vatPercentage ?? 0 : 0,
+      };
+
+      console.log("Created createdForm: ", createdForm);
+
+      await dispatch(create(createdForm));
       toast.success("Invoice created successfully!");
     }
     window.location.reload();

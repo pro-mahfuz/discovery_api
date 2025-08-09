@@ -1,4 +1,4 @@
-import { Ledger, Payment, Invoice, Party, Category } from "../../models/model.js";
+import { Ledger, Payment, User, Invoice, Party, Category } from "../../models/model.js";
 
 export const getAllLedger = async () => {
     const data = await Ledger.findAll({
@@ -18,6 +18,14 @@ export const getAllLedger = async () => {
             {
                 model: Invoice,
                 as: 'invoice',
+            },
+            {
+                model: User,
+                as: "createdByUser",
+            },
+            {
+                model: User,
+                as: "updatedByUser",
             },
         ],
     });
@@ -42,7 +50,11 @@ export const getAllLedger = async () => {
         return {
             ...ledgerJson,
             refNo,
+            createdByUser: ledgerJson.createdByUser?.name ?? null,
+            updatedByUser: ledgerJson.updatedByUser?.name ?? null,
         };
+
+        
     });
 
     return ledgerData;

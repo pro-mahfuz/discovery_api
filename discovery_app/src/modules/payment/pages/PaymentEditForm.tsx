@@ -58,7 +58,8 @@ export default function PaymentEditForm() {
         amountPaid: 0,
         paymentMethod: "",
         paymentDetails: "",
-        currency: "AED"
+        currency: "AED",
+        updatedBy: 0
     });
 
     useEffect(() => {
@@ -75,7 +76,8 @@ export default function PaymentEditForm() {
             amountPaid: payment.amountPaid,
             paymentMethod: payment.paymentMethod,
             paymentDetails: payment.paymentDetails,
-            currency: payment.currency
+            currency: payment.currency,
+            updatedBy: user.id
           });
         }
       }, [user, payment]);

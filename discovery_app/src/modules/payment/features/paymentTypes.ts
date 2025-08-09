@@ -38,6 +38,10 @@ export interface Payment {
   category?: Category;
   invoice?: Invoice;
   party?: Party;
+  createdBy?: number;
+  updatedBy?: number;
+  createdByUser?: string;
+  updatedByUser?: string;
 }
 
 export interface PaymentState {

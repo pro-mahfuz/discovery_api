@@ -40,7 +40,7 @@ export default function InvoiceList() {
 
   const payments = useSelector(selectAllPayment);
   const status = useSelector(selectPaymentStatus);
-
+console.log("payments- ", payments);
   const [filterText, setFilterText] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
@@ -125,6 +125,8 @@ export default function InvoiceList() {
                   <TableCell isHeader className="text-center px-4 py-2">Amount</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Payment Method</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Currency</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Created By</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Updated By</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Action</TableCell>
                 </TableRow>
               </TableHeader>
@@ -174,6 +176,12 @@ export default function InvoiceList() {
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {payment.currency}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {payment.createdByUser}
+                      </TableCell>
+                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {payment.updatedByUser}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm overflow-visible">
                         <Menu as="div" className="relative inline-block text-left">

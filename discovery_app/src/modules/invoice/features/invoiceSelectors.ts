@@ -7,10 +7,12 @@ export const selectInvoiceError = (state: RootState) => state.invoice.error;
 
 export const selectAllInvoice = (state: RootState): Invoice[] => state.invoice.data || [];
 
-export const selectAllInvoiceByType = (invoiceType: String) => (state: RootState): Invoice[] => 
-  invoiceType === "all" ?
-  state.invoice.data :
-  state.invoice.data.filter(invoice => invoice.invoiceType === invoiceType) || [];
+export const selectAllInvoiceByType = (invoiceType: String) =>
+  createSelector([selectAllInvoice], (invoices) => {
+  return invoiceType === "all" ?
+  invoices :
+  invoices.filter(invoice => invoice.invoiceType === invoiceType) || [];
+  });
 
 export const selectInvoiceById = (id: number) => (state: RootState) => state.invoice.data.find(invoice => invoice.id === id);
 

@@ -121,11 +121,11 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
       await dispatch(update(updatedForm));
       toast.success("Payment updated successfully!");
     }else{
-      console.log("formData: ", form);
+      //console.log("formData: ", form);
       await dispatch(create(form));
       toast.success("Payment created successfully!");
     }
-    //window.location.reload();
+    window.location.reload();
     //navigate("/currency/ledger");
   };
 

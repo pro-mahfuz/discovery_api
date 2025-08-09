@@ -19,6 +19,10 @@ export interface Stock {
   warehouse?: Warehouse;
   quantity: number;
   stockUnit: string;
+  createdBy?: number;
+  updatedBy?: number;
+  createdByUser?: string;
+  updatedByUser?: string;
 }
 
 export interface StockState {

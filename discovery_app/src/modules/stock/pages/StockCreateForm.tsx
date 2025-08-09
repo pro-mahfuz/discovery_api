@@ -76,6 +76,7 @@ export default function StockCreateForm() {
           setFormData((prev) => ({
             ...prev,
             businessId: user?.business?.id,
+            createdBy: user.id
           }));
         }
     }, [user]);
