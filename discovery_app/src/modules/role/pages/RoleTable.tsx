@@ -114,7 +114,7 @@ export default function RoleTable() {
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         <div className="grid grid-cols-1 md:grid-cols-5 gap-1">
-                        {role.Permissions.map((permission) => (
+                        {role.permissions.map((permission) => (
                           <div className="text-sm font-semibold">{permission.name}</div>
                         )) ?? "N/A" }
                         </div>

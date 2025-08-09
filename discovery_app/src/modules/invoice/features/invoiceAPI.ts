@@ -12,6 +12,18 @@ export const fetchAll = async () => {
   }
 };
 
+export const getSaleReport = async () => {
+  try {
+
+    const res = await axiosInstance.post('protected/sale/getSaleReport');
+    console.log(res.data.data);
+    return res.data.data;
+
+  } catch {
+    throw new Error('No data available');
+  }
+};
+
 export const create = async (createData: Invoice) => {
   try {
 

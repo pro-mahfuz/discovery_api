@@ -32,7 +32,9 @@ export const getPermissionsForRole = async (roleId) => {
     if (!roleId) throw { status: 400, message: "roleId is required" };
 
     const role = await Role.findByPk(roleId, {
-        include: Permission,
+        include: [ 
+            { model: Permission, as: "permissions" }
+        ]
     });
 
     if (!role) throw { status: 404, message: "Role not found" };

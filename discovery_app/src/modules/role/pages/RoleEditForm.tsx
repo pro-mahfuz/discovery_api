@@ -43,7 +43,7 @@ export default function RoleEditForm() {
 
   useEffect(() => {    
     const role = roles.find((r) => r.id === Number(id));
-    
+    console.log("role Id- ", id);
     if (!role) {
         dispatch(fetchRoleById(Number(id)));
         console.log("Role found:", role);
@@ -54,7 +54,7 @@ export default function RoleEditForm() {
             name: role.name,
             action: role.action,
             isActive: !!role.isActive,
-            permissionIds: role.Permissions?.map((p) => Number(p.id)) || [],
+            permissionIds: role.permissions?.map((p) => Number(p.id)) || [],
         });
     }
 

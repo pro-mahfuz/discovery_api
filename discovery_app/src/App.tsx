@@ -55,6 +55,8 @@ import PaymentEditForm from "./modules/payment/pages/PaymentEditForm";
 import StockCreateForm from "./modules/stock/pages/StockCreateForm";
 import StockListForm from "./modules/stock/pages/StockList";
 import StockEditForm from "./modules/stock/pages/StockEditForm";
+import StockReport from "./modules/report/pages/StockReport";
+import SaleReport from "./modules/report/pages/SaleReport";
 
 
 export default function App() {
@@ -188,6 +190,7 @@ export default function App() {
             />
             
             {/* Ledger */}
+
             {/* <Route index path="/ledger/all/:categoryId/list" element={
               <PrivateRoute permissions={['manage_users']}>
                 <CustomerLedger />
@@ -200,10 +203,22 @@ export default function App() {
               </PrivateRoute>} 
             />
 
-            {/* Ledger */}
             <Route index path="/ledger/:partyType/list" element={
               <PrivateRoute permissions={['manage_ledger']}>
                 <LedgerList />
+              </PrivateRoute>} 
+            />
+
+            {/* Report */}
+            <Route index path="/report/stock/container-wise" element={
+              <PrivateRoute permissions={['manage_ledger']}>
+                <StockReport />
+              </PrivateRoute>} 
+            />
+
+            <Route index path="/report/sale/container-wise" element={
+              <PrivateRoute permissions={['manage_ledger']}>
+                <SaleReport />
               </PrivateRoute>} 
             />
 

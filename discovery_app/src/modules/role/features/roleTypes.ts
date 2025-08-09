@@ -5,7 +5,7 @@ export interface Role {
   businessId: number;
   name: string;
   action: string;
-  Permissions: Permission[],
+  permissions: Permission[],
   isActive?: boolean;
   createdAt: string;
   updatedAt: string;

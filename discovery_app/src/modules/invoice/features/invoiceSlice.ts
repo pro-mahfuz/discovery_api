@@ -1,11 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { InvoiceState } from './invoiceTypes';
-import { create, fetchAllInvoice, fetchById, update, destroy } from './invoiceThunks';
+import { create, fetchAllInvoice, getSaleReport, fetchById, update, destroy } from './invoiceThunks';
 
 
 
 const initialState: InvoiceState = {
   data: [],
+  report: [],
   status: 'idle',
   error: null,
 };
@@ -28,6 +29,20 @@ const Slice = createSlice({
       .addCase(fetchAllInvoice.rejected, (state, action) => {
           state.status = 'failed';
           state.error = action.error.message || null;
+      })
+
+      // getSaleReport
+      .addCase(getSaleReport.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(getSaleReport.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.report = action.payload;
+      })
+      .addCase(getSaleReport.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || null;
       })
 
       // createParty

@@ -25,8 +25,22 @@ export interface Stock {
   updatedByUser?: string;
 }
 
+export interface StockReport {
+  containerId: number;
+  itemId: number;
+  containerNo?: string;
+  container: Container;
+  stockUnit?: string;
+  itemName?: string;
+  item: Item;
+  totalIn: number;
+  totalOut: number;
+  totalDamaged: number;
+}
+
 export interface StockState {
   data: Stock[];
+  report: StockReport[],
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }

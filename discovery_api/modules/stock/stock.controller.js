@@ -11,6 +11,16 @@ export const getAllStock = async (req, res, next) =>{
     }
 }
 
+export const getStockReport = async (req, res, next) => {
+    try {
+        const data = await StockService.getStockReport();
+        return success(res, data, "Response successful");
+
+    } catch (err) {
+        return error(res, err.message, err.status || 500);
+    }
+}
+
 export const createStock = async (req, res, next) => {
     try {
         console.log("Stock create Request: ", req.body);

@@ -12,6 +12,18 @@ export const fetchAll = async () => {
   }
 };
 
+export const getStockReport = async () => {
+  try {
+
+    const res = await axiosInstance.post('protected/stock/getStockReport');
+    console.log(res.data.data);
+    return res.data.data;
+
+  } catch {
+    throw new Error('No data available');
+  }
+};
+
 export const create = async (createData: Stock) => {
   try {
 

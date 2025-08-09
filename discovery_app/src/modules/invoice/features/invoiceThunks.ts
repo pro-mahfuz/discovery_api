@@ -1,6 +1,7 @@
 import { AxiosError } from 'axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { Invoice } from './invoiceTypes';
+import { Item } from '../../item/features/itemTypes';
 import * as invoiceAPI from '../features/invoiceAPI';
 
 export const fetchAllInvoice = createAsyncThunk<Invoice[], void, { rejectValue: string }>(
@@ -8,6 +9,21 @@ export const fetchAllInvoice = createAsyncThunk<Invoice[], void, { rejectValue: 
     try {
 
       const data = await invoiceAPI.fetchAll();
+      return data;
+      
+    } catch (err) {
+
+      const error = err as AxiosError<{ message?: string }>;
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message || 'Failed to fetch');
+    }
+  }
+);
+
+export const getSaleReport = createAsyncThunk<Item[], void, { rejectValue: string }>(
+  'sale/getSaleReport', async (_, thunkAPI) => {
+    try {
+
+      const data = await invoiceAPI.getSaleReport();
       return data;
       
     } catch (err) {

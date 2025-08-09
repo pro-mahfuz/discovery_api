@@ -1,10 +1,17 @@
+import { Invoice } from "../../invoice/features/invoiceTypes";
+import { Container } from "../../container/features/containerTypes";
+
 // Item interface
 export interface Item {
   id?: number;
-  name: string;
+  containerId?: number;
+  itemId?: number;
+  name?: string;
   price: number;
   quantity: number;
-  subTotal?: number;
+  subTotal: number;
+  invoice?: Invoice;
+  container?: Container;
 }
 
 export interface ItemState {

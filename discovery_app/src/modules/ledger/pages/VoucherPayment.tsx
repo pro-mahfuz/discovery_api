@@ -45,7 +45,7 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
     categoryId: 1,
     paymentType: "payment_in",
     invoiceId: null,
-    partyId: paymentPartyId ?? 0,
+    partyId: 0,
     paymentDate: '',
     note: "",
     amountPaid: 0,

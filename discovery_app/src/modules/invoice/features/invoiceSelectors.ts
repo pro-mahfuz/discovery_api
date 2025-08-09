@@ -1,4 +1,5 @@
 import { Invoice } from './invoiceTypes.ts';
+import { Item } from "../../item/features/itemTypes.ts";
 import { RootState } from "../../../store/store.ts";
 import { createSelector } from 'reselect';
 
@@ -6,6 +7,8 @@ export const selectInvoiceStatus = (state: RootState) => state.invoice.status;
 export const selectInvoiceError = (state: RootState) => state.invoice.error;
 
 export const selectAllInvoice = (state: RootState): Invoice[] => state.invoice.data || [];
+
+export const selectSaleReport = (state: RootState): Item[] => state.invoice.report || [];
 
 export const selectAllInvoiceByType = (invoiceType: String) =>
   createSelector([selectAllInvoice], (invoices) => {

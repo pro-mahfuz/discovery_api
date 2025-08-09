@@ -1,11 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { StockState } from './stockTypes';
-import { create, fetchAllStock, fetchById, update, destroy } from './stockThunks';
+import { create, fetchAllStock, getStockReport, fetchById, update, destroy } from './stockThunks';
 
 
 
 const initialState: StockState = {
   data: [],
+  report: [],
   status: 'idle',
   error: null,
 };
@@ -28,6 +29,20 @@ const Slice = createSlice({
       .addCase(fetchAllStock.rejected, (state, action) => {
           state.status = 'failed';
           state.error = action.error.message || null;
+      })
+
+      // getStockReport
+      .addCase(getStockReport.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(getStockReport.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.report = action.payload;
+      })
+      .addCase(getStockReport.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || null;
       })
 
       // createParty

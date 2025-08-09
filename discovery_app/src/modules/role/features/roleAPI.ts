@@ -14,7 +14,7 @@ export const fetchRole = async () => {
         name: role.name,
         action: role.action,
         isActive: role.isActive,
-        Permissions: role.Permissions,
+        permissions: role.permissions,
         createdAt: role.createdAt,
         updatedAt: role.updatedAt
       }

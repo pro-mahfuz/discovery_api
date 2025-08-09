@@ -1,17 +1,6 @@
 import { Category } from "../../category/features/categoryTypes";
 import { Party } from "../../party/features/partyTypes";
-
-// Item interface
-export interface Item {
-  id?: number;
-  containerId?: number;
-  itemId?: number;
-  name?: string;
-  price: number;
-  quantity: number;
-  subTotal: number;
-}
-
+import { Item } from "../../item/features/itemTypes.ts";
 
 // Invoice interface
 export interface Invoice {
@@ -41,8 +30,10 @@ export interface Invoice {
   updatedByUser?: string;
 }
 
+
 export interface InvoiceState {
   data: Invoice[];
+  report: Item[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }

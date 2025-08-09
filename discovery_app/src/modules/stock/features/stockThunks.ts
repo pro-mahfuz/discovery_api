@@ -1,6 +1,6 @@
 import { AxiosError } from 'axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { Stock } from './stockTypes';
+import { Stock, StockReport } from './stockTypes';
 import * as stockAPI from '../features/stockAPI';
 
 export const fetchAllStock = createAsyncThunk<Stock[], void, { rejectValue: string }>(
@@ -8,6 +8,21 @@ export const fetchAllStock = createAsyncThunk<Stock[], void, { rejectValue: stri
     try {
 
       const data = await stockAPI.fetchAll();
+      return data;
+      
+    } catch (err) {
+
+      const error = err as AxiosError<{ message?: string }>;
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message || 'Failed to fetch');
+    }
+  }
+);
+
+export const getStockReport = createAsyncThunk<StockReport[], void, { rejectValue: string }>(
+  'stock/getStockReport', async (_, thunkAPI) => {
+    try {
+
+      const data = await stockAPI.getStockReport();
       return data;
       
     } catch (err) {

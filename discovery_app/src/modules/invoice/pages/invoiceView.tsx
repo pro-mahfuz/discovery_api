@@ -46,7 +46,7 @@ export default function InvoiceView() {
             <PageMeta title="Invoice Create" description="Form to create a new invoice" />
             <PageBreadcrumb pageTitle="Invoice Create" />
 
-            {/* ✅ Print Button */}
+            {/* Print Button */}
             <div className="mb-4 flex justify-end print:hidden">
                 <button
                 onClick={() => window.print()}
@@ -178,7 +178,7 @@ export default function InvoiceView() {
                                         <span className="font-medium text-gray-700 dark:text-gray-400">
                                             Discount (Dhs.) :
                                         </span>
-                                        <span className="text-lg font-semibold text-gray-800 dark:text-white/90 pr-4">{invoice?.discount.toFixed(2)}</span>
+                                        <span className="text-lg font-semibold text-gray-800 dark:text-white/90 pr-4">{(invoice?.discount ?? 0).toFixed(2)}</span>
                                     </li>
                                     <li className="flex items-center justify-between">
                                         <span className="font-medium text-gray-700 dark:text-gray-400">
@@ -190,7 +190,7 @@ export default function InvoiceView() {
                                         <span className="font-medium text-gray-700 dark:text-gray-400">
                                             Grand Total (Dhs.) :
                                         </span>
-                                        <span className="text-lg font-semibold text-gray-800 dark:text-white/90 pr-4">{invoice?.grandTotal.toFixed(2)}</span>
+                                        <span className="text-lg font-semibold text-gray-800 dark:text-white/90 pr-4">{(invoice?.grandTotal ?? 0).toFixed(2)}</span>
                                     </li>
                                 </ul>
                             </div>
