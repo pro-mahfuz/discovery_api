@@ -8,7 +8,19 @@ export const selectInvoiceError = (state: RootState) => state.invoice.error;
 
 export const selectAllInvoice = (state: RootState): Invoice[] => state.invoice.data || [];
 
-export const selectSaleReport = (state: RootState): Item[] => state.invoice.report || [];
+export const selectInvoiceAll = (state: RootState): Invoice[] => state.invoice.data || [];
+
+export const selectSaleReport = (containerId: number) => (state: RootState): Invoice[] => {
+  return containerId > 0 ? 
+  state.invoice.data
+    .map(invoice => ({
+      ...invoice,
+      items: invoice.items?.filter(item => item.containerId === containerId) || [],
+    }))
+    // Optionally filter out invoices with no matching items
+    .filter(invoice => invoice.items.length > 0)
+  : state.invoice.data;
+};
 
 export const selectAllInvoiceByType = (invoiceType: String) =>
   createSelector([selectAllInvoice], (invoices) => {

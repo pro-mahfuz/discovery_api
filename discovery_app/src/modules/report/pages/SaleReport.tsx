@@ -36,7 +36,7 @@ export default function SaleReport() {
 
 
   const status = useSelector(selectInvoiceStatus);
-  const saleReports = useSelector(selectSaleReport);
+  const saleReports = useSelector(selectSaleReport(0));
   console.log("saleReports: ", saleReports);
 
 
@@ -104,8 +104,8 @@ export default function SaleReport() {
                     <TableCell isHeader className="text-center px-4 py-2">Sub-Total</TableCell>
                     <TableCell isHeader className="text-center px-4 py-2">vat(%)</TableCell>
                     <TableCell isHeader className="text-center px-4 py-2">Grand Total</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Received Amount</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Due Amount</TableCell>
+                    {/* <TableCell isHeader className="text-center px-4 py-2">Received Amount</TableCell>
+                    <TableCell isHeader className="text-center px-4 py-2">Due Amount</TableCell> */}
                   </TableRow>
                 </TableHeader>
 
@@ -130,42 +130,54 @@ export default function SaleReport() {
                         </TableCell>
                         
                         <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          {report.invoice?.date}
+                          {report.date}
                         </TableCell>
                         <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          {report.invoice?.party?.name}
+                          {report.party?.name}
+                        </TableCell>
+
+                        <TableCell>
+                            <Table>
+                                {report.items.map((item) => (
+                                    <TableRow>
+                                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                                            {item.name}
+                                        </TableCell>
+                                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                                            {item.quantity}
+                                        </TableCell>
+                                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                                            {item.container?.stockUnit}
+                                        </TableCell>
+                                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                                            {item.price}
+                                        </TableCell>
+                                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                                            {item.subTotal}
+                                        </TableCell>
+                                    </TableRow>
+                                    
+                                ))}
+                                
+                            </Table>
                         </TableCell>
 
 
                         
-                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          {report.name}
-                        </TableCell>
-                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          {report.quantity}
-                        </TableCell>
-                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          {report.container?.stockUnit}
-                        </TableCell>
-                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          {report.price}
-                        </TableCell>
-                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          {report.subTotal}
-                        </TableCell>
+                        
 
                         <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          {report.invoice?.vatPercentage}
+                          {report.vatPercentage}
                         </TableCell>
                         <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          {report.invoice?.grandTotal}
+                          {report.grandTotal}
                         </TableCell>
-                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {/* <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                           {report.invoice?.totalAmount}
                         </TableCell>
                         <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                           {report.invoice?.totalAmount}
-                        </TableCell>
+                        </TableCell> */}
 
 
                       </TableRow>
