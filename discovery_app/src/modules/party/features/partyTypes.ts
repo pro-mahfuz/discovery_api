@@ -12,6 +12,7 @@ export  const statusOptions = [
 
 export  const countries = [
   { code: "AE", label: "+971" },
+  { code: "BD", label: "+880" },
   { code: "US", label: "+1" },
   { code: "GB", label: "+44" },
   { code: "CA", label: "+1" },

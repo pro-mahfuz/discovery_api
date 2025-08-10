@@ -64,10 +64,10 @@ export const InvoiceTypeOptions: OptionStringType[] = [
 ];
 
 export const MovementTypeOptions: OptionStringType[] = [
-  { value: "in", label: "In" },
-  { value: "out", label: "Out" },
-  { value: "saleReturn", label: "Return" },
-  { value: "damage", label: "Damaged" }
+  { value: "stock_in", label: "Stock-In" },
+  { value: "stock_out", label: "Stock-Out" },
+  // { value: "saleReturn", label: "Return" },
+  // { value: "damage", label: "Damaged" }
 ];
 
 export const selectStyles = {

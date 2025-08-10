@@ -174,7 +174,6 @@ export default function PartyCreateForm() {
                 placeholder="Enter TRN No"
                 value={formData.trnNo}
                 onChange={handleChange}
-                required
               />
             </div>
 

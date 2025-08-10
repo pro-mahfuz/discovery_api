@@ -36,7 +36,7 @@ export default (sequelize, DataTypes) => {
       },
     },
     price: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.FLOAT,
       allowNull: false,
       validate: {
         min: 0,

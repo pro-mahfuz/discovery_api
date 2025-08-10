@@ -8,8 +8,9 @@ import { FormEvent, ChangeEvent, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 // import { useNavigate } from "react-router-dom";
 
-import { OptionStringType, InvoiceTypeOptions, InvoiceType, CurrencyOptions } from "../../types.ts";
-import { Invoice, Item } from "../../invoice/features/invoiceTypes.ts";
+import { OptionStringType, InvoiceTypeOptions, InvoiceType, CurrencyOptions, selectStyles } from "../../types.ts";
+import { Invoice } from "../../invoice/features/invoiceTypes.ts";
+import { Item } from "../../item/features/itemTypes.ts";
 import { AppDispatch } from "../../../store/store.ts";
 import { create, fetchById, update } from "../../invoice/features/invoiceThunks.ts";
 import { fetchAllItem } from "../../item/features/itemThunks.ts";
@@ -124,7 +125,7 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
         name: firstItem.name ?? '',
         price: firstItem.price ?? 0,
         quantity: firstItem.quantity ?? 0,
-        subTotal: firstItem.subTotal ?? 0,
+        subTotal: Math.round(firstItem.subTotal) ?? 0,
       });
     } else {
       setCurrentItem({
@@ -152,7 +153,7 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
 
   const handleCurrentItemChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setCurrentItem((prev) => ({
+    setCurrentItem((prev: Item) => ({
       ...prev,
       [name]: name === "price" || name === "quantity" ? parseFloat(value) : value,
     }));
@@ -188,7 +189,7 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
         id: selectedInvoice?.id,
         items: updatedItems,
         totalAmount: total,
-        grandTotal: grandTotal,
+        grandTotal: Math.round(grandTotal),
         vatPercentage: form.isVat === true ? user?.business?.vatPercentage ?? 0 : 0,
         updatedBy: user?.id,
       };
@@ -222,32 +223,6 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
     }
     window.location.reload();
     //navigate("/currency/ledger");
-  };
-
-  const selectStyles = {
-    control: (base: any, state: any) => ({
-      ...base,
-      borderColor: state.isFocused ? "#72a4f5ff" : "#d1d5db",
-      boxShadow: state.isFocused ? "0 0 0 1px #8eb8fcff" : "none",
-      padding: "0.25rem 0.5rem",
-      borderRadius: "0.375rem",
-      minHeight: "38px",
-      fontSize: "0.875rem",
-      "&:hover": {
-        borderColor: "#3b82f6",
-      },
-    }),
-    menu: (base: any) => ({
-      ...base,
-      zIndex: 20,
-    }),
-    option: (base: any, state: any) => ({
-      ...base,
-      backgroundColor: state.isFocused ? "#e0f2fe" : "white",
-      color: "#1f2937",
-      fontSize: "0.875rem",
-      padding: "0.5rem 0.75rem",
-    }),
   };
 
   return (
@@ -338,7 +313,7 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
                     .map((i) => ({ label: i.name, value: i.id }))[0] || null
                 }
                 onChange={(selectedOption) =>
-                  setCurrentItem((prev) => ({
+                  setCurrentItem((prev: Item) => ({
                     ...prev,
                     itemId: selectedOption?.value ?? 0,
                     name: selectedOption?.label ?? "",

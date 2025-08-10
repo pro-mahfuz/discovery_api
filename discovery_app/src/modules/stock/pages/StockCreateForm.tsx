@@ -155,23 +155,25 @@ export default function StockCreateForm() {
                 </div>
 
                 <div>
-                    <Label>Search Item</Label>
+                    <Label>Select Item</Label>
                     <Select
                         options={
-                            items?.map((i) => ({
-                                label: i.name,
-                                value: i.id,
-                            })) || []
+                        items?.map(i => ({
+                            label: i.name,
+                            value: i.id,
+                        })) || []
                         }
                         placeholder="Search and select item"
                         value={
-                            items?.map((i) => ({ label: i.name, value: i.id }))[0] || null
+                        items
+                            ?.filter(i => i.id === formData.itemId)
+                            .map(i => ({ label: i.name, value: i.id }))[0] || null
                         }
                         onChange={(selectedOption) =>
-                            setFormData((prev) => ({
-                                ...prev,
-                                itemId: Number(selectedOption?.value),
-                            }))
+                        setFormData((prev) => ({
+                            ...prev,
+                            itemId: Number(selectedOption?.value) || 0,
+                        }))
                         }
                         isClearable
                         styles={selectStyles}

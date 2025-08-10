@@ -19,7 +19,7 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.STRING(50),
       allowNull: false,
       validate: {
-        isIn: [['purchase', 'sale', 'payment_in', 'payment_out', 'opening_balance', 'return']],
+        isIn: [['purchase', 'sale', 'saleReturn', 'stock_in', 'stock_out', 'payment_in', 'payment_out']],
       },
     },
     partyId: {
@@ -47,13 +47,21 @@ export default (sequelize, DataTypes) => {
         key: 'id'
       }
     },
+    stockId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Stocks',
+        key: 'id'
+      }
+    },
     description: {
       type: DataTypes.TEXT,
       allowNull: true,
     },
     currency: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     debit: {
       type: DataTypes.DECIMAL(12, 2),
@@ -109,6 +117,7 @@ export default (sequelize, DataTypes) => {
     // Optional associations depending on transactionType
     Ledger.belongsTo(models.Invoice, { foreignKey: 'invoiceId', as: 'invoice' });
     Ledger.belongsTo(models.Payment, { foreignKey: 'paymentId', as: 'payment' });
+    Ledger.belongsTo(models.Stock, { foreignKey: 'stockId', as: 'stock' });
 
     Ledger.belongsTo(models.User, {
       foreignKey: "createdBy",

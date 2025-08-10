@@ -23,7 +23,6 @@ export const invoiceSchema = yup.object({
 
   totalAmount: yup
     .number()
-    .integer("Amount must be an integer")
     .required("Total amount is required"),
 
   isActive: yup

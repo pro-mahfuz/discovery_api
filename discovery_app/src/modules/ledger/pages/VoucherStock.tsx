@@ -1,22 +1,22 @@
-import { FormEvent, ChangeEvent, useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
 
-import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
-import PageMeta from "../../../components/common/PageMeta.tsx";
-import ComponentCard from "../../../components/common/ComponentCard.tsx";
 import Label from "../../../components/form/Label.tsx";
 import Input from "../../../components/form/input/InputField.tsx";
 import DatePicker from "../../../components/form/date-picker.tsx";
 import Button from "../../../components/ui/button/Button.tsx";
+
 import Select from "react-select";
+import { toast } from "react-toastify";
 
+import { FormEvent, ChangeEvent, useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
-import { OptionStringType, MovementTypeOptions, selectStyles } from "../../types.ts";
-import { Stock } from "../features/stockTypes.ts";
+import { useNavigate, useParams } from "react-router-dom";
 
-import { update } from "../features/stockThunks.ts";
+import { OptionStringType, OptionNumberType, MovementTypeOptions, selectStyles } from "../../types.ts";
+import { Stock } from "../../stock/features/stockTypes.ts";
+import { Item } from "../../item/features/itemTypes.ts";
+
+import { create, update, fetchById } from "../../stock/features/stockThunks.ts";
 import { fetchAllInvoice } from "../../invoice/features/invoiceThunks.ts";
 import { fetchAll as fetchContainer } from "../../container/features/containerThunks.ts";
 import { fetchAllItem } from "../../item/features/itemThunks.ts";
@@ -30,92 +30,129 @@ import { selectAllItem } from "../../item/features/itemSelectors.ts";
 import { selectAllWarehouse } from "../../warehouse/features/warehouseSelectors.ts";
 import { selectCategoryById } from "../../category/features/categorySelectors";
 import { selectAllContainerByItemId } from "../../container/features/containerSelectors";
-import { selectStockById } from "../features/stockSelectors";
+import { selectStockById } from "../../stock/features/stockSelectors";
+import { selectAllParties } from "../../party/features/partySelectors.ts";
+import { fetchParty } from "../../party/features/partyThunks.ts";
 
+interface CurrencyPaymentProps {
+  editingStockId: number;
+  stockPartyId: number;
+}
 
-export default function StockEditForm() {
-    const { id } = useParams();
+export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyPaymentProps) {
+    console.log("editingStockId- ", editingStockId);
+
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
 
     const authUser = useSelector(selectAuth);
     const user = useSelector(selectUserById(Number(authUser.user?.id)));
-    // console.log("Invoice authUser: ", authUser);
-    // console.log("Invoice user: ", user);
+    console.log("StockVoucher authUser: ", authUser);
+    console.log("StockVoucher user: ", user);
 
     const items = useSelector(selectAllItem);
     const invoices = useSelector(selectAllInvoice);
     const warehouses = useSelector(selectAllWarehouse);
-    const stock = useSelector(selectStockById(Number(id)));
+    const selectedStock = useSelector(selectStockById(Number(editingStockId)));
+    console.log("selectedStock- ", selectedStock);
+    const matchingParties = useSelector(selectAllParties);
 
     useEffect(() => {
         dispatch(fetchAllInvoice());
-        dispatch(fetchContainer());
         dispatch(fetchAllWarehouse());
-        dispatch(fetchAllCategory());
         dispatch(fetchAllItem());
-    }, [dispatch]);
+        dispatch(fetchParty('all'));
+
+        if (editingStockId) {
+            dispatch(fetchById(editingStockId));
+        }
+    }, [editingStockId, dispatch]);
+
 
     const [formData, setFormData] = useState<Stock>({
-        id: stock?.id,
-        businessId: stock?.business?.id,
-        date: stock?.date ?? '',
-        invoiceType: stock?.invoiceType,        
-        invoiceId: stock?.invoiceId,
-        itemId: stock?.item?.id ?? 0,
-        containerId: stock?.containerId ?? 0,
-        movementType: stock?.movementType ?? '',
-        warehouseId: stock?.warehouseId ?? 0,
-        quantity: stock?.quantity ?? 0,
-        stockUnit: stock?.stockUnit ?? ''
+        businessId: 0,
+        date: '',
+        invoiceType: undefined,        
+        invoiceId: 0,
+        categoryId: 0,
+        itemId: 1,
+        movementType: '',
+        warehouseId: undefined,
+        quantity: 0,
+        createdBy: 0,
     });
-
-    const invoice = useSelector(selectInvoiceById(Number(formData.invoiceId)));
-    const categoryItem = useSelector(selectCategoryById(Number(invoice?.categoryId)));
-    const containers = useSelector(selectAllContainerByItemId((Number(formData.itemId))));
-    
 
     useEffect(() => {
         if (user?.business?.id) {
           setFormData((prev) => ({
             ...prev,
             businessId: user?.business?.id,
-            updatedBy: user.id
           }));
         }
     }, [user]);
+
+    useEffect(() => {
+
+        if (!selectedStock) return;
+
+        setFormData({
+            businessId: user?.business?.id,
+            date: selectedStock.date,
+            invoiceType: selectedStock.invoiceType,        
+            invoiceId: selectedStock.invoiceId,
+            categoryId: selectedStock.categoryId,
+            itemId: selectedStock.itemId,
+            movementType: selectedStock.movementType,
+            warehouseId: selectedStock.warehouseId,
+            quantity: selectedStock.quantity,
+        });
+    }, [selectedStock]);
 
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [name]: name === "partyId" || name === "categoryId" ? Number(value) : value,
+            [name]: name === "partyId" || name === "categoryId" || name === "quantity" ? Number(value) : value,
         }));
     };
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-       
-        try {
-            // Dispatch create action, including totalAmount
-           
-            await dispatch(update(formData));
-            toast.success("Stock created successfully!");
 
-            navigate(`/stock/list`);
-        } catch (err) {
-            toast.error("Failed to create stock.");
+        if (editingStockId) {
+            const updatedForm: Stock = {
+                ...formData,
+                id: selectedStock?.id,
+                updatedBy: user?.id,
+                createdBy: selectedStock?.createdBy,
+            };
+    
+            console.log("Updated formData: ", updatedForm);
+    
+            await dispatch(update(updatedForm));
+            toast.success("Invoice updated successfully!");
+        }else{
+    
+            const createdForm: Stock = {
+                ...formData,
+                createdBy: user?.id,
+            };
+    
+            console.log("Created formData: ", createdForm);
+    
+            await dispatch(create(createdForm));
+            toast.success("Stock created successfully!");
         }
+        //window.location.reload();
+       
+        
     };
 
-    return (
-        <div>
-        <PageMeta title="Stock Create" description="Form to create a new stock" />
-        <PageBreadcrumb pageTitle="Stock Create" />
-
-        <ComponentCard title="Fill up all fields to create a new stock">
-            <form className="space-y-5" onSubmit={handleSubmit}>
+  return (
+    <div className="flex">
+      <div className="w-full">
+        <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 
 
@@ -124,36 +161,82 @@ export default function StockEditForm() {
                     <Label>Select Invoice Ref (if have)</Label>
                     <Select
                         options={invoices.map((i) => ({
-                            label: `#${i.id} | ${i.party?.name ?? "No name"}`,
-                            value: i.id,
+                            label: `${String(i.invoiceNo)}`,
+                            value: Number(i.id),
+                            partyId: Number(i.partyId),
+                            invoiceType: i.invoiceType,
+                            categoryId: i.categoryId
                         }))}
                         placeholder="Select invoice type"
                         value={
                             invoices
-                                .map((i) => ({
-                                label: `#${i.id} | ${i.party?.name ?? "No name"}`,
-                                value: i.id,
-                                }))
-                                .find((option) => option.value === formData.invoiceId) || null
+                                .filter((i) => i.id === formData.invoiceId)
+                                .map((i) => ({ label: `${String(i.invoiceNo)}`, partyId: i.partyId, value: i.id, invoiceType: i.invoiceType, categoryId: i.categoryId }))[0] || null
                         }
                         onChange={(selectedOption) => {
-                        setFormData((prev) => ({
-                            ...prev,
-                            invoiceId: Number(selectedOption!.value),
-                        }));
+                            setFormData(prev => ({
+                                ...prev,
+                                invoiceId: selectedOption!.value ?? 0,
+                                partyId: Number(selectedOption?.partyId) ?? 0,
+                                invoiceType: selectedOption?.invoiceType,
+                                categoryId: Number(selectedOption?.categoryId)
+                            }));
                         }}
                         styles={selectStyles}
                         classNamePrefix="react-select"
                     />
-                    </div>
+                </div>
+            
+                {!stockPartyId && (
+                <div>
+                    <Label>Select Party</Label>
+                    <Select
+                    options={matchingParties.map((p) => ({
+                        label: p.name,
+                        value: p.id,
+                    }))}
+                    placeholder="Search and select party"
+                    value={
+                        matchingParties
+                            .filter((p) => p.id === formData.partyId)
+                            .map((p) => ({ label: p.name, value: p.id }))[0] || null
+                    }
+                    onChange={(selectedOption) =>
+                        setFormData((prev) => ({
+                            ...prev,
+                            partyId: selectedOption?.value ?? 0,
+                        }))
+                    }
+                    isClearable
+                    styles={selectStyles}
+                    classNamePrefix="react-select"
+                    />
+                </div>
+                )}
 
+                {/* Date */}
+                <div>
+                    <DatePicker
+                        id="date-picker"
+                        label="Date"
+                        placeholder="Select a date"
+                        defaultDate={formData.date}
+                        onChange={(dates, currentDateString) => {
+                            console.log({ dates, currentDateString });
+                            setFormData((prev) => ({
+                                ...prev!,
+                                date: currentDateString, 
+                            }));
+                        }}
+                    />
+                </div>
 
                 {/* Invoice Type */}
                 <div>
-                    <Label>Select Movement Type</Label>
+                    <Label>Select Stock Type</Label>
                     <Select<OptionStringType>
                         options={MovementTypeOptions}
-                        placeholder="Select movement type"
+                        placeholder="Select stock type"
                         value={MovementTypeOptions.find(option => option.value === formData.movementType)}
                         onChange={(selectedOption) => {
                             setFormData(prev => ({
@@ -172,7 +255,7 @@ export default function StockEditForm() {
                         options={
                         items?.map(i => ({
                             label: i.name,
-                            value: i.id,
+                            value: i.id
                         })) || []
                         }
                         placeholder="Search and select item"
@@ -194,37 +277,7 @@ export default function StockEditForm() {
                 </div>
 
                 <div>
-                    <Label>Select Container</Label>
-                    <Select
-                        options={containers.map((i) => ({
-                            label: `${i.containerNo} - ${i.netStock} ${i.stockUnit}`,
-                            value: i.id,
-                            stockUnit: i.stockUnit, // consistent key name
-                        })) || []}
-                        placeholder="Search and select item"
-                        value={
-                            containers
-                            .map((i) => ({
-                                label: `${i.containerNo} - ${i.netStock} ${i.stockUnit}`,
-                                value: i.id,
-                                stockUnit: i.stockUnit,
-                            }))
-                        }
-                        onChange={(selectedOption) =>
-                            setFormData((prev) => ({
-                                ...prev,
-                                containerId: Number(selectedOption!.value),
-                                stockUnit: selectedOption?.stockUnit || '',
-                            }))
-                        }
-                        isClearable
-                        styles={selectStyles}
-                        classNamePrefix="react-select"
-                    />
-                </div>
-
-                <div>
-                    <Label>Select Warehouse</Label>
+                    <Label>Select Stock Location</Label>
                     <Select
                         options={
                         warehouses
@@ -251,22 +304,7 @@ export default function StockEditForm() {
                     />
                 </div>
 
-                {/* Date */}
-                <div>
-                    <DatePicker
-                        id="date-picker"
-                        label="Date"
-                        placeholder="Select a date"
-                        defaultDate={formData.date}
-                        onChange={(dates, currentDateString) => {
-                            console.log({ dates, currentDateString });
-                            setFormData((prev) => ({
-                            ...prev!,
-                            paymentDate: currentDateString, 
-                            }));
-                        }}
-                    />
-                </div>
+                
 
                 
 
@@ -274,7 +312,7 @@ export default function StockEditForm() {
                 <div>
                 <Label>Quantity</Label>
                 <Input
-                    type="number"
+                    type="text"
                     name="quantity"
                     placeholder="Enter quantity"
                     value={formData.quantity}
@@ -293,7 +331,8 @@ export default function StockEditForm() {
                 </Button>
             </div>
             </form>
-        </ComponentCard>
-        </div>
-    );
+      </div>
+    </div>
+  );
 }
+

@@ -23,9 +23,6 @@ export default (sequelize, DataTypes) => {
     email: {
       type: DataTypes.STRING,
       allowNull: true,
-      validate: {
-        isEmail: true,
-      },
     },
     countryCode: {
       type: DataTypes.STRING,

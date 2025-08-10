@@ -20,8 +20,16 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: true,
     },
+    partyId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'parties',
+        key: 'id',
+      },
+    },
     movementType: {
-      type: DataTypes.ENUM('in', 'out', 'damaged'),
+      type: DataTypes.ENUM('stock_in', 'stock_out', 'damaged'),
       allowNull: false,
     },
     quantity: {
@@ -30,7 +38,7 @@ export default (sequelize, DataTypes) => {
     },
     stockUnit: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     warehouseId: {
       type: DataTypes.INTEGER,
@@ -40,15 +48,21 @@ export default (sequelize, DataTypes) => {
         key: 'id',
       },
     },
+    categoryId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'categories',
+        key: 'id',
+      },
+    },
     containerId: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
         model: 'containers', // must match tableName exactly
         key: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
+      }
     },
     itemId: {
       type: DataTypes.INTEGER,

@@ -1,4 +1,4 @@
-import { Stock, Business, User, Item, Container, Warehouse } from "../../models/model.js";
+import { Stock, Business, User, Item, Container, Ledger, Warehouse, sequelize } from "../../models/model.js";
 import { fn, col, literal } from "sequelize";
 
 
@@ -106,10 +106,39 @@ export const getStockReport = async () => {
 };
 
 export const createStock = async (req) => {
-    const data = await Stock.create(req.body);
-    console.log("Stock response body:", data);
+  console.log("req.body: ", req.body);
+
+  const t = await sequelize.transaction();
+
+  const data = await Stock.create(req.body, { transaction: t });
+  console.log("Stock response body:", data);
+
+  let debitAmount = 0;
+  let creditAmount = 0;
+  if (req.body.movementType === 'stock_out') {
+    creditAmount = req.body.quantity;
+  } else if (req.body.movementType === 'stock_in') {
+    debitAmount = req.body.quantity;
+  }
+
+  const item = await Item.findByPk(req.body.itemId)
+  await Ledger.create({
+    businessId: req.body.businessId,
+    categoryId: req.body.categoryId,
+    invoiceId: req.body.invoiceId,
+    transactionType: req.body.movementType,
+    partyId: req.body.partyId,
+    date: req.body.paymentDate,
+    stockId: data.id,
+    debit: debitAmount,
+    credit: creditAmount,
+    currency: item.name,
+    createdBy: req.body.createdBy
+  }, { transaction: t });
+
+  await t.commit();
     
-    return data;
+  return data;
 }
 
 export const getStockById = async (id) => {
@@ -121,14 +150,51 @@ export const getStockById = async (id) => {
 }
 
 export const updateStock = async (req) => {
-    const data = await Stock.findByPk(req.body.id);
-    console.log("Stock: ", data);
-    if (!data) {
-        throw { status: 404, message: "Stock not found" };
-    }
+  const t = await sequelize.transaction();
 
-    await data.update(req.body);
-    return data;
+  const data = await Stock.findByPk(req.body.id);
+  console.log("Stock: ", data);
+  if (!data) {
+      throw { status: 404, message: "Stock not found" };
+  }
+
+  await data.update(req.body);
+
+  let debitAmount = 0;
+  let creditAmount = 0;
+  if (req.body.invoiceType === 'stock_out') {
+    creditAmount = req.body.quantity;
+  } else if (req.body.invoiceType === 'stock_in') {
+    debitAmount = req.body.quantity;
+  }
+
+  const item = await Item.findByPk(req.body.itemId)
+
+  const ledger = await Ledger.findOne({
+    where: { stockId: req.body.id },
+    transaction: t,
+    lock: t.LOCK.UPDATE,
+  });
+
+  if (!ledger) {
+    throw { status: 404, message: "Ledger entry not found" };
+  }
+
+  await Ledger.update({
+    businessId: req.body.businessId,
+    categoryId: req.body.categoryId,
+    transactionType: req.body.invoiceType,
+    partyId: req.body.partyId,
+    date: req.body.paymentDate,
+    stockId: data.id,
+    debit: debitAmount,
+    credit: creditAmount,
+    currency: item.name,
+    updatedBy: req.body.updatedBy
+  }, { transaction: t });
+
+  await t.commit();
+  return data;
 }
 
 export const deleteStock = async (id) => {

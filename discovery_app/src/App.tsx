@@ -85,6 +85,12 @@ export default function App() {
               </PrivateRoute>} 
             />
 
+            <Route index path="/party/create" element={
+              <PrivateRoute permissions={['create_party']}>
+                <PartyCreateForm />
+              </PrivateRoute>} 
+            />
+
             <Route index path="/party/:partyType/create" element={
               <PrivateRoute permissions={['create_party']}>
                 <PartyCreateForm />

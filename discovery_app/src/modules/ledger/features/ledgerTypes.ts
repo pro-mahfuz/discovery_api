@@ -8,14 +8,15 @@ export interface Category {
 
 export interface Ledger {
   id?: number;
-  businessId: number;                  // Optional for creation
-  categoryId: number;           // Reference to invoice category
-  transactionType: "purchase" | "sale" | "return" | "payment_in" | "payment_out";
-  partyId: number;              // Vendor or customer
+  businessId: number;              
+  categoryId: number;         
+  transactionType: "purchase" | "sale" | "return" | "payment_in" | "payment_out" | "stock_in" | "stock_out";
+  partyId: number;           
   date: string;  
   invoiceId?: number; 
   paymentId?: number; 
-  refNo: string;              // ISO string or date format (e.g. "2025-07-28")
+  stockId?: number; 
+  refNo: string;             
   description: string; 
   currency: string;
   debit: number;

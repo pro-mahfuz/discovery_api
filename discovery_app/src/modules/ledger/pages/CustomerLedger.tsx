@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, Fragment } from "react";
 
 import {
   PaginationControl,
@@ -27,8 +27,10 @@ import { selectUser } from "../../auth/features/authSelectors.ts";
 import { selectLedgers } from "../features/ledgerSelectors.ts";
 import { destroy } from "../../invoice/features/invoiceThunks.ts";
 import { destroy as PaymentDestroy } from "../../payment/features/paymentThunks.ts";
+import { destroy as StockDestroy } from "../../stock/features/stockThunks.ts";
 import { selectPartyById } from "../../party/features/partySelectors.ts";
 import { useParams } from "react-router";
+import VoucherStock from "./VoucherStock.tsx";
 // import { useNavigate } from "react-router-dom";
 
 
@@ -51,6 +53,8 @@ export default function CustomerLedger() {
   const { isOpen, openModal, closeModal } = useModal();
   const [editingLedgerId, setEditingLedgerId] = useState<number | null>(null);
   const [editingPaymentId, setEditingPaymentId] = useState<number | null>(null);
+  const [editingStockId, setEditingStockId] = useState<number | null>(null);
+
   const [filterText, setFilterText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -62,8 +66,10 @@ export default function CustomerLedger() {
       setSelectedTab(1); // Open Payment tab
     } else if (editingLedgerId) {
       setSelectedTab(0); // Open Invoice tab
+    } else if (editingStockId) {
+      setSelectedTab(2); // Open Invoice tab
     }
-  }, [editingLedgerId, editingPaymentId, partyId]);
+  }, [editingLedgerId, editingPaymentId, editingStockId, partyId]);
 
   useEffect(() => {
       dispatch(fetchAll());
@@ -79,6 +85,10 @@ export default function CustomerLedger() {
       setEditingPaymentId(Number(ledger.paymentId));
       setSelectedTab(1);
     }
+    if(ledger.transactionType == "stock_in" || ledger.transactionType == "stock_out"){
+      setEditingStockId(Number(ledger.stockId));
+      setSelectedTab(2);
+    }
   };
 
   // Delete handler
@@ -92,14 +102,19 @@ export default function CustomerLedger() {
       await dispatch(PaymentDestroy(editingPaymentId));
     }
 
+    if(editingStockId) {
+      await dispatch(StockDestroy(editingStockId));
+    }
+
     closeAndResetModal();
-    //window.location.reload();
+    window.location.reload();
     //navigate("/customers/ledger");
   };
 
   const closeAndResetModal = () => {
     setEditingLedgerId(null);
     setEditingPaymentId(null);
+    setEditingStockId(null);
     closeModal();
   };
 
@@ -132,8 +147,11 @@ export default function CustomerLedger() {
     purchaseCredit: number;
     saleDebit: number;
     saleCredit: number;
+    stockDebit: number;
+    stockCredit: number;
     purchaseBalance: number;
     saleBalance: number;
+    stockBalance: number;
     closeBalance: number;
   };
 
@@ -149,8 +167,11 @@ export default function CustomerLedger() {
           purchaseCredit: 0,
           saleDebit: 0,
           saleCredit: 0,
+          stockDebit: 0,
+          stockCredit: 0,
           purchaseBalance: 0,
           saleBalance: 0,
+          stockBalance: 0,
           closeBalance: 0,
         };
       }
@@ -163,10 +184,14 @@ export default function CustomerLedger() {
       } else if (ledger.transactionType === "sale" || ledger.transactionType === "payment_in") {
         current.saleDebit += debit;
         current.saleCredit += credit;
+      } else if (ledger.transactionType === "stock_in" || ledger.transactionType === "stock_out") {
+        current.stockDebit += debit;
+        current.stockCredit += credit;
       }
 
       current.purchaseBalance = current.purchaseCredit - current.purchaseDebit;
       current.saleBalance = current.saleCredit - current.saleDebit;
+      current.stockBalance = current.stockCredit - current.stockDebit;
       current.closeBalance = current.purchaseBalance + current.saleBalance;
 
       return totals;
@@ -184,10 +209,13 @@ export default function CustomerLedger() {
       <TabGroup selectedIndex={selectedTab} onChange={setSelectedTab}>
         <TabList className="flex gap-4 mb-2">
           <Tab className="rounded-full px-3 py-1 text-sm font-semibold text-black bg-gray-300 data-selected:bg-sky-500 data-selected:text-white">
-            Add Purchase/Sale
+            Add/Edit Purchase/Sale
           </Tab>
           <Tab className="rounded-full px-3 py-1 text-sm font-semibold text-black bg-gray-300 data-selected:bg-sky-500 data-selected:text-white">
-            Add Payment
+            Add/Edit Payment
+          </Tab>
+          <Tab className="rounded-full px-3 py-1 text-sm font-semibold text-black bg-gray-300 data-selected:bg-sky-500 data-selected:text-white">
+            Add/Edit Stock
           </Tab>
         </TabList>
 
@@ -195,7 +223,7 @@ export default function CustomerLedger() {
           {/* PURCHASE/SALE PANEL */}
           <TabPanel className="space-y-6">
             <div className="p-4 mb-4 border border-gray-300 rounded-lg bg-white dark:bg-gray-800 space-y-4">
-              <h2 className="text-lg font-semibold">Add Purchase/Sale</h2>
+              <h2 className="text-lg font-semibold">Add/Edit Purchase/Sale</h2>
               <VoucherInvoice editingLedgerId={editingLedgerId ?? 0} ledgerPartyId={partyID}/>
             </div>
           </TabPanel>
@@ -203,8 +231,15 @@ export default function CustomerLedger() {
           {/* PAYMENT PANEL */}
           <TabPanel>
             <div className="p-4 mb-4 border border-gray-300 rounded-lg bg-white dark:bg-gray-800 space-y-4">
-              <h2 className="text-lg font-semibold">Add Payment</h2>
+              <h2 className="text-lg font-semibold">Add/Edit Payment</h2>
               <VoucherPayment editingPaymentId={editingPaymentId ?? 0} paymentPartyId={partyID}/>
+            </div>
+          </TabPanel>
+
+          <TabPanel>
+            <div className="p-4 mb-4 border border-gray-300 rounded-lg bg-white dark:bg-gray-800 space-y-4">
+              <h2 className="text-lg font-semibold">Add/Edit Stock</h2>
+              <VoucherStock editingStockId={editingStockId ?? 0} stockPartyId={partyID}/>
             </div>
           </TabPanel>
         </TabPanels>
@@ -262,6 +297,20 @@ export default function CustomerLedger() {
                     </Table>
                   </TableCell>
 
+                  <TableCell isHeader className="border border-gray-500 text-center">
+                    <Table key="customer-ledger-inner-table-1">
+                      <TableBody>
+                      <TableRow className="text-center">
+                        <TableCell colSpan={2} className="text-center px-4 py-2 font-semibold">Stock Money</TableCell>
+                      </TableRow>
+                      <TableRow className="text-center border-t border-gray-500 px-4">
+                        <TableCell className="text-left px-4 py-2">Debit</TableCell>
+                        <TableCell className="text-right border-l border-gray-500 text-center px-4 py-2">Credit</TableCell>
+                      </TableRow>
+                      </TableBody>
+                    </Table>
+                  </TableCell>
+
                   <TableCell isHeader className="text-center px-4">Action</TableCell>
                 </TableRow>
               </TableHeader>
@@ -299,15 +348,19 @@ export default function CustomerLedger() {
                         {ledger.party?.name}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        <div>
-                          {ledger.transactionType == "purchase" || ledger.transactionType == "sale" ? ledger.description.split('<br />').map((line, idx) => (
-                            <span key={`${line}-${idx}`}>
-                              {line}
-                              <br />
-                            </span>
-                          )): ledger.description}
-                        </div>
-                      </TableCell>
+  <div>
+    {(ledger.transactionType === "purchase" || ledger.transactionType === "sale") && ledger.description ? (
+      ledger.description.split('<br />').map((line, idx) => (
+        <Fragment key={`${line}-${idx}`}>
+          {line}
+          <br />
+        </Fragment>
+      ))
+    ) : (
+      ledger.description || ''
+    )}
+  </div>
+</TableCell>
                       <TableCell className="text-center py-2 text-sm text-gray-500 dark:text-gray-400">
                         {ledger.createdByUser}
                       </TableCell>
@@ -339,6 +392,17 @@ export default function CustomerLedger() {
                         </Table>
                       </TableCell>
 
+                      <TableCell className="text-center py-2 text-sm">
+                        <Table>
+                          <TableBody>
+                          <TableRow key={`inner-2-${ledger.id}`} className="text-center py-2">
+                            <TableCell className="text-left px-4 py-2">{ ledger.transactionType === "stock_in" ? ledger.debit : 0 }</TableCell>
+                            <TableCell className="text-right px-4 py-2">{ ledger.transactionType === "stock_out" ? ledger.credit : 0 }</TableCell>
+                          </TableRow>
+                          </TableBody>
+                        </Table>
+                      </TableCell>
+
                       <TableCell className="text-center px-4 py-2 text-sm">
                         <Button size="sm" type="button" variant="outline" onClick={() => handleEdit(ledger)}>
                           <svg className="cursor-pointer hover:fill-sky-500 dark:hover:fill-sky-500 fill-gray-700 dark:fill-gray-400" width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -352,6 +416,9 @@ export default function CustomerLedger() {
                               }
                               if (["payment_in", "payment_out"].includes(ledger?.transactionType)) {
                                 setEditingPaymentId(ledger.paymentId ?? 0);
+                              }
+                              if (["stock_in", "stock_out"].includes(ledger?.transactionType)) {
+                                setEditingStockId(ledger.stockId ?? 0);
                               }
                               openModal();
                             }}>
@@ -420,6 +487,20 @@ export default function CustomerLedger() {
                           </TableRow>
                           <TableRow className="text-center px-4 py-2">
                               <TableCell colSpan={2} className="text-center px-4 py-2 font-semibold">{totals.saleBalance.toFixed(2)}</TableCell>
+                          </TableRow>
+                          </TableBody>
+                        </Table>
+                      </TableCell>
+
+                      <TableCell isHeader className="border border-gray-500 text-center">
+                        <Table>
+                          <TableBody>
+                          <TableRow className="text-center border-b border-gray-500 py-2">
+                              <TableCell className="text-left px-4 py-2">{totals.stockDebit.toFixed(2)}</TableCell>
+                              <TableCell className="text-right border-l border-gray-500 text-center px-4 py-2">{totals.stockCredit.toFixed(2)}</TableCell>
+                          </TableRow>
+                          <TableRow className="text-center px-4 py-2">
+                              <TableCell colSpan={2} className="text-center px-4 py-2 font-semibold">{totals.stockBalance.toFixed(2)}</TableCell>
                           </TableRow>
                           </TableBody>
                         </Table>
