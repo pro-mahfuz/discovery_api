@@ -51,8 +51,8 @@ export default (sequelize, DataTypes) => {
       },
     },
     paymentMethod: {
-      type: DataTypes.ENUM('cash', 'bank'),
-      allowNull: false,
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     paymentDetails: {
       type: DataTypes.TEXT,

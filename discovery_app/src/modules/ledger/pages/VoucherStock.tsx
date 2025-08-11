@@ -10,28 +10,22 @@ import { toast } from "react-toastify";
 import { FormEvent, ChangeEvent, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
-import { useNavigate, useParams } from "react-router-dom";
 
-import { OptionStringType, OptionNumberType, MovementTypeOptions, selectStyles } from "../../types.ts";
+import { OptionStringType, MovementTypeOptions, selectStyles } from "../../types.ts";
 import { Stock } from "../../stock/features/stockTypes.ts";
-import { Item } from "../../item/features/itemTypes.ts";
 
 import { create, update, fetchById } from "../../stock/features/stockThunks.ts";
 import { fetchAllInvoice } from "../../invoice/features/invoiceThunks.ts";
-import { fetchAll as fetchContainer } from "../../container/features/containerThunks.ts";
 import { fetchAllItem } from "../../item/features/itemThunks.ts";
 import { fetchAllWarehouse } from "../../warehouse/features/warehouseThunks.ts";
 import { fetchAllBank } from "../../bank/features/bankThunks.ts";
-import { fetchAllCategory } from "../../category/features/categoryThunks.ts";
 
 import { selectAuth } from "../../auth/features/authSelectors.ts";
 import { selectUserById } from "../../user/features/userSelectors.ts";
-import { selectAllInvoice, selectInvoiceById } from "../../invoice/features/invoiceSelectors.ts";
+import { selectAllInvoice } from "../../invoice/features/invoiceSelectors.ts";
 import { selectAllItem } from "../../item/features/itemSelectors.ts";
 import { selectAllWarehouse } from "../../warehouse/features/warehouseSelectors.ts";
 import { selectAllBank } from "../../bank/features/bankSelectors.ts";
-import { selectCategoryById } from "../../category/features/categorySelectors";
-import { selectAllContainerByItemId } from "../../container/features/containerSelectors";
 import { selectStockById } from "../../stock/features/stockSelectors";
 import { selectAllParties } from "../../party/features/partySelectors.ts";
 import { fetchParty } from "../../party/features/partyThunks.ts";
@@ -44,7 +38,6 @@ interface CurrencyPaymentProps {
 export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyPaymentProps) {
     console.log("editingStockId- ", editingStockId);
 
-    const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
 
     const authUser = useSelector(selectAuth);
@@ -57,7 +50,7 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
     const warehouses = useSelector(selectAllWarehouse);
     const banks = useSelector(selectAllBank);
     const selectedStock = useSelector(selectStockById(Number(editingStockId)));
-    console.log("selectedStock- ", selectedStock);
+    //console.log("banks- ", selectedStock);
     const matchingParties = useSelector(selectAllParties);
 
     useEffect(() => {
@@ -114,7 +107,7 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
             bankId: selectedStock.bankId,
             quantity: selectedStock.quantity,
         });
-    }, [selectedStock]);
+    }, [selectedStock, user]);
 
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -185,7 +178,7 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
                             setFormData(prev => ({
                                 ...prev,
                                 invoiceId: selectedOption!.value ?? 0,
-                                partyId: Number(selectedOption?.partyId) ?? 0,
+                                partyId: Number(selectedOption?.partyId),
                                 invoiceType: selectedOption?.invoiceType,
                                 categoryId: Number(selectedOption?.categoryId)
                             }));
@@ -286,7 +279,7 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
 
                 { stockType === "bank" ? (
                     <div>
-                        <Label>Select Bank Accounts</Label>
+                        <Label>Select Stock Account</Label>
                         <Select
                             options={
                             banks

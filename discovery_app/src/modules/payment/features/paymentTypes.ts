@@ -32,7 +32,8 @@ export interface Payment {
   paymentDate: string;
   note?: string;
   amountPaid: number;
-  paymentMethod: string;
+  bankId?: number;
+  paymentMethod?: string;
   paymentDetails?: string;
   currency: string;
   category?: Category;

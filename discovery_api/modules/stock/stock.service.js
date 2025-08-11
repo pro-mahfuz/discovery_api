@@ -157,60 +157,72 @@ export const getStockById = async (id) => {
 export const updateStock = async (req) => {
   const t = await sequelize.transaction();
 
-  const data = await Stock.findByPk(req.body.id);
-  console.log("req.body: ", req.body);
-  console.log("Stock: ", data);
-  if (!data) {
+  try {
+    // Find the stock by ID
+    const stock = await Stock.findByPk(req.body.id, { transaction: t });
+    if (!stock) {
       throw { status: 404, message: "Stock not found" };
-  }
+    }
 
-  await data.update(req.body);
+    console.log("req.body:", req.body);
+    console.log("Stock:", stock);
 
-  let debitQty = 0;
-  let creditQty = 0;
-  if (req.body.movementType === 'stock_out') {
-    creditQty = req.body.quantity;
-  } else if (req.body.movementType === 'stock_in') {
-    debitQty = req.body.quantity;
-  }
+    // Update stock with request body data
+    await stock.update(req.body, { transaction: t });
 
-  const item = await Item.findByPk(req.body.itemId)
+    // Calculate debit and credit quantities based on movementType
+    let debitQty = 0;
+    let creditQty = 0;
+    if (req.body.movementType === 'stock_out') {
+      creditQty = req.body.quantity;
+    } else if (req.body.movementType === 'stock_in') {
+      debitQty = req.body.quantity;
+    }
 
-  const ledger = await Ledger.findOne({
-    where: { stockId: req.body.id },
-    transaction: t,
-    lock: t.LOCK.UPDATE,
-  });
+    // Find related item
+    const item = await Item.findByPk(req.body.itemId, { transaction: t });
+    if (!item) {
+      throw { status: 404, message: "Item not found" };
+    }
 
-  console.log("Ledger- ", ledger);
+    // Find ledger entry related to this stock
+    const ledger = await Ledger.findOne({
+      where: { stockId: req.body.id },
+      transaction: t,
+      lock: t.LOCK.UPDATE,
+    });
 
-  if (!ledger) {
-    throw { status: 404, message: "Ledger entry not found" };
-  }
+    if (!ledger) {
+      throw { status: 404, message: "Ledger entry not found" };
+    }
 
-  const ledgerType = "currency";
-
-  if(ledgerType === "currency"){
-    await Ledger.update({
+    // Update the ledger instance
+    await ledger.update({
       businessId: req.body.businessId,
       categoryId: req.body.categoryId,
       invoiceId: req.body.invoiceId,
       transactionType: req.body.movementType,
       partyId: req.body.partyId,
       date: req.body.paymentDate,
-      stockId: data.id,
-
-      debitQty: debitQty,
-      creditQty: creditQty,
+      stockId: stock.id,
+      debitQty,
+      creditQty,
       currency: item.name,
       updatedBy: req.body.updatedBy
-  }, { transaction: t });
-  }
-  
+    }, { transaction: t });
 
-  await t.commit();
-  return data;
-}
+    // Commit transaction
+    await t.commit();
+
+    return stock;
+
+  } catch (error) {
+    // Rollback on error
+    await t.rollback();
+    throw error;
+  }
+};
+
 
 export const deleteStock = async (id) => {
       

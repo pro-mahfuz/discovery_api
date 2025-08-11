@@ -28,9 +28,9 @@ export const paymentSchema = yup.object({
     .positive()
     .required("Amount is required"),
 
-  paymentMethod: yup
-    .string()
-    .required("Payment method is required"),
+  // paymentMethod: yup
+  //   .string()
+  //   .required("Payment method is required"),
 
   isActive: yup
     .boolean()

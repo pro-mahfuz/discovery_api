@@ -19,6 +19,8 @@ import { selectUserById } from "../../user/features/userSelectors.ts";
 import { selectAuth } from "../../auth/features/authSelectors.ts";
 import { selectAllInvoice } from "../../invoice/features/invoiceSelectors.ts";
 import { CurrencyOptions, OptionStringType } from "../../types.ts";
+import { fetchAllBank } from "../../bank/features/bankThunks.ts";
+import { selectAllBank } from "../../bank/features/bankSelectors.ts";
 // import { useNavigate } from "react-router-dom";
 
 interface CurrencyPaymentProps {
@@ -39,6 +41,7 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
  
   const matchingParties = useSelector(selectAllParties);
   const selectedPayment = useSelector(selectPaymentById(Number(editingPaymentId)));
+  const banks = useSelector(selectAllBank);
 
   const [form, setForm] = useState<Payment>({
     businessId: user?.business?.id,
@@ -49,7 +52,8 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
     paymentDate: '',
     note: "",
     amountPaid: 0,
-    paymentMethod: "cash",
+    bankId: 0,
+    paymentMethod: "",
     paymentDetails: '',
     currency: 'AED',
   });
@@ -57,6 +61,7 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
   useEffect(() => {
       dispatch(fetchAllInvoice());
       dispatch(fetchParty('all'));
+      dispatch(fetchAllBank());
       if (editingPaymentId) {
         dispatch(fetchById(editingPaymentId));
       }
@@ -76,7 +81,7 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
         partyId: paymentPartyId
       }));
     }
-  }, [user]);
+  }, [paymentPartyId, user]);
 
   // console.log("VoucherPayment Update FormData: ", form);
 
@@ -95,14 +100,12 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
       paymentDate: selectedPayment.paymentDate,
       note: selectedPayment.note ?? '',
       amountPaid: selectedPayment.amountPaid ?? 0,
+      bankId: selectedPayment.bankId ?? 0,
       paymentMethod: selectedPayment.paymentMethod,
       paymentDetails: selectedPayment.paymentDetails,
       currency: selectedPayment.currency
     });
-
-    
-    
-  }, [selectedPayment]);
+  }, [selectedPayment, user]);
 
   const handlePaymentChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -128,11 +131,11 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
       await dispatch(update(updatedForm));
       toast.success("Payment updated successfully!");
     }else{
-      //console.log("formData: ", form);
+      console.log("formData: ", form);
       await dispatch(create(form));
       toast.success("Payment created successfully!");
     }
-    window.location.reload();
+    //window.location.reload();
     //navigate("/currency/ledger");
   };
 
@@ -188,7 +191,7 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
                         setForm(prev => ({
                             ...prev,
                             invoiceId: selectedOption!.value ?? 0,
-                            partyId: Number(selectedOption?.partyId) ?? 0,
+                            partyId: Number(selectedOption?.partyId),
                         }));
                     }}
                     styles={selectStyles}
@@ -330,6 +333,34 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
             </div>
 
             <div>
+              <Label>Select Payment Account</Label>
+              <Select
+                options={
+                banks
+                    .map((b) => ({
+                        label: `${b.accountName}`,
+                        value: b.id,
+                    })) || []
+                }
+                placeholder="select Stock Accounts"
+                value={
+                    banks
+                    ?.filter((b) => b.id === form.bankId)
+                    .map((b) => ({ label: b.accountName, value: b.id }))[0] || null
+                }
+                onChange={(selectedOption) =>
+                    setForm((prev) => ({
+                        ...prev,
+                        bankId: selectedOption?.value ?? 0,
+                    }))
+                }
+                isClearable
+                styles={selectStyles}
+                classNamePrefix="react-select"
+              />
+            </div>
+
+            {/* <div>
               <Label>Payment Method</Label>
               <Select<OptionType>
                 options={paymentMethodOptions}
@@ -355,7 +386,7 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
                   value={form.paymentDetails}
                   onChange={handlePaymentChange}
               />
-            </div>
+            </div> */}
 
           </div>
 
