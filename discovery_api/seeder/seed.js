@@ -57,7 +57,7 @@ async function seed() {
       isActive: true,
     }),
     Business.create({
-      businessName: null,
+      businessName: "Mahfuz Trading",
       businessLicenseNo: "A123457",
       ownerName: "Mr. Abdul Hoque",
       email: "mollahin3@gmail.com",
@@ -156,6 +156,12 @@ async function seed() {
     { name: "Warehouse Edit", action: "edit_warehouse" },
     { name: "Warehouse View", action: "view_warehouse" },
     { name: "Warehouse Delete", action: "delete_warehouse" },
+
+    { name: "Bank Manage", action: "manage_bank" },
+    { name: "Bank Create", action: "create_bank" },
+    { name: "Bank Edit", action: "edit_bank" },
+    { name: "Bank View", action: "view_bank" },
+    { name: "Bank Delete", action: "delete_bank" },
 
     { name: "Stock Manage", action: "manage_stock" },
     { name: "Stock Create", action: "create_stock" },

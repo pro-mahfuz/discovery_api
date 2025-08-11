@@ -1,3 +1,4 @@
+import invoice from "../../models/invoice.js";
 import { Stock, Business, User, Item, Container, Ledger, Warehouse, sequelize } from "../../models/model.js";
 import { fn, col, literal } from "sequelize";
 
@@ -54,7 +55,7 @@ export const getStockReport = async () => {
       [
         fn(
           "SUM",
-          literal(`CASE WHEN movementType = 'in' THEN quantity ELSE 0 END`)
+          literal(`CASE WHEN movementType = 'stock_in' THEN quantity ELSE 0 END`)
         ),
         "totalIn",
       ],
@@ -63,7 +64,7 @@ export const getStockReport = async () => {
       [
         fn(
           "SUM",
-          literal(`CASE WHEN movementType = 'out' THEN quantity ELSE 0 END`)
+          literal(`CASE WHEN movementType = 'stock_out' THEN quantity ELSE 0 END`)
         ),
         "totalOut",
       ],
@@ -113,28 +114,32 @@ export const createStock = async (req) => {
   const data = await Stock.create(req.body, { transaction: t });
   console.log("Stock response body:", data);
 
-  let debitAmount = 0;
-  let creditAmount = 0;
+  let debitQty = 0;
+  let creditQty = 0;
   if (req.body.movementType === 'stock_out') {
-    creditAmount = req.body.quantity;
+    creditQty = req.body.quantity;
   } else if (req.body.movementType === 'stock_in') {
-    debitAmount = req.body.quantity;
+    debitQty = req.body.quantity;
   }
 
-  const item = await Item.findByPk(req.body.itemId)
-  await Ledger.create({
-    businessId: req.body.businessId,
-    categoryId: req.body.categoryId,
-    invoiceId: req.body.invoiceId,
-    transactionType: req.body.movementType,
-    partyId: req.body.partyId,
-    date: req.body.paymentDate,
-    stockId: data.id,
-    debit: debitAmount,
-    credit: creditAmount,
-    currency: item.name,
-    createdBy: req.body.createdBy
-  }, { transaction: t });
+  const item = await Item.findByPk(req.body.itemId);
+
+  const ledgerType = "currency";
+  if(ledgerType === "currency"){
+    await Ledger.create({
+      businessId: req.body.businessId,
+      categoryId: req.body.categoryId,
+      invoiceId: req.body.invoiceId,
+      transactionType: req.body.movementType,
+      partyId: req.body.partyId,
+      date: req.body.paymentDate,
+      stockId: data.id,
+      debitQty: debitQty,
+      creditQty: creditQty,
+      currency: item.name,
+      updatedBy: req.body.updatedBy
+    }, { transaction: t });
+  }
 
   await t.commit();
     
@@ -153,6 +158,7 @@ export const updateStock = async (req) => {
   const t = await sequelize.transaction();
 
   const data = await Stock.findByPk(req.body.id);
+  console.log("req.body: ", req.body);
   console.log("Stock: ", data);
   if (!data) {
       throw { status: 404, message: "Stock not found" };
@@ -160,12 +166,12 @@ export const updateStock = async (req) => {
 
   await data.update(req.body);
 
-  let debitAmount = 0;
-  let creditAmount = 0;
-  if (req.body.invoiceType === 'stock_out') {
-    creditAmount = req.body.quantity;
-  } else if (req.body.invoiceType === 'stock_in') {
-    debitAmount = req.body.quantity;
+  let debitQty = 0;
+  let creditQty = 0;
+  if (req.body.movementType === 'stock_out') {
+    creditQty = req.body.quantity;
+  } else if (req.body.movementType === 'stock_in') {
+    debitQty = req.body.quantity;
   }
 
   const item = await Item.findByPk(req.body.itemId)
@@ -176,22 +182,31 @@ export const updateStock = async (req) => {
     lock: t.LOCK.UPDATE,
   });
 
+  console.log("Ledger- ", ledger);
+
   if (!ledger) {
     throw { status: 404, message: "Ledger entry not found" };
   }
 
-  await Ledger.update({
-    businessId: req.body.businessId,
-    categoryId: req.body.categoryId,
-    transactionType: req.body.invoiceType,
-    partyId: req.body.partyId,
-    date: req.body.paymentDate,
-    stockId: data.id,
-    debit: debitAmount,
-    credit: creditAmount,
-    currency: item.name,
-    updatedBy: req.body.updatedBy
+  const ledgerType = "currency";
+
+  if(ledgerType === "currency"){
+    await Ledger.update({
+      businessId: req.body.businessId,
+      categoryId: req.body.categoryId,
+      invoiceId: req.body.invoiceId,
+      transactionType: req.body.movementType,
+      partyId: req.body.partyId,
+      date: req.body.paymentDate,
+      stockId: data.id,
+
+      debitQty: debitQty,
+      creditQty: creditQty,
+      currency: item.name,
+      updatedBy: req.body.updatedBy
   }, { transaction: t });
+  }
+  
 
   await t.commit();
   return data;

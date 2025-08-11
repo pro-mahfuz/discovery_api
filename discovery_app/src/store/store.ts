@@ -12,6 +12,7 @@ import containerReducer from "../modules/container/features/containerSlice";
 import invoiceReducer from "../modules/invoice/features/invoiceSlice";
 import paymentReducer from "../modules/payment/features/paymentSlice";
 import warehouseReducer from "../modules/warehouse/features/warehouseSlice";
+import bankReducer from "../modules/bank/features/bankSlice";
 import stockReducer from "../modules/stock/features/stockSlice";
 import ledgerReducer from "../modules/ledger/features/ledgerSlice";
 
@@ -29,6 +30,7 @@ export const store = configureStore({
     invoice: invoiceReducer,
     payment: paymentReducer,
     warehouse: warehouseReducer,
+    bank: bankReducer,
     stock: stockReducer,
     ledger: ledgerReducer,
     // other slices...

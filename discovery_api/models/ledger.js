@@ -51,7 +51,7 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: 'Stocks',
+        model: 'stocks',  // <-- Problem likely here
         key: 'id'
       }
     },
@@ -69,6 +69,14 @@ export default (sequelize, DataTypes) => {
     },
     credit: {
       type: DataTypes.DECIMAL(12, 2),
+      defaultValue: 0,
+    },
+    debitQty: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    creditQty: {
+      type: DataTypes.INTEGER,
       defaultValue: 0,
     },
     balance: {

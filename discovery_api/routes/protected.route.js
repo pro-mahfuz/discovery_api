@@ -15,6 +15,7 @@ import { invoiceSchema } from "../modules/invoice/invoice.validator.js";
 import { paymentSchema } from "../modules/payment/payment.validator.js";
 import { stockSchema } from "../modules/stock/stock.validator.js";
 import { warehouseSchema } from "../modules/warehouse/warehouse.validator.js";
+import { bankSchema } from "../modules/bank/bank.validator.js";
 
 import * as BusinessController from "../modules/business/business.controller.js";
 import * as UserController from "../modules/user/user.controller.js";
@@ -30,6 +31,7 @@ import * as InvoiceController from "../modules/invoice/invoice.controller.js";
 import * as PaymentController from "../modules/payment/payment.controller.js";
 import * as StockController from "../modules/stock/stock.controller.js";
 import * as WarehouseController from "../modules/warehouse/warehouse.controller.js";
+import * as BankController from "../modules/bank/bank.controller.js";
 import * as LedgerController from "../modules/ledger/ledger.controller.js";
 
 const router = Router();
@@ -129,6 +131,16 @@ router.put("/warehouse/update", authorize("edit_warehouse"), validate(warehouseS
 router.post("/warehouse/:id/active", authorize("manage_warehouse"), WarehouseController.activeWarehouse);
 router.post("/warehouse/:id/deactive", authorize("manage_warehouse"), WarehouseController.deactiveWarehouse);
 router.post("/warehouse/:id/delete", authorize("delete_warehouse"), WarehouseController.deleteWarehouse);
+
+
+/*---Bank---*/
+router.get("/bank/list", authorize("manage_bank"), BankController.getAllBank);
+router.post("/bank/create", authorize("create_bank"), validate(bankSchema), BankController.createBank);
+router.get("/bank/:id/view", authorize("view_bank"), BankController.getBankById);
+router.put("/bank/update", authorize("edit_bank"), validate(bankSchema), BankController.updateBank);
+router.post("/bank/:id/active", authorize("manage_bank"), BankController.activeBank);
+router.post("/bank/:id/deactive", authorize("manage_bank"), BankController.deactiveBank);
+router.post("/bank/:id/delete", authorize("delete_bank"), BankController.deleteBank);
 
 /*---Stock---*/
 router.get("/stock/list", authorize("manage_stock"), StockController.getAllStock);

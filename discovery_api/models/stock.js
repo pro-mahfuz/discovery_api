@@ -48,6 +48,14 @@ export default (sequelize, DataTypes) => {
         key: 'id',
       },
     },
+    bankId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'banks',
+        key: 'id',
+      },
+    },
     categoryId: {
       type: DataTypes.INTEGER,
       allowNull: true,
@@ -102,6 +110,11 @@ export default (sequelize, DataTypes) => {
     Stock.belongsTo(models.Warehouse, {
       foreignKey: 'warehouseId',
       as: 'warehouse',
+    });
+
+    Stock.belongsTo(models.Bank, {
+      foreignKey: 'bankId',
+      as: 'bank',
     });
 
     Stock.belongsTo(models.Business, {

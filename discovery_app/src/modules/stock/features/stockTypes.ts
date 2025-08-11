@@ -18,6 +18,7 @@ export interface Stock {
   container?: Container;
   movementType: string;
   warehouseId?: number;
+  bankId?: number;
   warehouse?: Warehouse;
   quantity: number;
   stockUnit?: string;

@@ -21,6 +21,7 @@ import { fetchAllInvoice } from "../../invoice/features/invoiceThunks.ts";
 import { fetchAll as fetchContainer } from "../../container/features/containerThunks.ts";
 import { fetchAllItem } from "../../item/features/itemThunks.ts";
 import { fetchAllWarehouse } from "../../warehouse/features/warehouseThunks.ts";
+import { fetchAllBank } from "../../bank/features/bankThunks.ts";
 import { fetchAllCategory } from "../../category/features/categoryThunks.ts";
 
 import { selectAuth } from "../../auth/features/authSelectors.ts";
@@ -28,6 +29,7 @@ import { selectUserById } from "../../user/features/userSelectors.ts";
 import { selectAllInvoice, selectInvoiceById } from "../../invoice/features/invoiceSelectors.ts";
 import { selectAllItem } from "../../item/features/itemSelectors.ts";
 import { selectAllWarehouse } from "../../warehouse/features/warehouseSelectors.ts";
+import { selectAllBank } from "../../bank/features/bankSelectors.ts";
 import { selectCategoryById } from "../../category/features/categorySelectors";
 import { selectAllContainerByItemId } from "../../container/features/containerSelectors";
 import { selectStockById } from "../../stock/features/stockSelectors";
@@ -47,12 +49,13 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
 
     const authUser = useSelector(selectAuth);
     const user = useSelector(selectUserById(Number(authUser.user?.id)));
-    console.log("StockVoucher authUser: ", authUser);
-    console.log("StockVoucher user: ", user);
-
+    // console.log("StockVoucher authUser: ", authUser);
+    // console.log("StockVoucher user: ", user);
+    const stockType = "bank";
     const items = useSelector(selectAllItem);
     const invoices = useSelector(selectAllInvoice);
     const warehouses = useSelector(selectAllWarehouse);
+    const banks = useSelector(selectAllBank);
     const selectedStock = useSelector(selectStockById(Number(editingStockId)));
     console.log("selectedStock- ", selectedStock);
     const matchingParties = useSelector(selectAllParties);
@@ -60,6 +63,7 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
     useEffect(() => {
         dispatch(fetchAllInvoice());
         dispatch(fetchAllWarehouse());
+        dispatch(fetchAllBank());
         dispatch(fetchAllItem());
         dispatch(fetchParty('all'));
 
@@ -75,9 +79,11 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
         invoiceType: undefined,        
         invoiceId: 0,
         categoryId: 0,
+        partyId: 0,
         itemId: 1,
         movementType: '',
         warehouseId: undefined,
+        bankId: undefined,
         quantity: 0,
         createdBy: 0,
     });
@@ -101,9 +107,11 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
             invoiceType: selectedStock.invoiceType,        
             invoiceId: selectedStock.invoiceId,
             categoryId: selectedStock.categoryId,
+            partyId: selectedStock.partyId,
             itemId: selectedStock.itemId,
             movementType: selectedStock.movementType,
             warehouseId: selectedStock.warehouseId,
+            bankId: selectedStock.bankId,
             quantity: selectedStock.quantity,
         });
     }, [selectedStock]);
@@ -276,33 +284,65 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
                     />
                 </div>
 
-                <div>
-                    <Label>Select Stock Location</Label>
-                    <Select
-                        options={
-                        warehouses
-                            .map((w) => ({
-                                label: `${w.name}`,
-                                value: w.id,
-                            })) || []
-                        }
-                        placeholder="Search and select warehouse"
-                        value={
+                { stockType === "bank" ? (
+                    <div>
+                        <Label>Select Bank Accounts</Label>
+                        <Select
+                            options={
+                            banks
+                                .map((b) => ({
+                                    label: `${b.accountName}`,
+                                    value: b.id,
+                                })) || []
+                            }
+                            placeholder="select Stock Accounts"
+                            value={
+                                banks
+                                ?.filter((b) => b.id === formData.bankId)
+                                .map((b) => ({ label: b.accountName, value: b.id }))[0] || null
+                            }
+                            onChange={(selectedOption) =>
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    bankId: selectedOption?.value ?? 0,
+                                }))
+                            }
+                            isClearable
+                            styles={selectStyles}
+                            classNamePrefix="react-select"
+                        />
+                    </div>
+                ): (
+                    <div>
+                        <Label>Select Stock Location</Label>
+                        <Select
+                            options={
                             warehouses
-                            ?.filter((w) => w.id === formData.warehouseId)
-                            .map((w) => ({ label: w.name, value: w.id }))[0] || null
-                        }
-                        onChange={(selectedOption) =>
-                            setFormData((prev) => ({
-                                ...prev,
-                                warehouseId: selectedOption?.value ?? 0,
-                            }))
-                        }
-                        isClearable
-                        styles={selectStyles}
-                        classNamePrefix="react-select"
-                    />
-                </div>
+                                .map((w) => ({
+                                    label: `${w.name}`,
+                                    value: w.id,
+                                })) || []
+                            }
+                            placeholder="Search and select warehouse"
+                            value={
+                                warehouses
+                                ?.filter((w) => w.id === formData.warehouseId)
+                                .map((w) => ({ label: w.name, value: w.id }))[0] || null
+                            }
+                            onChange={(selectedOption) =>
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    warehouseId: selectedOption?.value ?? 0,
+                                }))
+                            }
+                            isClearable
+                            styles={selectStyles}
+                            classNamePrefix="react-select"
+                        />
+                    </div>
+                )}
+
+                
 
                 
 

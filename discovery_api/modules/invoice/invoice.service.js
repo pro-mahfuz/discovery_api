@@ -61,11 +61,15 @@ export const createInvoice = async (req) => {
         const prefix = prefixMap[invoiceData.invoiceType] || "";
 
         invoiceData.prefix = prefix;
+
+        console.log("req.body: ", req.body);
         
 
         
         // Step 1: Create Invoice
         const invoice = await Invoice.create(invoiceData, { transaction: t });
+
+        console.log("invoice- ", invoice);
 
         // Determine movementType based on invoice type
         // let movementType = null;
@@ -100,20 +104,28 @@ export const createInvoice = async (req) => {
             // }));
 
             // await Stock.bulkCreate(stockEntries, { transaction: t });
+
+            
         }
 
         let debitAmount = 0;
         let creditAmount = 0;
+        let debitQty = 0;
+        let creditQty = 0;
         if (invoice.invoiceType === 'purchase'){
             creditAmount = invoice.totalAmount;
+            creditQty = items[0].quantity;
         }
         else if (invoice.invoiceType === 'sale'){
             debitAmount = invoice.totalAmount;
+            debitQty = items[0].quantity;
         }
         else if (invoice.invoiceType === 'saleReturn'){
             creditAmount = invoice.totalAmount;
+            creditQty = invoice.items[0].quantity;
         }
         
+        const ledgerType = "currency";
         // Step 3: create ledger
         await Ledger.create(
             {
@@ -131,6 +143,8 @@ export const createInvoice = async (req) => {
                 currency: req.body.currency,
                 debit: debitAmount,
                 credit: creditAmount,
+                debitQty: ledgerType === "currency" ? debitQty : 0,
+                creditQty: ledgerType === "currency" ? creditQty : 0,
                 createdBy: invoice.createdBy,
             }, 
             { transaction: t }
@@ -239,14 +253,19 @@ export const updateInvoice = async (req) => {
         // Step 5: update ledger
         let debitAmount = 0;
         let creditAmount = 0;
+        let debitQty = 0;
+        let creditQty = 0;
         if (invoice.invoiceType === 'purchase'){
             creditAmount = invoice.totalAmount;
+            creditQty = invoice.invoiceItems[0].quantity;
         }
         else if (invoice.invoiceType === 'sale'){
             debitAmount = invoice.totalAmount;
+            debitQty = invoice.invoiceItems[0].quantity;
         }
         else if (invoice.invoiceType === 'saleReturn'){
             creditAmount = invoice.totalAmount;
+            creditQty = invoice.invoiceItems[0].quantity;
         }
 
         const ledger = await Ledger.findOne({
@@ -271,6 +290,8 @@ export const updateInvoice = async (req) => {
                     currency: req.body.currency,
                     debit: debitAmount,
                     credit: creditAmount,
+                    debitQty: ledgerType === "currency" ? debitQty : 0,
+                    creditQty: ledgerType === "currency" ? creditQty : 0,
                     updatedBy: invoice.updatedBy,
                 },
                 { transaction: t }

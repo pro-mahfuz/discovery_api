@@ -34,7 +34,7 @@ export default (sequelize, DataTypes) => {
       },
       vatPercentage: { 
         type: DataTypes.INTEGER, 
-        allowNull: false 
+        allowNull: true 
       },
       address: DataTypes.STRING,
       city: DataTypes.STRING,

@@ -145,10 +145,10 @@ export default function CustomerLedger() {
   type CurrencyTotals = {
     purchaseDebit: number;
     purchaseCredit: number;
-    saleDebit: number;
-    saleCredit: number;
     stockDebit: number;
     stockCredit: number;
+    saleDebit: number;
+    saleCredit: number;
     purchaseBalance: number;
     saleBalance: number;
     stockBalance: number;
@@ -160,38 +160,47 @@ export default function CustomerLedger() {
       const currency = ledger.currency || 'UNKNOWN';
       const debit = Number(ledger.debit) || 0;
       const credit = Number(ledger.credit) || 0;
+      const debitQty = Number(ledger.debitQty) || 0;
+      const creditQty = Number(ledger.creditQty) || 0;
 
       if (!totals[currency]) {
         totals[currency] = {
           purchaseDebit: 0,
           purchaseCredit: 0,
-          saleDebit: 0,
-          saleCredit: 0,
+
           stockDebit: 0,
           stockCredit: 0,
+
+          saleDebit: 0,
+          saleCredit: 0,
+
           purchaseBalance: 0,
           saleBalance: 0,
           stockBalance: 0,
+
           closeBalance: 0,
         };
       }
 
       const current = totals[currency];
 
-      if (ledger.transactionType === "purchase" || ledger.transactionType === "payment_out") {
+      if (ledger.transactionType === "purchase" || ledger.transactionType === "payment_out" || ledger.transactionType === "stock_in") {
         current.purchaseDebit += debit;
         current.purchaseCredit += credit;
-      } else if (ledger.transactionType === "sale" || ledger.transactionType === "payment_in") {
+        current.stockDebit += debitQty;
+        current.stockCredit += creditQty;
+      } 
+      if (ledger.transactionType === "sale" || ledger.transactionType === "payment_in" || ledger.transactionType === "stock_out") {
         current.saleDebit += debit;
         current.saleCredit += credit;
-      } else if (ledger.transactionType === "stock_in" || ledger.transactionType === "stock_out") {
-        current.stockDebit += debit;
-        current.stockCredit += credit;
-      }
+        current.stockDebit += debitQty;
+        current.stockCredit += creditQty;
+
+      } 
 
       current.purchaseBalance = current.purchaseCredit - current.purchaseDebit;
+      current.stockBalance = current.stockDebit - current.stockCredit;
       current.saleBalance = current.saleCredit - current.saleDebit;
-      current.stockBalance = current.stockCredit - current.stockDebit;
       current.closeBalance = current.purchaseBalance + current.saleBalance;
 
       return totals;
@@ -282,6 +291,20 @@ export default function CustomerLedger() {
                       </TableBody>
                     </Table>
                   </TableCell>
+
+                  {/* <TableCell isHeader className="border border-gray-500 text-center">
+                    <Table key="customer-ledger-inner-table-1">
+                      <TableBody>
+                      <TableRow className="text-center">
+                        <TableCell colSpan={2} className="text-center px-4 py-2 font-semibold">Purchase Stock</TableCell>
+                      </TableRow>
+                      <TableRow className="text-center border-t border-gray-500 px-4">
+                        <TableCell className="text-left px-4 py-2">Debit</TableCell>
+                        <TableCell className="text-right border-l border-gray-500 text-center px-4 py-2">Credit</TableCell>
+                      </TableRow>
+                      </TableBody>
+                    </Table>
+                  </TableCell> */}
 
                   <TableCell isHeader className="border border-gray-500 text-center">
                     <Table key="customer-ledger-inner-table-2">
@@ -381,6 +404,18 @@ export default function CustomerLedger() {
                           </TableBody>
                         </Table>
                       </TableCell>
+
+                      {/* <TableCell className="text-center py-2 text-sm">
+                        <Table>
+                          <TableBody>
+                          <TableRow key={`inner-2-${ledger.id}`} className="text-center py-2">
+                            <TableCell className="text-left px-4 py-2">{ ledger.transactionType === "stock_in" ? ledger.debit : 0 }</TableCell>
+                            <TableCell className="text-right px-4 py-2">{ ledger.transactionType === "stock_out" ? ledger.credit : 0 }</TableCell>
+                          </TableRow>
+                          </TableBody>
+                        </Table>
+                      </TableCell> */}
+
                       <TableCell className="text-center py-2 text-sm">
                         <Table>
                           <TableBody>
@@ -396,8 +431,8 @@ export default function CustomerLedger() {
                         <Table>
                           <TableBody>
                           <TableRow key={`inner-2-${ledger.id}`} className="text-center py-2">
-                            <TableCell className="text-left px-4 py-2">{ ledger.transactionType === "stock_in" ? ledger.debit : 0 }</TableCell>
-                            <TableCell className="text-right px-4 py-2">{ ledger.transactionType === "stock_out" ? ledger.credit : 0 }</TableCell>
+                            <TableCell className="text-left px-4 py-2">{ ledger.debitQty }</TableCell>
+                            <TableCell className="text-right px-4 py-2">{ ledger.creditQty }</TableCell>
                           </TableRow>
                           </TableBody>
                         </Table>
@@ -477,6 +512,20 @@ export default function CustomerLedger() {
                           </TableBody>
                         </Table>
                       </TableCell>
+
+                      {/* <TableCell isHeader className="border border-gray-500 text-center">
+                        <Table>
+                          <TableBody>
+                          <TableRow className="text-center border-b border-gray-500 py-2">
+                              <TableCell className="text-left px-4 py-2">{totals.purchaseStockDebit.toFixed(2)}</TableCell>
+                              <TableCell className="text-right border-l border-gray-500 text-center px-4 py-2">{totals.purchaseStockCredit.toFixed(2)}</TableCell>
+                          </TableRow>
+                          <TableRow className="text-center px-4 py-2">
+                              <TableCell colSpan={2} className="text-center px-4 py-2 font-semibold">{totals.purchaseStockBalance.toFixed(2)}</TableCell>
+                          </TableRow>
+                          </TableBody>
+                        </Table>
+                      </TableCell> */}
 
                       <TableCell isHeader className="border border-gray-500 text-center">
                         <Table>

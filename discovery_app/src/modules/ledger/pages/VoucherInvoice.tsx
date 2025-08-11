@@ -221,7 +221,7 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
       await dispatch(create(createdForm));
       toast.success("Invoice created successfully!");
     }
-    window.location.reload();
+    //window.location.reload();
     //navigate("/currency/ledger");
   };
 

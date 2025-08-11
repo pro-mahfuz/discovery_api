@@ -21,6 +21,8 @@ export interface Ledger {
   currency: string;
   debit: number;
   credit: number;
+  debitQty: number;
+  creditQty: number;
   balance: number;
   party?: Party;
   category?: Category;

@@ -21,6 +21,7 @@ import defineInvoiceItem from './invoiceItem.js';
 import definePayment from './payment.js';
 import defineLedger from './ledger.js';
 import defineWarehouse from './warehouse.js';
+import defineBank from './bank.js';
 import defineStock from './stock.js';
 
 // define your model here...
@@ -40,10 +41,11 @@ const InvoiceItem = defineInvoiceItem(sequelize, Sequelize.DataTypes);
 const Payment = definePayment(sequelize, Sequelize.DataTypes);
 const Ledger = defineLedger(sequelize, Sequelize.DataTypes);
 const Warehouse = defineWarehouse(sequelize, Sequelize.DataTypes);
+const Bank = defineBank(sequelize, Sequelize.DataTypes);
 const Stock = defineStock(sequelize, Sequelize.DataTypes);
 
 // define your model for associate relations here...
-const models = { Business, User, Profile, Role, Permission, RolePermission, TokenStore, Party, Category, Item, Container, Invoice, InvoiceItem, Payment, Ledger, Warehouse, Stock };
+const models = { Business, User, Profile, Role, Permission, RolePermission, TokenStore, Party, Category, Item, Container, Invoice, InvoiceItem, Payment, Ledger, Warehouse, Bank, Stock };
 // Call associate on each model if defined
 Object.values(models).forEach((model) => {
   if (model.associate) {
@@ -70,6 +72,7 @@ export {
   Payment,
   Ledger,
   Warehouse,
+  Bank,
   Stock
 
 };

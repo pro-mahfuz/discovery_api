@@ -1,11 +1,11 @@
 import axiosInstance from "../../../api/axios";
-import { Warehouse } from './warehouseTypes';
+import { Bank } from './bankTypes';
 
 export const fetchAll = async () => {
   try {
 
-    const res = await axiosInstance.get('protected/warehouse/list');
-    console.log("warehouse.response: ", res.data.data);
+    const res = await axiosInstance.get('protected/bank/list');
+    console.log("Bank.response: ", res.data.data);
     return res.data.data;
 
   } catch {
@@ -13,10 +13,10 @@ export const fetchAll = async () => {
   }
 };
 
-export const create = async (createData: Warehouse) => {
+export const create = async (createData: Bank) => {
   try {
 
-    const res = await axiosInstance.post('protected/warehouse/create', createData);
+    const res = await axiosInstance.post('protected/bank/create', createData);
     return res.data.data;
 
   } catch {
@@ -27,7 +27,7 @@ export const create = async (createData: Warehouse) => {
 export const fetchById = async (id: number) => {
   try {
 
-    const res = await axiosInstance.get(`protected/warehouse/${id}/view`);
+    const res = await axiosInstance.get(`protected/bank/${id}/view`);
     return res.data.data;
 
   } catch {
@@ -35,10 +35,10 @@ export const fetchById = async (id: number) => {
   }
 };
 
-export const update = async (updateData: Warehouse) => {
+export const update = async (updateData: Bank) => {
   try {
 
-    const res = await axiosInstance.put(`protected/warehouse/update`, updateData);
+    const res = await axiosInstance.put(`protected/bank/update`, updateData);
     return res.data.data;
 
   } catch {
@@ -49,7 +49,7 @@ export const update = async (updateData: Warehouse) => {
 export const destroy = async (id: number) => {
   try {
 
-    const res = await axiosInstance.post(`protected/warehouse/${id}/delete`);
+    const res = await axiosInstance.post(`protected/bank/${id}/delete`);
     return res.data.data;
 
   } catch {

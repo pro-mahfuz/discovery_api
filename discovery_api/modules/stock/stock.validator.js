@@ -21,11 +21,11 @@ export const stockSchema = yup.object({
     .integer("quantity must be an integer")
     .required("quantity is required"),
 
-  warehouseId: yup
-    .number()
-    .typeError("warehouse ID must be a number")
-    .integer("warehouse ID must be an integer")
-    .required("warehouse ID is required"),
+  // warehouseId: yup
+  //   .number()
+  //   .typeError("warehouse ID must be a number")
+  //   .integer("warehouse ID must be an integer")
+  //   .required("warehouse ID is required"),
 
   itemId: yup
     .number()
