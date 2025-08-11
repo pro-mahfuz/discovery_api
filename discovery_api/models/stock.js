@@ -32,6 +32,10 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.ENUM('stock_in', 'stock_out', 'damaged'),
       allowNull: false,
     },
+    prefix: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     quantity: {
       type: DataTypes.INTEGER,
       allowNull: false,

@@ -1,5 +1,5 @@
 import invoice from "../../models/invoice.js";
-import { Stock, Business, User, Item, Container, Ledger, Warehouse, sequelize } from "../../models/model.js";
+import { Stock, Business, User, Item, Category, Container, Ledger, Warehouse, sequelize } from "../../models/model.js";
 import { fn, col, literal } from "sequelize";
 
 
@@ -111,6 +111,16 @@ export const createStock = async (req) => {
 
   const t = await sequelize.transaction();
 
+  const prefixMap = {
+    stock_in: "STI",
+    stock_out: "STO",
+    stock_adj: "STA",
+  };
+
+  const prefix = prefixMap[req.body.movementType] || "";
+
+  req.body.prefix = prefix;
+
   const data = await Stock.create(req.body, { transaction: t });
   console.log("Stock response body:", data);
 
@@ -124,20 +134,22 @@ export const createStock = async (req) => {
 
   const item = await Item.findByPk(req.body.itemId);
 
-  const ledgerType = "currency";
-  if(ledgerType === "currency"){
+  const category = await Category.findByPk(req.body.categoryId);
+
+  if (["currency", "gold"].includes(category.name.toLowerCase())) {
     await Ledger.create({
       businessId: req.body.businessId,
       categoryId: req.body.categoryId,
       invoiceId: req.body.invoiceId,
       transactionType: req.body.movementType,
       partyId: req.body.partyId,
+      bankId: req.body.bankId,
       date: req.body.paymentDate,
       stockId: data.id,
       debitQty: debitQty,
       creditQty: creditQty,
       currency: item.name,
-      updatedBy: req.body.updatedBy
+      createdBy: req.body.createdBy
     }, { transaction: t });
   }
 
@@ -196,20 +208,25 @@ export const updateStock = async (req) => {
       throw { status: 404, message: "Ledger entry not found" };
     }
 
+    const category = await Category.findByPk(req.body.categoryId);
+
     // Update the ledger instance
-    await ledger.update({
-      businessId: req.body.businessId,
-      categoryId: req.body.categoryId,
-      invoiceId: req.body.invoiceId,
-      transactionType: req.body.movementType,
-      partyId: req.body.partyId,
-      date: req.body.paymentDate,
-      stockId: stock.id,
-      debitQty,
-      creditQty,
-      currency: item.name,
-      updatedBy: req.body.updatedBy
-    }, { transaction: t });
+    if (["currency", "gold"].includes(category.name.toLowerCase())) {
+      await ledger.update({
+        businessId: req.body.businessId,
+        categoryId: req.body.categoryId,
+        invoiceId: req.body.invoiceId,
+        transactionType: req.body.movementType,
+        partyId: req.body.partyId,
+        bankId: req.body.bankId,
+        date: req.body.paymentDate,
+        stockId: stock.id,
+        debitQty,
+        creditQty,
+        currency: item.name,
+        updatedBy: req.body.updatedBy
+      }, { transaction: t });
+    }
 
     // Commit transaction
     await t.commit();
@@ -225,13 +242,31 @@ export const updateStock = async (req) => {
 
 
 export const deleteStock = async (id) => {
-      
-    const data = await Stock.findByPk(id);
-    if (!data) {
-      throw new Error("Stock not found");
+
+  const t = await sequelize.transaction();
+
+  const stock = await Stock.findByPk(id);
+  if (!stock) {
+    throw new Error("Stock not found");
+  }
+
+  try {
+    const ledger = await Ledger.findOne({
+      where: { stockId: stock.id },
+      transaction: t,
+    });
+
+    if (ledger) {
+      await ledger.destroy({ transaction: t });
     }
 
-    data.destroy();
+    await stock.destroy({ transaction: t });
 
-    return data;
+    await t.commit();
+    return { success: true, message: "Stock and ledger deleted successfully" };
+
+  } catch (err) {
+    if (!t.finished) await t.rollback();
+    throw err;
+  }
 }

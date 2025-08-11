@@ -86,6 +86,7 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
           setFormData((prev) => ({
             ...prev,
             businessId: user?.business?.id,
+            createdBy: user?.id
           }));
         }
     }, [user]);
@@ -106,6 +107,8 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
             warehouseId: selectedStock.warehouseId,
             bankId: selectedStock.bankId,
             quantity: selectedStock.quantity,
+            createdBy: selectedStock.createdBy,
+            updatedBy: user?.id
         });
     }, [selectedStock, user]);
 

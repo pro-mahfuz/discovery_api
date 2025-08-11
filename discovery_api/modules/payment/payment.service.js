@@ -73,6 +73,8 @@ export const createPayment = async (req) => {
       partyId: req.body.partyId,
       date: req.body.paymentDate,
       paymentId: payment.id,
+      invoiceId: req.body.invoiceId,
+      bankId: req.body.bankId,
       description: req.body.note,
       currency: req.body.currency,
       debit: debitAmount,
@@ -142,10 +144,12 @@ export const updatePayment = async (req) => {
       partyId: req.body.partyId,
       date: req.body.paymentDate,
       paymentId: updatedPayment.id,
+      invoiceId: req.body.invoiceId,
       description: req.body.note,
       currency: req.body.currency,
       debit: debitAmount,
       credit: creditAmount,
+      createdBy: req.body.createdBy,
       updatedBy: req.body.updatedBy
     }, { transaction: t });
 

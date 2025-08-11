@@ -29,6 +29,7 @@ interface CurrencyPaymentProps {
 }
 
 export default function VoucherPayment({ editingPaymentId, paymentPartyId }: CurrencyPaymentProps) {
+  console.log("editingPaymentId: ", editingPaymentId);
   // const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
@@ -56,6 +57,7 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
     paymentMethod: "",
     paymentDetails: '',
     currency: 'AED',
+    createdBy: 0,
   });
 
   useEffect(() => {
@@ -72,6 +74,7 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
       setForm((prev) => ({
         ...prev,
         businessId: user?.business?.id,
+        createdBy: user?.id
       }));
     }
 
@@ -103,7 +106,9 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
       bankId: selectedPayment.bankId ?? 0,
       paymentMethod: selectedPayment.paymentMethod,
       paymentDetails: selectedPayment.paymentDetails,
-      currency: selectedPayment.currency
+      currency: selectedPayment.currency,
+      createdBy: selectedPayment.createdBy,
+      updatedBy: user?.id
     });
   }, [selectedPayment, user]);
 
@@ -131,11 +136,11 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
       await dispatch(update(updatedForm));
       toast.success("Payment updated successfully!");
     }else{
-      console.log("formData: ", form);
+      //console.log("formData: ", form);
       await dispatch(create(form));
       toast.success("Payment created successfully!");
     }
-    //window.location.reload();
+    window.location.reload();
     //navigate("/currency/ledger");
   };
 

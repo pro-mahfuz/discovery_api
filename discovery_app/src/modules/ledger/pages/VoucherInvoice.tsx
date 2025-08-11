@@ -194,7 +194,7 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
         updatedBy: user?.id,
       };
 
-      console.log("Updated formData: ", updatedForm);
+      //console.log("Updated formData: ", updatedForm);
 
       await dispatch(update(updatedForm));
       toast.success("Invoice updated successfully!");
@@ -216,12 +216,12 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
         vatPercentage: form.isVat === true ? user?.business?.vatPercentage ?? 0 : 0,
       };
 
-      console.log("Created createdForm: ", createdForm);
+      //console.log("Created createdForm: ", createdForm);
 
       await dispatch(create(createdForm));
       toast.success("Invoice created successfully!");
     }
-    //window.location.reload();
+    window.location.reload();
     //navigate("/currency/ledger");
   };
 

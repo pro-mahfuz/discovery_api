@@ -8,7 +8,7 @@ export const fetchAllBank = createAsyncThunk<Bank[], void, { rejectValue: string
     try {
 
       const data = await bankAPI.fetchAll();
-      console.log("Bank Thunk Response: ", data);
+
       return data;
       
     } catch (err) {

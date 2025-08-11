@@ -5,7 +5,7 @@ export const fetchAll = async () => {
   try {
 
     const res = await axiosInstance.get('protected/bank/list');
-    console.log("Bank.response: ", res.data.data);
+
     return res.data.data;
 
   } catch {

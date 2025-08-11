@@ -59,23 +59,10 @@ export const createInvoice = async (req) => {
         };
 
         const prefix = prefixMap[invoiceData.invoiceType] || "";
-
         invoiceData.prefix = prefix;
-
-        console.log("req.body: ", req.body);
-        
-
         
         // Step 1: Create Invoice
         const invoice = await Invoice.create(invoiceData, { transaction: t });
-
-        console.log("invoice- ", invoice);
-
-        // Determine movementType based on invoice type
-        // let movementType = null;
-        // if (invoice.invoiceType === 'purchase') movementType = 'in';
-        // else if (invoice.invoiceType === 'sale') movementType = 'out';
-        // else if (invoice.invoiceType === 'return') movementType = 'in';
 
         // Step 2: Create Invoice Items and Stocks
         if (items && Array.isArray(items)) {
@@ -90,22 +77,6 @@ export const createInvoice = async (req) => {
             }));
 
             await InvoiceItem.bulkCreate(invoiceItems, { transaction: t });
-
-            // Create Stock entries
-            // const stockEntries = items.map((item) => ({
-            //     businessId: invoice.businessId,
-            //     invoiceType: invoice.invoiceType,
-            //     invoiceId: invoice.id,
-            //     movementType: movementType,
-            //     quantity: item.quantity,
-            //     warehouseId: item.warehouseId || null, // allow null
-            //     containerId: item.containerId,
-            //     itemId: item.itemId,
-            // }));
-
-            // await Stock.bulkCreate(stockEntries, { transaction: t });
-
-            
         }
 
         let debitAmount = 0;
@@ -125,7 +96,8 @@ export const createInvoice = async (req) => {
             creditQty = invoice.items[0].quantity;
         }
         
-        const ledgerType = "currency";
+        const category = await Category.findByPk(req.body.categoryId);
+
         // Step 3: create ledger
         await Ledger.create(
             {
@@ -143,8 +115,8 @@ export const createInvoice = async (req) => {
                 currency: req.body.currency,
                 debit: debitAmount,
                 credit: creditAmount,
-                debitQty: ledgerType === "currency" ? debitQty : 0,
-                creditQty: ledgerType === "currency" ? creditQty : 0,
+                debitQty: ["currency", "gold"].includes(category.name.toLowerCase()) ? debitQty : 0,
+                creditQty: ["currency", "gold"].includes(category.name.toLowerCase()) ? creditQty : 0,
                 createdBy: invoice.createdBy,
             }, 
             { transaction: t }
@@ -213,12 +185,6 @@ export const updateInvoice = async (req) => {
         // Step 2: Update invoice
         await invoice.update(invoiceData, { transaction: t });
 
-        // Determine movementType based on updated invoiceType
-        // let movementType = null;
-        // if (invoice.invoiceType === 'purchase') movementType = 'in';
-        // else if (invoice.invoiceType === 'sale') movementType = 'out';
-        // else if (invoice.invoiceType === 'return') movementType = 'in';
-
         // Step 3: Remove old items and stocks
         await InvoiceItem.destroy({ where: { invoiceId: id }, transaction: t });
         //await Stock.destroy({ where: { invoiceId: id }, transaction: t });
@@ -236,18 +202,6 @@ export const updateInvoice = async (req) => {
             }));
 
             await InvoiceItem.bulkCreate(invoiceItems, { transaction: t });
-
-            // const stockEntries = items.map((item) => ({
-            //     businessId: invoice.businessId,
-            //     invoiceType: invoice.invoiceType,
-            //     invoiceId: invoice.id,
-            //     movementType: movementType,
-            //     quantity: item.quantity,
-            //     warehouseId: item.warehouseId || null, // allow null
-            //     itemId: item.itemId,
-            // }));
-
-            // await Stock.bulkCreate(stockEntries, { transaction: t });
         }
 
         // Step 5: update ledger
@@ -257,21 +211,23 @@ export const updateInvoice = async (req) => {
         let creditQty = 0;
         if (invoice.invoiceType === 'purchase'){
             creditAmount = invoice.totalAmount;
-            creditQty = invoice.invoiceItems[0].quantity;
+            creditQty = items[0].quantity;
         }
         else if (invoice.invoiceType === 'sale'){
             debitAmount = invoice.totalAmount;
-            debitQty = invoice.invoiceItems[0].quantity;
+            debitQty = items[0].quantity;
         }
         else if (invoice.invoiceType === 'saleReturn'){
             creditAmount = invoice.totalAmount;
-            creditQty = invoice.invoiceItems[0].quantity;
+            creditQty = items[0].quantity;
         }
 
         const ledger = await Ledger.findOne({
             where: { invoiceId: invoice.id },
             transaction: t,
         });
+
+        const category = await Category.findByPk(req.body.categoryId);
 
         if (ledger) {
             await ledger.update(
@@ -290,8 +246,8 @@ export const updateInvoice = async (req) => {
                     currency: req.body.currency,
                     debit: debitAmount,
                     credit: creditAmount,
-                    debitQty: ledgerType === "currency" ? debitQty : 0,
-                    creditQty: ledgerType === "currency" ? creditQty : 0,
+                    debitQty: ["currency", "gold"].includes(category.name.toLowerCase()) ? debitQty : 0,
+                    creditQty: ["currency", "gold"].includes(category.name.toLowerCase()) ? creditQty : 0,
                     updatedBy: invoice.updatedBy,
                 },
                 { transaction: t }

@@ -21,7 +21,8 @@ import {
 import Checkbox from "../../../components/form/input/Checkbox.tsx";
 
 import { OptionStringType, InvoiceType, InvoiceTypeOptions } from "../../types.ts";
-import { Invoice, Item } from "../features/invoiceTypes";
+import { Invoice } from "../features/invoiceTypes";
+import { Item } from "../../item/features/itemTypes.ts";
 import { fetchAllCategory } from "../../category/features/categoryThunks.ts";
 import { create } from "../features/invoiceThunks";
 import { fetchParty } from "../../party/features/partyThunks.ts";

@@ -25,7 +25,8 @@ import {
   InvoiceType,
   InvoiceTypeOptions,
 } from "../../types.ts";
-import { Invoice, Item } from "../features/invoiceTypes";
+import { Invoice } from "../features/invoiceTypes";
+import { Item } from "../../item/features/itemTypes.ts";
 import { fetchAllCategory } from "../../category/features/categoryThunks.ts";
 import { update, fetchById } from "../features/invoiceThunks";
 import { fetchParty } from "../../party/features/partyThunks.ts";
@@ -82,6 +83,7 @@ export default function InvoiceEditForm() {
     vatPercentage: 0,
     discount: 0,
     grandTotal: 0,
+    createdBy: 0,
     updatedBy: 0,
   });
 
@@ -111,6 +113,7 @@ export default function InvoiceEditForm() {
         vatPercentage: user?.business?.vatPercentage,
         discount: invoice.discount,
         grandTotal: invoice.grandTotal,
+        createdBy: invoice.createdBy,
         updatedBy: user.id
       });
     }

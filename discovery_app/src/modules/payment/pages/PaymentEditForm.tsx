@@ -59,6 +59,7 @@ export default function PaymentEditForm() {
         paymentMethod: "",
         paymentDetails: "",
         currency: "AED",
+        createdBy: 0,
         updatedBy: 0
     });
 
@@ -77,6 +78,7 @@ export default function PaymentEditForm() {
             paymentMethod: payment.paymentMethod,
             paymentDetails: payment.paymentDetails,
             currency: payment.currency,
+            createdBy: payment.createdBy,
             updatedBy: user.id
           });
         }

@@ -55,6 +55,14 @@ export default (sequelize, DataTypes) => {
         key: 'id'
       }
     },
+    bankId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'banks',  // <-- Problem likely here
+        key: 'id'
+      }
+    },
     description: {
       type: DataTypes.TEXT,
       allowNull: true,
@@ -135,6 +143,11 @@ export default (sequelize, DataTypes) => {
     Ledger.belongsTo(models.User, {
       foreignKey: "updatedBy",
       as: "updatedByUser"
+    });
+
+    Ledger.belongsTo(models.Bank, {
+      foreignKey: "bankId",
+      as: "bank"
     });
   };
 

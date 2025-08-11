@@ -1,4 +1,4 @@
-import { Ledger, Payment, User, Invoice, Stock, Party, Category } from "../../models/model.js";
+import { Ledger, Payment, User, Bank, Invoice, Stock, Party, Category } from "../../models/model.js";
 
 export const getAllLedger = async () => {
     const data = await Ledger.findAll({
@@ -18,6 +18,10 @@ export const getAllLedger = async () => {
             {
                 model: Invoice,
                 as: 'invoice',
+            },
+            {
+                model: Bank,
+                as: 'bank',
             },
             {
                 model: Stock,
@@ -43,17 +47,20 @@ export const getAllLedger = async () => {
             ledgerJson.transactionType === "payment_out" ||
             ledgerJson.transactionType === "expense";
 
-        let refNo = "";
+        let invoiceRefNo = "";
+        let paymentRefNo = "";
 
         if (isPayment && ledgerJson.payment) {
-            refNo = ledgerJson.payment.prefix + "-" + String(ledgerJson.paymentId).padStart(6, "0");
-        } else if (ledgerJson.invoice) {
-            refNo = ledgerJson.invoice.prefix + "-" + String(ledgerJson.invoiceId).padStart(6, "0");
-        }
+            paymentRefNo = ledgerJson.payment.prefix + "-" + String(ledgerJson.paymentId).padStart(6, "0");
+        } 
+
+        invoiceRefNo = ledgerJson.invoice.prefix + "-" + String(ledgerJson.invoiceId).padStart(6, "0");
+       
 
         return {
             ...ledgerJson,
-            refNo,
+            invoiceRefNo,
+            paymentRefNo,
             createdByUser: ledgerJson.createdByUser?.name ?? null,
             updatedByUser: ledgerJson.updatedByUser?.name ?? null,
         };

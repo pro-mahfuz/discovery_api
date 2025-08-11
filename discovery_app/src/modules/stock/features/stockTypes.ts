@@ -10,6 +10,8 @@ export interface Stock {
   business?: Business;
   invoiceType?: string;
   invoiceId?: number;
+  invoiceRefNo?: string;
+  stockRefNo?: string;
   categoryId?: number;
   partyId?: number;
   itemId: number;
