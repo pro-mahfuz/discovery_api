@@ -8,6 +8,7 @@ export const fetchParty = createAsyncThunk<Party[], string, { rejectValue: strin
     try {
 
       const parties = await partyAPI.fetchParty(type);
+      console.log("Fetched parties: ", parties);
       return parties;
       
     } catch (err) {

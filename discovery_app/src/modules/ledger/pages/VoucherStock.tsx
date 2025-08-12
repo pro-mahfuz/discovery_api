@@ -53,6 +53,8 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
     //console.log("banks- ", selectedStock);
     const matchingParties = useSelector(selectAllParties);
 
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
     useEffect(() => {
         dispatch(fetchAllInvoice());
         dispatch(fetchAllWarehouse());
@@ -121,8 +123,28 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
         }));
     };
 
+
+    const validateForm = () => {
+        const newErrors: { [key: string]: string } = {};
+
+        if (!formData.invoiceId) newErrors.invoiceId = "Invoice Ref is required!";
+        if (!formData.partyId) newErrors.partyId = "Party is required!";
+        if (!formData.date.trim()) newErrors.date = "Date is required!";
+        if (!formData.movementType.trim()) newErrors.movementType = "Stock type is required!";
+        if (!formData.itemId) newErrors.itemId = "Item is required!";
+        if (!formData.bankId) newErrors.bankId = "Stock Account is required!";
+        if (!formData.quantity || formData.quantity <= 0) newErrors.quantity = "Quantity is required!";
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (!validateForm()) {
+            toast.error("Please fix the errors in the form.");
+            return;
+        }
 
         if (editingStockId) {
             const updatedForm: Stock = {
@@ -148,7 +170,7 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
             await dispatch(create(createdForm));
             toast.success("Stock created successfully!");
         }
-        //window.location.reload();
+        window.location.reload();
        
         
     };
@@ -162,7 +184,7 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
 
                 {/* Invoice Type */}
                 <div>
-                    <Label>Select Invoice Ref (if have)</Label>
+                    <Label>Select Invoice Ref</Label>
                     <Select
                         options={invoices.map((i) => ({
                             label: `${String(i.invoiceNo)}`,
@@ -189,32 +211,34 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
                         styles={selectStyles}
                         classNamePrefix="react-select"
                     />
+                    {errors.invoiceId && <p className="text-red-500 text-sm">{errors.invoiceId}</p>}
                 </div>
             
                 {!stockPartyId && (
                 <div>
                     <Label>Select Party</Label>
                     <Select
-                    options={matchingParties.map((p) => ({
-                        label: p.name,
-                        value: p.id,
-                    }))}
-                    placeholder="Search and select party"
-                    value={
-                        matchingParties
-                            .filter((p) => p.id === formData.partyId)
-                            .map((p) => ({ label: p.name, value: p.id }))[0] || null
-                    }
-                    onChange={(selectedOption) =>
-                        setFormData((prev) => ({
-                            ...prev,
-                            partyId: selectedOption?.value ?? 0,
-                        }))
-                    }
-                    isClearable
-                    styles={selectStyles}
-                    classNamePrefix="react-select"
+                        options={matchingParties.map((p) => ({
+                            label: p.name,
+                            value: p.id,
+                        }))}
+                        placeholder="Search and select party"
+                        value={
+                            matchingParties
+                                .filter((p) => p.id === formData.partyId)
+                                .map((p) => ({ label: p.name, value: p.id }))[0] || null
+                        }
+                        onChange={(selectedOption) =>
+                            setFormData((prev) => ({
+                                ...prev,
+                                partyId: selectedOption?.value ?? 0,
+                            }))
+                        }
+                        isClearable
+                        styles={selectStyles}
+                        classNamePrefix="react-select"
                     />
+                    {errors.partyId && <p className="text-red-500 text-sm">{errors.partyId}</p>}
                 </div>
                 )}
 
@@ -233,6 +257,7 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
                             }));
                         }}
                     />
+                    {errors.date && <p className="text-red-500 text-sm">{errors.date}</p>}
                 </div>
 
                 {/* Invoice Type */}
@@ -251,6 +276,7 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
                         styles={selectStyles}
                         classNamePrefix="react-select"
                     />
+                    {errors.movementType && <p className="text-red-500 text-sm">{errors.movementType}</p>}
                 </div>
 
                 <div>
@@ -278,6 +304,7 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
                         styles={selectStyles}
                         classNamePrefix="react-select"
                     />
+                    {errors.itemId && <p className="text-red-500 text-sm">{errors.itemId}</p>}
                 </div>
 
                 { stockType === "bank" ? (
@@ -307,6 +334,7 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
                             styles={selectStyles}
                             classNamePrefix="react-select"
                         />
+                        {errors.bankId && <p className="text-red-500 text-sm">{errors.bankId}</p>}
                     </div>
                 ): (
                     <div>
@@ -316,7 +344,7 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
                             warehouses
                                 .map((w) => ({
                                     label: `${w.name}`,
-                                    value: w.id,
+                                    value: Number(w.id),
                                 })) || []
                             }
                             placeholder="Search and select warehouse"
@@ -338,22 +366,17 @@ export default function VoucherStock({ editingStockId, stockPartyId }: CurrencyP
                     </div>
                 )}
 
-                
-
-                
-
-                
-
                 {/* Paid Amount */}
                 <div>
-                <Label>Quantity</Label>
-                <Input
-                    type="text"
-                    name="quantity"
-                    placeholder="Enter quantity"
-                    value={formData.quantity}
-                    onChange={handleChange}
-                />
+                    <Label>Quantity</Label>
+                    <Input
+                        type="text"
+                        name="quantity"
+                        placeholder="Enter quantity"
+                        value={formData.quantity}
+                        onChange={handleChange}
+                    />
+                    {errors.quantity && <p className="text-red-500 text-sm">{errors.quantity}</p>}
                 </div>
 
                 

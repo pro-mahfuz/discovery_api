@@ -18,7 +18,7 @@ import { Payment, paymentOptions, paymentMethodOptions, OptionType } from "../..
 import { selectUserById } from "../../user/features/userSelectors.ts";
 import { selectAuth } from "../../auth/features/authSelectors.ts";
 import { selectAllInvoice } from "../../invoice/features/invoiceSelectors.ts";
-import { CurrencyOptions, OptionStringType } from "../../types.ts";
+import { CurrencyOptions, OptionStringType, selectStyles } from "../../types.ts";
 import { fetchAllBank } from "../../bank/features/bankThunks.ts";
 import { selectAllBank } from "../../bank/features/bankSelectors.ts";
 // import { useNavigate } from "react-router-dom";
@@ -44,11 +44,13 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
   const selectedPayment = useSelector(selectPaymentById(Number(editingPaymentId)));
   const banks = useSelector(selectAllBank);
 
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
   const [form, setForm] = useState<Payment>({
     businessId: user?.business?.id,
     categoryId: 1,
     paymentType: "payment_in",
-    invoiceId: null,
+    invoiceId: 0,
     partyId: 0,
     paymentDate: '',
     note: "",
@@ -86,10 +88,6 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
     }
   }, [paymentPartyId, user]);
 
-  // console.log("VoucherPayment Update FormData: ", form);
-
-  
-
   useEffect(() => {
     // console.log("selectedPayment", selectedPayment);
     if (!selectedPayment) return;
@@ -122,8 +120,26 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
     }));
   };
 
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+    if (!form.invoiceId) newErrors.invoiceId = "Invoice Ref is required!";
+    if (!form.partyId) newErrors.partyId = "Party is required!";
+    if (!form.paymentDate.trim()) newErrors.date = "Date is required!";
+    if (!form.paymentType.trim()) newErrors.invoiceType = "Payment type is required!";
+    if (!form.currency) newErrors.currency = "Currency is required";
+    if (!form.bankId) newErrors.bankId = "Payment Account is required!";
+    if (!form.amountPaid || form.amountPaid <= 0) newErrors.amountPaid = "Amount Paid is required!";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handlePaymentSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      toast.error("Please fix the errors in the form.");
+      return;
+    }
 
     if (!form) return;
     
@@ -144,64 +160,36 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
     //navigate("/currency/ledger");
   };
 
-
-  const selectStyles = {
-    control: (base: any, state: any) => ({
-      ...base,
-      borderColor: state.isFocused ? "#72a4f5ff" : "#d1d5db",
-      boxShadow: state.isFocused ? "0 0 0 1px #8eb8fcff" : "none",
-      padding: "0.25rem 0.5rem",
-      borderRadius: "0.375rem",
-      minHeight: "38px",
-      fontSize: "0.875rem",
-      "&:hover": {
-          borderColor: "#3b82f6",
-      },
-    }),
-    menu: (base: any) => ({
-      ...base,
-      zIndex: 20,
-    }),
-    option: (base: any, state: any) => ({
-      ...base,
-      backgroundColor: state.isFocused ? "#e0f2fe" : "white",
-      color: "#1f2937",
-      fontSize: "0.875rem",
-      padding: "0.5rem 0.75rem",
-    }),
-  };
-
-  
-
   return (
     <div className="flex">
       <div className="w-full">
         <form onSubmit={handlePaymentSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div>
-                <Label>Select Invoice Ref (if have)</Label>
-                <Select
-                    options={invoices.map((i) => ({
-                        label: `${String(i.invoiceNo)}`,
-                        value: Number(i.id),
-                        partyId: Number(i.partyId)
-                    }))}
-                    placeholder="Select invoice type"
-                    value={
-                      invoices
-                          .filter((i) => i.id === form.invoiceId)
-                          .map((i) => ({ label: `${String(i.invoiceNo)}`, partyId: i.partyId, value: i.id }))[0] || null
-                    }
-                    onChange={(selectedOption) => {
-                        setForm(prev => ({
-                            ...prev,
-                            invoiceId: selectedOption!.value ?? 0,
-                            partyId: Number(selectedOption?.partyId),
-                        }));
-                    }}
-                    styles={selectStyles}
-                    classNamePrefix="react-select"
-                />
+              <Label>Select Invoice Ref</Label>
+              <Select
+                options={invoices.map((i) => ({
+                    label: `${String(i.invoiceNo)}`,
+                    value: Number(i.id),
+                    partyId: Number(i.partyId)
+                }))}
+                placeholder="Select invoice type"
+                value={
+                  invoices
+                      .filter((i) => i.id === form.invoiceId)
+                      .map((i) => ({ label: `${String(i.invoiceNo)}`, partyId: i.partyId, value: i.id }))[0] || null
+                }
+                onChange={(selectedOption) => {
+                    setForm(prev => ({
+                        ...prev,
+                        invoiceId: selectedOption!.value ?? 0,
+                        partyId: Number(selectedOption?.partyId),
+                    }));
+                }}
+                styles={selectStyles}
+                classNamePrefix="react-select"
+              />
+              {errors.invoiceId && <p className="text-red-500 text-sm">{errors.invoiceId}</p>}
             </div>
             
             {!paymentPartyId && (
@@ -228,6 +216,7 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
                   styles={selectStyles}
                   classNamePrefix="react-select"
                 />
+                {errors.partyId && <p className="text-red-500 text-sm">{errors.partyId}</p>}
               </div>
             )}
             
@@ -246,6 +235,7 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
                   }))
                 }}
               />
+              {errors.date && <p className="text-red-500 text-sm">{errors.date}</p>}
             </div>
 
             {/* <div>
@@ -293,6 +283,7 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
                 styles={selectStyles}
                 classNamePrefix="react-select"
               />
+              {errors.paymentType && <p className="text-red-500 text-sm">{errors.paymentType}</p>}
             </div>
 
             <div>
@@ -314,27 +305,7 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
                 styles={selectStyles}
                 classNamePrefix="react-select"
               />
-            </div>
-
-            <div>
-              <Label>Amount</Label>
-              <Input
-                type="text"
-                name="amountPaid"
-                value={form.amountPaid}
-                onChange={handlePaymentChange}
-                required
-              />
-            </div>
-
-            <div className="col-span-2">
-              <Label>Description / Note</Label>
-              <Input
-                  type="text"
-                  name="note"
-                  value={form.note}
-                  onChange={handlePaymentChange}
-              />
+              {errors.currency && <p className="text-red-500 text-sm">{errors.currency}</p>}
             </div>
 
             <div>
@@ -363,7 +334,32 @@ export default function VoucherPayment({ editingPaymentId, paymentPartyId }: Cur
                 styles={selectStyles}
                 classNamePrefix="react-select"
               />
+              {errors.bankId && <p className="text-red-500 text-sm">{errors.bankId}</p>}
             </div>
+
+            <div>
+              <Label>Amount</Label>
+              <Input
+                type="text"
+                name="amountPaid"
+                value={form.amountPaid}
+                onChange={handlePaymentChange}
+                required
+              />
+              {errors.amountPaid && <p className="text-red-500 text-sm">{errors.amountPaid}</p>}
+            </div>
+
+            <div className="col-span-2">
+              <Label>Description / Note</Label>
+              <Input
+                  type="text"
+                  name="note"
+                  value={form.note}
+                  onChange={handlePaymentChange}
+              />
+            </div>
+
+            
 
             {/* <div>
               <Label>Payment Method</Label>

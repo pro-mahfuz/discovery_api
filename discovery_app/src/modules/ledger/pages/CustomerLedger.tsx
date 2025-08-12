@@ -47,6 +47,7 @@ export default function CustomerLedger() {
   const categoryIdNum = Number(categoryId);
 
   const ledgers = useSelector(selectLedgers(businessIdNum, categoryIdNum, partyID));
+  console.log("ledgers: ", ledgers);
   const party = useSelector(selectPartyById(partyID));
   
   const [selectedTab, setSelectedTab] = useState(0);

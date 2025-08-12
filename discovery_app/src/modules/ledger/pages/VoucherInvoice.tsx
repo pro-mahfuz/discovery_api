@@ -40,6 +40,9 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
   const items = useSelector(selectAllItem);
   const selectedInvoice = useSelector(selectInvoiceById(Number(editingLedgerId)));
 
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  
+
   const [form, setForm] = useState<Invoice>({
     businessId: 0,
     categoryId: 1,
@@ -137,7 +140,7 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
         subTotal: 0,
       });
     }
-  }, [selectedInvoice]);
+  }, [selectedInvoice, user]);
 
   
 
@@ -157,6 +160,21 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
       ...prev,
       [name]: name === "price" || name === "quantity" ? parseFloat(value) : value,
     }));
+  };
+
+
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+    
+    if (!form.partyId) newErrors.partyId = "Party is required!";
+    if (!form.date.trim()) newErrors.date = "Date is required!";
+    if (!form.invoiceType.trim()) newErrors.invoiceType = "Invoice type is required!";
+    if (!form.currency) newErrors.currency = "Currency is required";
+    if (!currentItem.itemId) newErrors.itemId = "Item is required!";
+    if (!currentItem.price) newErrors.price = "Rate is required!";
+    if (!currentItem.quantity) newErrors.quantity = "Quantity is required!";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -194,11 +212,16 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
         updatedBy: user?.id,
       };
 
-      //console.log("Updated formData: ", updatedForm);
+      console.log("Updated formData: ", updatedForm);
 
       await dispatch(update(updatedForm));
       toast.success("Invoice updated successfully!");
     }else{
+
+      if (!validateForm()) {
+        toast.error("Please fix the errors in the form.");
+        return;
+      }
 
       const total = updatedItems.reduce( (sum, item) => sum + item.price * item.quantity, 0 );
       const discount = Number(form.discount) || 0;
@@ -216,7 +239,7 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
         vatPercentage: form.isVat === true ? user?.business?.vatPercentage ?? 0 : 0,
       };
 
-      //console.log("Created createdForm: ", createdForm);
+      console.log("Created createdForm: ", createdForm);
 
       await dispatch(create(createdForm));
       toast.success("Invoice created successfully!");
@@ -256,6 +279,7 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
                   styles={selectStyles}
                   classNamePrefix="react-select"
                 />
+                {errors.partyId && <p className="text-red-500 text-sm">{errors.partyId}</p>}
               </div>
             )}
 
@@ -276,6 +300,7 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
                   }))
                 }}
               />
+              {errors.date && <p className="text-red-500 text-sm">{errors.date}</p>}
             </div>
 
             <div>
@@ -297,6 +322,31 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
                 styles={selectStyles}
                 classNamePrefix="react-select"
               />
+              {errors.invoiceType && <p className="text-red-500 text-sm">{errors.invoiceType}</p>}
+            </div>
+
+            
+
+            <div>
+              <Label>Select Currency</Label>
+              <Select<OptionStringType>
+                options={CurrencyOptions}
+                placeholder="Select Currency"
+                value={
+                  form
+                    ? CurrencyOptions.find((option) => option.value === form.currency)
+                    : null
+                }
+                onChange={(selectedOption) => {
+                  setForm((prev) => ({
+                    ...prev!,
+                    currency: selectedOption!.value,
+                  }));
+                }}
+                styles={selectStyles}
+                classNamePrefix="react-select"
+              />
+              {errors.currency && <p className="text-red-500 text-sm">{errors.currency}</p>}
             </div>
 
             <div>
@@ -323,27 +373,7 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
                 styles={selectStyles}
                 classNamePrefix="react-select"
               />
-            </div>
-
-            <div>
-              <Label>Select Currency</Label>
-              <Select<OptionStringType>
-                options={CurrencyOptions}
-                placeholder="Select Currency"
-                value={
-                  form
-                    ? CurrencyOptions.find((option) => option.value === form.currency)
-                    : null
-                }
-                onChange={(selectedOption) => {
-                  setForm((prev) => ({
-                    ...prev!,
-                    currency: selectedOption!.value,
-                  }));
-                }}
-                styles={selectStyles}
-                classNamePrefix="react-select"
-              />
+              {errors.itemId && <p className="text-red-500 text-sm">{errors.itemId}</p>}
             </div>
           </div>
 
@@ -358,6 +388,7 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
                 onChange={handleCurrentItemChange}
                 required
               />
+              {errors.price && <p className="text-red-500 text-sm">{errors.price}</p>}
             </div>
 
             <div>
@@ -369,6 +400,7 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
                 onChange={handleCurrentItemChange}
                 required
               />
+              {errors.quantity && <p className="text-red-500 text-sm">{errors.quantity}</p>}
             </div>
 
             <div>

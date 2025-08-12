@@ -5,25 +5,28 @@ import { Business } from "../../business/features/businessTypes";
 
 export interface Stock {
   id?: number;
-  date: string;
-  businessId?: number;
   business?: Business;
+  container?: Container;
+  item?: Item;
+  warehouse?: Warehouse;
+
+  businessId?: number;
+  date: string;
   invoiceType?: string;
   invoiceId?: number;
-  invoiceRefNo?: string;
-  stockRefNo?: string;
   categoryId?: number;
   partyId?: number;
   itemId: number;
-  item?: Item;
-  containerId?: number;
-  container?: Container;
   movementType: string;
   warehouseId?: number;
   bankId?: number;
-  warehouse?: Warehouse;
   quantity: number;
-  unit: string;
+
+  unit?: string;
+  invoiceRefNo?: string;
+  stockRefNo?: string;
+  containerId?: number;
+
   createdBy?: number;
   updatedBy?: number;
   createdByUser?: string;

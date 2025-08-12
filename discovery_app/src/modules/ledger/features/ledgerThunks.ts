@@ -8,6 +8,7 @@ export const fetchAll = createAsyncThunk<Ledger[], void, { rejectValue: string }
     try {
 
       const data = await LedgerAPI.fetchAll();
+      console.log("Fetched ledgers: ", data);
       return data;
       
     } catch (err) {

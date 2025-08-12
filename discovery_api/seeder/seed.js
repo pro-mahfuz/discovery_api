@@ -9,11 +9,11 @@ async function seed() {
 
   await Category.bulkCreate([
     {
-      name: "Fruit",
+      name: "Currency",
       isActive: true,
     },
     {
-      name: "Vegetable",
+      name: "Gold",
       isActive: true,
     }
   ]);
