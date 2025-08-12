@@ -154,6 +154,7 @@ router.get("/ledger/list", authorize("manage_ledger"), LedgerController.getAllLe
 
 /** Report */
 router.post("/stock/getStockReport", authorize("manage_stock"), StockController.getStockReport);
+router.post("/invoice/getSaleReport", authorize("manage_stock"), InvoiceController.getSaleReport);
 
 
 export default router;

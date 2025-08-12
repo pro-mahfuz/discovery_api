@@ -10,27 +10,17 @@ export const selectAllInvoice = (state: RootState): Invoice[] => state.invoice.d
 
 export const selectInvoiceAll = (state: RootState): Invoice[] => state.invoice.data || [];
 
-export const selectSaleReport =
-  (containerId: number) =>
-  (state: RootState): Invoice[] => {
-    return containerId > 0
-      ? state.invoice.data
-          .map(invoice => ({
-            ...invoice,
-            items: invoice.items?.filter(item => item.containerId === containerId) || [],
-          }))
-          .filter(invoice => invoice.items.length > 0) // remove invoices with no matching items
-      : state.invoice.data.map(invoice => ({
-          ...invoice,
-          items:
-            invoice.items?.map(item => ({
-              ...item,
-              date: invoice.date,
-              partyName: invoice.party?.name,
-            })) || [],
-        }));
-  };
-
+export const selectSaleReport = (containerId: number) => (state: RootState): Invoice[] => {
+  return containerId > 0 ? 
+  state.invoice.data
+    .map(invoice => ({
+      ...invoice,
+      items: invoice.items?.filter(item => item.containerId === containerId) || [],
+    }))
+    // Optionally filter out invoices with no matching items
+    .filter(invoice => invoice.items.length > 0)
+  : state.invoice.data
+};
 
 export const selectAllInvoiceByType = (invoiceType: String) =>
   createSelector([selectAllInvoice], (invoices) => {

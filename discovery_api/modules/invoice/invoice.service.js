@@ -46,6 +46,52 @@ export const getAllInvoice = async () => {
     return invoiceData;
 }
 
+export const getSaleReport = async () => {
+    const data = await Invoice.findAll({
+        include: [
+            {
+                model: InvoiceItem,
+                as: "items",
+            },
+            {
+                model: Category,
+                as: "category",
+            },
+            {
+                model: Party,
+                as: "party",
+            },
+            {
+                model: User,
+                as: "createdByUser",
+            },
+            {
+                model: User,
+                as: "updatedByUser",
+            },
+        ],
+    });
+
+    if (!data || data.length === 0) throw { status: 400, message: "No Invoice found" };
+
+
+    const invoiceData = data
+    .map(invoice => {
+        let invoiceNo = '';
+        invoiceNo = invoice.prefix + "-" + String(invoice.id).padStart(6, '0');
+       
+
+        return {
+            ...invoice.toJSON(),
+            invoiceNo,
+            createdByUser: invoice.createdByUser?.name ?? null,
+            updatedByUser: invoice.updatedByUser?.name ?? null,
+        };
+    });
+    
+    return invoiceData;
+}
+
 export const createInvoice = async (req) => {
     const { items, ...invoiceData } = req.body;
 
