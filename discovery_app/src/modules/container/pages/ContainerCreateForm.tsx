@@ -12,7 +12,7 @@ import DatePicker from "../../../components/form/date-picker.tsx";
 import Button from "../../../components/ui/button/Button";
 import Select from "react-select";
 
-import { StatusOptions } from "../../types.ts";
+import { StatusOptions, selectStyles } from "../../types.ts";
 import { fetchAllItem } from "../../item/features/itemThunks.ts";
 import { fetchAllCategory } from "../../category/features/categoryThunks.ts";
 import { create } from "..//features/containerThunks";
@@ -21,7 +21,6 @@ import { AppDispatch } from "../../../store/store";
 import { selectUserById } from "../../user/features/userSelectors";
 import { selectAuth } from "../../auth/features/authSelectors";
 import { Container } from "../features/containerTypes.ts";
-import { selectAllCategory, selectCategoryById } from "../../category/features/categorySelectors";
 
 
 export default function ContainerCreateForm() {
@@ -30,8 +29,6 @@ export default function ContainerCreateForm() {
 
     const authUser = useSelector(selectAuth);
     const user = useSelector(selectUserById(Number(authUser.user?.id)));
-
-    const categories = useSelector(selectAllCategory);
 
     useEffect(() => {
         dispatch(fetchParty("all"));
@@ -54,17 +51,9 @@ export default function ContainerCreateForm() {
         placeOfDelivery: '',
         containerNo: '',
         sealNo: '',
-        categoryId: 0,
-        itemId: 0,
-        containerQuantity: 0,
-        containerUnit: '',
-        stockQuantity: 0,
-        stockUnit: '',
         isActive: true,
         createdUserId: user?.id
     });
-
-    const categoryItem = useSelector(selectCategoryById(Number(formData.categoryId)));
 
     const handleStatusChange = (value: boolean) => {
         setFormData((prev) => ({
@@ -97,35 +86,6 @@ export default function ContainerCreateForm() {
             toast.error("Failed to create container.");
         }
     };
-
-    const selectStyles = {
-        control: (base: any, state: any) => ({
-        ...base,
-        borderColor: state.isFocused ? "#72a4f5ff" : "#d1d5db",
-        boxShadow: state.isFocused ? "0 0 0 1px #8eb8fcff" : "none",
-        padding: "0.25rem 0.5rem",
-        borderRadius: "0.375rem",
-        minHeight: "38px",
-        fontSize: "0.875rem",
-        "&:hover": {
-            borderColor: "#3b82f6",
-        },
-        }),
-        menu: (base: any) => ({
-        ...base,
-        zIndex: 20,
-        }),
-        option: (base: any, state: any) => ({
-        ...base,
-        backgroundColor: state.isFocused ? "#e0f2fe" : "white",
-        color: "#1f2937",
-        fontSize: "0.875rem",
-        padding: "0.5rem 0.75rem",
-        }),
-    };
-
-    
-
 
     return (
         <div>

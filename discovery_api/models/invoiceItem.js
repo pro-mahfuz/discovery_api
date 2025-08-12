@@ -35,6 +35,10 @@ export default (sequelize, DataTypes) => {
         min: 1,
       },
     },
+    unit: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     price: {
       type: DataTypes.FLOAT,
       allowNull: false,

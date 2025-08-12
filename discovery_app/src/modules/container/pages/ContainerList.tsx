@@ -53,7 +53,7 @@ export default function ContainerList() {
   const filteredData = useMemo(() => {
     return containers.filter(
       (c) =>
-        c.itemId
+        c.containerNo
     );
   }, [containers, filterText]);
 
@@ -120,10 +120,6 @@ export default function ContainerList() {
                   <TableCell isHeader className="text-center px-4 py-2">Agent Name</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Container No</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Seal No</TableCell>
-                  <TableCell isHeader className="text-center px-4 py-2">Item Name</TableCell>
-                  <TableCell isHeader className="text-center px-4 py-2">Container Quantity</TableCell>
-                  <TableCell isHeader className="text-center px-4 py-2">Stock Quantity</TableCell>
-                  <TableCell isHeader className="text-center px-4 py-2">Net Stock Quantity</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">isActive</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Action</TableCell>
                 </TableRow>
@@ -162,18 +158,6 @@ export default function ContainerList() {
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {container.sealNo}
-                      </TableCell>
-                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {container.item?.name}
-                      </TableCell>
-                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {container.containerQuantity + " " + container.containerUnit}
-                      </TableCell>
-                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {container.stockQuantity + " " + container.stockUnit}
-                      </TableCell>
-                      <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {container.netStock + " " + container.stockUnit}
                       </TableCell>
                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {container.isActive ? 'Yes' : 'No'}

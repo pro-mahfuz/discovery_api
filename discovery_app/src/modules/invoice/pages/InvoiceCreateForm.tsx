@@ -20,7 +20,7 @@ import {
 } from "../../../components/ui/table/index.tsx";
 import Checkbox from "../../../components/form/input/Checkbox.tsx";
 
-import { OptionStringType, InvoiceType, InvoiceTypeOptions } from "../../types.ts";
+import { OptionStringType, InvoiceType, InvoiceTypeOptions, UnitOptions, selectStyles } from "../../types.ts";
 import { Invoice } from "../features/invoiceTypes";
 import { Item } from "../../item/features/itemTypes.ts";
 import { fetchAllCategory } from "../../category/features/categoryThunks.ts";
@@ -31,7 +31,7 @@ import { selectAllParties } from "../../party/features/partySelectors";
 import { selectAllCategory, selectCategoryById } from "../../category/features/categorySelectors";
 import { selectUserById } from "../../user/features/userSelectors";
 import { selectAuth } from "../../auth/features/authSelectors";
-import { selectContainerByItemId } from "../../container/features/containerSelectors";
+import { selectAllContainer } from "../../container/features/containerSelectors";
 import { fetchAll } from "../../container/features/containerThunks.ts";
 import { selectAllInvoice } from "../../invoice/features/invoiceSelectors.ts";
 import { fetchAllInvoice } from "../features/invoiceThunks.ts";
@@ -101,10 +101,11 @@ export default function InvoiceCreateForm() {
         name: '',
         price: 0,
         quantity: 0,
+        unit: '',
         subTotal: 0,
     });
 
-    const containers = useSelector(selectContainerByItemId(Number(formData.categoryId), (Number(currentItem.itemId))));
+    const containers = useSelector(selectAllContainer);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -152,32 +153,7 @@ export default function InvoiceCreateForm() {
         }
     };
 
-    const selectStyles = {
-        control: (base: any, state: any) => ({
-        ...base,
-        borderColor: state.isFocused ? "#72a4f5ff" : "#d1d5db",
-        boxShadow: state.isFocused ? "0 0 0 1px #8eb8fcff" : "none",
-        padding: "0.25rem 0.5rem",
-        borderRadius: "0.375rem",
-        minHeight: "38px",
-        fontSize: "0.875rem",
-        "&:hover": {
-            borderColor: "#3b82f6",
-        },
-        }),
-        menu: (base: any) => ({
-        ...base,
-        zIndex: 20,
-        }),
-        option: (base: any, state: any) => ({
-        ...base,
-        backgroundColor: state.isFocused ? "#e0f2fe" : "white",
-        color: "#1f2937",
-        fontSize: "0.875rem",
-        padding: "0.5rem 0.75rem",
-        }),
-    };
-
+    
     const addItem = () => {
         
         if (!currentItem.itemId || currentItem.price <= 0 || currentItem.quantity <= 0) {
@@ -198,7 +174,8 @@ export default function InvoiceCreateForm() {
             containerId: 0,
             name: '',
             price: 0,
-            quantity: 1,
+            quantity: 0,
+            unit: '',
             subTotal: 0,
         });
     };
@@ -420,22 +397,18 @@ export default function InvoiceCreateForm() {
                             <Select
                                 options={
                                 containers
-                                    .filter((i) =>
-                                        formData.invoiceType === "purchase"
-                                        ? true
-                                        : Number(i.netStock) > 0
-                                    )
+                                    // .filter((i) =>
+                                    //     formData.invoiceType === "purchase"
+                                    //     ? true
+                                    //     : Number(i.netStock) > 0
+                                    // )
                                     .map((i) => ({
-                                        label: `${i.containerNo} - ${i.netStock} ${i.stockUnit} ${formData.invoiceType}`,
+                                        label: `${i.containerNo}`,
                                         value: i.id,
                                     })) || []
                                 }
                                 placeholder="Search and select item"
-                                value={
-                                    containers
-                                    ?.filter((i) => i.id === currentItem.containerId)
-                                    .map((i) => ({ label: i.containerNo, value: i.id }))[0] || null
-                                }
+                               
                                 onChange={(selectedOption) =>
                                     setCurrentItem((prev) => ({
                                         ...prev,
@@ -468,7 +441,31 @@ export default function InvoiceCreateForm() {
                                 value={currentItem.quantity}
                                 onChange={handleCurrentItemChange}
                                 placeholder="Enter quantity"
-                                min='1'
+                            />
+                        </div>
+
+                        
+                        <div>
+                            <Label>Search Unit</Label>
+                            <Select
+                                options={
+                                UnitOptions
+                                    .map((i) => ({
+                                        label: `${i.label}`,
+                                        value: i.value,
+                                    })) || []
+                                }
+                                placeholder="Select Unit"
+                               
+                                onChange={(selectedOption) =>
+                                    setCurrentItem((prev) => ({
+                                        ...prev,
+                                        unit: selectedOption?.value,
+                                    }))
+                                }
+                                isClearable
+                                styles={selectStyles}
+                                classNamePrefix="react-select"
                             />
                         </div>
 
@@ -488,6 +485,7 @@ export default function InvoiceCreateForm() {
                         <TableCell isHeader className="text-center px-4 py-2">Item</TableCell>
                         <TableCell isHeader className="text-center px-4 py-2">Price</TableCell>
                         <TableCell isHeader className="text-center px-4 py-2">Quantity</TableCell>
+                        <TableCell isHeader className="text-center px-4 py-2">Unit</TableCell>
                         <TableCell isHeader className="text-center px-4 py-2">Sub-Total</TableCell>
                         <TableCell isHeader className="text-center px-4 py-2">Action</TableCell>
                     </TableRow>
@@ -507,6 +505,7 @@ export default function InvoiceCreateForm() {
                             <TableCell className="text-center px-4 py-2">{item.name}</TableCell>
                             <TableCell className="text-center px-4 py-2">{item.price.toFixed(2)}</TableCell>
                             <TableCell className="text-center px-4 py-2">{item.quantity}</TableCell>
+                            <TableCell className="text-center px-4 py-2">{item.unit}</TableCell>
                             <TableCell className="text-center px-4 py-2">{(item.price * item.quantity).toFixed(2)}</TableCell>
                             <TableCell className="text-center px-4 py-2">
                             <button

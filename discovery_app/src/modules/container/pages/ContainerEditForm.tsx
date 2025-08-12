@@ -57,17 +57,10 @@ export default function ContainerFormForm() {
         placeOfDelivery: container?.placeOfDelivery,
         containerNo: container?.containerNo ?? '',
         sealNo: container?.sealNo,
-        categoryId: container?.categoryId ?? 0,
-        itemId: container?.itemId ?? 0,
-        containerQuantity: container?.containerQuantity ?? 0,
-        containerUnit: container?.containerUnit ?? '',
-        stockQuantity: container?.stockQuantity ?? 0,
-        stockUnit: container?.stockUnit ?? '',
         isActive: true,
         createdUserId: user?.id
     });
 
-    const categoryItem = useSelector(selectCategoryById(Number(formData.categoryId)));
 
     const handleStatusChange = (value: boolean) => {
         setFormData((prev) => ({

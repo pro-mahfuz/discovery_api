@@ -13,7 +13,7 @@ import Button from "../../../components/ui/button/Button.tsx";
 import Select from "react-select";
 
 import { AppDispatch } from "../../../store/store.ts";
-import { OptionStringType, OptionNumberType, MovementTypeOptions, selectStyles } from "../../types.ts";
+import { OptionStringType, OptionNumberType, MovementTypeOptions, selectStyles, UnitOptions } from "../../types.ts";
 import { Stock } from "../features/stockTypes.ts";
 
 import { create } from "../features/stockThunks.ts";
@@ -29,7 +29,7 @@ import { selectAllInvoice, selectInvoiceById } from "../../invoice/features/invo
 import { selectAllItem } from "../../item/features/itemSelectors.ts";
 import { selectAllWarehouse } from "../../warehouse/features/warehouseSelectors.ts";
 import { selectCategoryById } from "../../category/features/categorySelectors";
-import { selectAllContainerByItemId } from "../../container/features/containerSelectors";
+import { selectAllContainer } from "../../container/features/containerSelectors";
 
 
 export default function StockCreateForm() {
@@ -59,17 +59,19 @@ export default function StockCreateForm() {
         date: '',
         invoiceType: undefined,        
         invoiceId: undefined,
+        partyId: 0,
+        categoryId: 0,
         itemId: 0,
         containerId: 0,
         movementType: '',
         warehouseId: 0,
         quantity: 0,
-        stockUnit: ''
+        unit: ''
     });
 
     const invoice = useSelector(selectInvoiceById(Number(formData.invoiceId)));
     const categoryItem = useSelector(selectCategoryById(Number(invoice?.categoryId)));
-    const containers = useSelector(selectAllContainerByItemId((Number(formData.itemId))));
+    const containers = useSelector(selectAllContainer);
 
     useEffect(() => {
         if (user?.business?.id) {
@@ -95,11 +97,11 @@ export default function StockCreateForm() {
        
         try {
             // Dispatch create action, including totalAmount
-            
+            console.log("Stock formData: ", formData);
             await dispatch(create(formData));
             toast.success("Stock created successfully!");
 
-            navigate(`/stock/list`);
+            //navigate(`/stock/list`);
         } catch (err) {
             toast.error("Failed to create stock.");
         }
@@ -121,7 +123,10 @@ export default function StockCreateForm() {
                     <Select
                         options={invoices.map((i) => ({
                             label: `#${i.id} | ${i.party?.name ?? "No name"}`,
-                            value: i.id
+                            value: i.id,
+                            invoiceType: i.invoiceType,
+                            categoryId: i.categoryId,
+                            partyId: i.partyId
                         }))}
                         placeholder="Select invoice type"
 
@@ -129,6 +134,10 @@ export default function StockCreateForm() {
                             setFormData(prev => ({
                                 ...prev,
                                 invoiceId: Number(selectedOption!.value),
+                                invoiceType: selectedOption?.invoiceType,
+                                categoryId: Number(selectedOption?.categoryId),
+                                partyId: Number(selectedOption?.partyId)
+                                
                             }));
                         }}
                         styles={selectStyles}
@@ -185,17 +194,15 @@ export default function StockCreateForm() {
                     <Label>Select Container</Label>
                     <Select
                         options={containers.map((i) => ({
-                            label: `${i.containerNo} - ${i.netStock} ${i.stockUnit}`,
+                            label: `${i.containerNo}`,
                             value: i.id,
-                            stockUnit: i.stockUnit, // consistent key name
                         })) || []}
                         placeholder="Search and select item"
                         value={
                             containers
                             .map((i) => ({
-                                label: `${i.containerNo} - ${i.netStock} ${i.stockUnit}`,
+                                label: `${i.containerNo}`,
                                 value: i.id,
-                                stockUnit: i.stockUnit,
                             }))
                             .find((opt) => opt.value === formData.containerId) || null
                         }
@@ -203,7 +210,6 @@ export default function StockCreateForm() {
                             setFormData((prev) => ({
                                 ...prev,
                                 containerId: Number(selectedOption!.value),
-                                stockUnit: selectedOption?.stockUnit || '',
                             }))
                         }
                         isClearable
@@ -270,6 +276,30 @@ export default function StockCreateForm() {
                     value={formData.quantity}
                     onChange={handleChange}
                 />
+                </div>
+
+                <div>
+                    <Label>Search Unit</Label>
+                    <Select
+                        options={
+                        UnitOptions
+                            .map((i) => ({
+                                label: `${i.label}`,
+                                value: i.value,
+                            })) || []
+                        }
+                        placeholder="Select Unit"
+                        
+                        onChange={(selectedOption) =>
+                            setFormData((prev) => ({
+                                ...prev,
+                                unit: selectedOption?.value ?? '',
+                            }))
+                        }
+                        isClearable
+                        styles={selectStyles}
+                        classNamePrefix="react-select"
+                    />
                 </div>
 
                 

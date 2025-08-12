@@ -48,30 +48,7 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    categoryId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    itemId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    containerQuantity: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    containerUnit: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    stockQuantity: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    stockUnit: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
+    
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
@@ -89,16 +66,10 @@ export default (sequelize, DataTypes) => {
   });
 
   Container.associate = (models) => {
-    Container.belongsTo(models.Item, {
-      foreignKey: 'itemId',
-      as: 'item',
-    });
 
     Container.hasMany(models.Stock, {
       foreignKey: 'containerId',
-      as: 'stocks',
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
+      as: 'stocks'
     });
 
     Container.belongsTo(models.User, {

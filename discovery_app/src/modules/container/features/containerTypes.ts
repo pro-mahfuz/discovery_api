@@ -18,16 +18,8 @@ export interface Container {
   placeOfDelivery?: string;
   containerNo: string;
   sealNo?: string;
-  categoryId: number;
-  itemId: number;
-  containerQuantity: number;
-  containerUnit: string;
-  stockQuantity: number;
-  stockUnit: string;
-  item?: Item;
   stock?: Stock[];
   user?: User;
-  netStock?: number;
   isActive: boolean;
   createdUserId?: number;
   updatedUserId?: number;

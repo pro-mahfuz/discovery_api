@@ -43,6 +43,11 @@ export const CurrencyOptions: OptionStringType[] = [
     { value: "SAR", label: "SAR" },
 ];
 
+export const UnitOptions: OptionStringType[] = [
+    { value: "bag", label: "Bag" },
+    { value: "Box", label: "Box" },
+];
+
 
 export const CategoryOptions: OptionNumberType[] = [
   { value: 1, label: "Fruit" },

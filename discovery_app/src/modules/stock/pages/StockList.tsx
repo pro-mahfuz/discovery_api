@@ -169,7 +169,7 @@ export default function StockList() {
                         {stock.quantity}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {stock.stockUnit}
+                        {stock.unit.toUpperCase()}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {stock.createdByUser}

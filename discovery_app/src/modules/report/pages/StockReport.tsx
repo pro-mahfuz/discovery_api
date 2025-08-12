@@ -145,7 +145,7 @@ export default function StockReport() {
                           {stock.totalIn - stock.totalOut - stock.totalDamaged}
                         </TableCell>
                         <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          {stock.container.stockUnit}
+                          {stock.unit?.toUpperCase()}
                         </TableCell>
                       </TableRow>
                     ))

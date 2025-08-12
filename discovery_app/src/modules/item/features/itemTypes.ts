@@ -9,6 +9,7 @@ export interface Item {
   name?: string;
   price: number;
   quantity: number;
+  unit?: string;
   subTotal: number;
   invoice?: Invoice;
   container?: Container;

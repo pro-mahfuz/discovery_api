@@ -123,64 +123,41 @@ export default function SaleReport() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    saleReports.map((report, index) => (
-                      <TableRow key={index} className="border-b border-gray-100 dark:border-white/[0.05]">
-                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          {index + 1}
-                        </TableCell>
-                        
-                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          {report.date}
-                        </TableCell>
-                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          {report.party?.name}
-                        </TableCell>
+                    saleReports.map((report) => (
+                      <>
+                        {report.items.map((item, index) => (
+                          
+                          <TableRow>
+                            <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                                {index + 1}
+                            </TableCell>
+                            <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                                {item.invoice?.date}
+                            </TableCell>
+                            <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                                {item.invoice?.party?.name}
+                            </TableCell>
+              
+                            <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                                {item.name}
+                            </TableCell>
+                            <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                                {item.quantity}
+                            </TableCell>
+                            <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                                {item.unit}
+                            </TableCell>
+                            <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                                {item.price}
+                            </TableCell>
+                            <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                                {item.subTotal}
+                            </TableCell>
 
-                        <TableCell>
-                            <Table>
-                                {report.items.map((item) => (
-                                    <TableRow>
-                                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                            {item.name}
-                                        </TableCell>
-                                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                            {item.quantity}
-                                        </TableCell>
-                                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                            {item.container?.stockUnit}
-                                        </TableCell>
-                                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                            {item.price}
-                                        </TableCell>
-                                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                            {item.subTotal}
-                                        </TableCell>
-                                    </TableRow>
-                                    
-                                ))}
-                                
-                            </Table>
-                        </TableCell>
-
-
-                        
-                        
-
-                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          {report.vatPercentage}
-                        </TableCell>
-                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          {report.grandTotal}
-                        </TableCell>
-                        {/* <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          {report.invoice?.totalAmount}
-                        </TableCell>
-                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          {report.invoice?.totalAmount}
-                        </TableCell> */}
-
-
-                      </TableRow>
+                          </TableRow>
+                            
+                        ))}
+                      </>
                     ))
                   )}
                 </TableBody>

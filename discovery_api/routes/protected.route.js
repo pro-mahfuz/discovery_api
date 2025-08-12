@@ -149,10 +149,11 @@ router.get("/stock/:id/view", authorize("view_stock"), StockController.getStockB
 router.put("/stock/update", authorize("edit_stock"), validate(stockSchema), StockController.updateStock);
 router.post("/stock/:id/delete", authorize("delete_stock"), StockController.deleteStock);
 
-router.post("/stock/getStockReport", authorize("manage_stock"), StockController.getStockReport);
-
 /*---Currency ledger---*/
 router.get("/ledger/list", authorize("manage_ledger"), LedgerController.getAllLedger);
+
+/** Report */
+router.post("/stock/getStockReport", authorize("manage_stock"), StockController.getStockReport);
 
 
 export default router;

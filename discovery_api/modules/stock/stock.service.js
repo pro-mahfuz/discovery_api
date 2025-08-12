@@ -50,6 +50,7 @@ export const getStockReport = async () => {
     attributes: [
       "containerId",
       "itemId",
+      "unit",
 
       // Sum quantity where movementType = 'in'
       [
@@ -88,7 +89,7 @@ export const getStockReport = async () => {
         as: "item",
       },
     ],
-    group: ["containerId", "itemId", "container.id", "item.id"],
+    group: ["containerId", "itemId", "unit", "container.id", "item.id"],
   });
 
   if (!data || data.length === 0) {
@@ -197,21 +198,21 @@ export const updateStock = async (req) => {
       throw { status: 404, message: "Item not found" };
     }
 
-    // Find ledger entry related to this stock
-    const ledger = await Ledger.findOne({
-      where: { stockId: req.body.id },
-      transaction: t,
-      lock: t.LOCK.UPDATE,
-    });
-
-    if (!ledger) {
-      throw { status: 404, message: "Ledger entry not found" };
-    }
-
+    
     const category = await Category.findByPk(req.body.categoryId);
-
     // Update the ledger instance
     if (["currency", "gold"].includes(category.name.toLowerCase())) {
+      // Find ledger entry related to this stock
+      const ledger = await Ledger.findOne({
+        where: { stockId: req.body.id },
+        transaction: t,
+        lock: t.LOCK.UPDATE,
+      });
+
+      if (!ledger) {
+        throw { status: 404, message: "Ledger entry not found" };
+      }
+
       await ledger.update({
         businessId: req.body.businessId,
         categoryId: req.body.categoryId,

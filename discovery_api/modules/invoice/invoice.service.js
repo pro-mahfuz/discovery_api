@@ -72,6 +72,7 @@ export const createInvoice = async (req) => {
                 containerId: item.containerId,
                 name: item.name,
                 quantity: item.quantity,
+                unit: item.unit,
                 price: item.price,
                 subTotal: item.subTotal
             }));
@@ -197,6 +198,7 @@ export const updateInvoice = async (req) => {
                 containerId: item.containerId,
                 name: item.name,
                 quantity: item.quantity,
+                unit: item.unit,
                 price: item.price,
                 subTotal: item.subTotal
             }));

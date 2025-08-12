@@ -44,21 +44,4 @@ export const containerSchema = yup.object({
   containerNo: yup
     .string()
     .required("Conainer No is required"),
-
-  containerQuantity: yup
-    .string()
-    .required("Conainer Quantity No is required"),
-
-  containerUnit: yup
-    .string()
-    .required("Container Unit is required"),
-
-  stockQuantity: yup
-    .string()
-    .required("Stock Quantity is required"),
-
-  stockUnit: yup
-    .string()
-    .required("Stock Unit is required"),
-
 });

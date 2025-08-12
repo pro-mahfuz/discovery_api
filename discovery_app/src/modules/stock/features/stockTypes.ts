@@ -23,7 +23,7 @@ export interface Stock {
   bankId?: number;
   warehouse?: Warehouse;
   quantity: number;
-  stockUnit?: string;
+  unit: string;
   createdBy?: number;
   updatedBy?: number;
   createdByUser?: string;
@@ -35,7 +35,7 @@ export interface StockReport {
   itemId: number;
   containerNo?: string;
   container: Container;
-  stockUnit?: string;
+  unit?: string;
   itemName?: string;
   item: Item;
   totalIn: number;
