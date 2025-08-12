@@ -23,13 +23,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store/store.ts";
 import {
   selectInvoiceStatus,
-  selectAllSaleReport
+  selectAllSalePaymentReport
 } from "../../invoice/features/invoiceSelectors.ts";
-import { getSaleReport } from "../../invoice/features/invoiceThunks.ts";
+import { getSalePaymentReport } from "../../invoice/features/invoiceThunks.ts";
 import { selectAuth } from "../../auth/features/authSelectors";
 import { selectUserById } from "../../user/features/userSelectors";
 
-export default function SaleReport() {
+export default function SalePaymentReport() {
   const dispatch = useDispatch<AppDispatch>();
 
   const authUser = useSelector(selectAuth);
@@ -37,35 +37,28 @@ export default function SaleReport() {
 
 
   const status = useSelector(selectInvoiceStatus);
-  const saleReports = useSelector(selectAllSaleReport);
-  console.log("saleReports: ", saleReports);
+  const salePaymentReports = useSelector(selectAllSalePaymentReport);
+  console.log("salePaymentReports: ", salePaymentReports);
 
 
   useEffect(() => {
-    dispatch(getSaleReport());
+    dispatch(getSalePaymentReport());
   }, [dispatch]);
 
 
   // Calculate total debit and credit
 
   const totalSaleReports = useMemo(() => {
-  return saleReports.reduce(
-    (acc, item) => {
-      const total = Number(item.price) * Number(item.quantity) || 0;
-      const vatTotal = (total * Number(item.invoice?.vatPercentage)) / 100 ;
-
-      acc.total += total;
-      acc.nonVatTotal += item.invoice?.isVat === false ? (total) : 0;
-
-      acc.totalVatAmount += vatTotal;
-
-      acc.vatTotal += item.invoice?.isVat === true ? (total + vatTotal) : 0;
+  return salePaymentReports.reduce(
+    (acc, payment) => {
+      acc.billAmount += Number(payment.grandTotal);
+      acc.paidAmount += Number(payment.totalPaidAmount);
 
       return acc;
     },
-    { total: 0, nonVatTotal: 0, vatTotal: 0, totalVatAmount: 0 } // initial accumulator
+    { billAmount: 0, paidAmount: 0 } // initial accumulator
   );
-}, [saleReports]);
+}, [salePaymentReports]);
 
 
 
@@ -107,7 +100,7 @@ export default function SaleReport() {
                         Address: {user?.business?.address} , Email: {user?.business?.email} , Phone: {(user?.business?.phoneCode ?? '') + user?.business?.phoneNumber}
                     </p>
                     <h6 className="border border-gray-500 p-1 rounded text-sm font-semibold text-gray-800 dark:text-white/90 mt-5">
-                        Sales Report
+                        Customer Payment Report
                     </h6>
                   </div>
                 </div>
@@ -119,19 +112,11 @@ export default function SaleReport() {
                   <TableRow>
                     <TableCell isHeader className="text-center px-4 py-2">Sl</TableCell>
                     <TableCell isHeader className="text-center px-4 py-2">Date</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Container</TableCell>
+                    <TableCell isHeader className="text-center px-4 py-2">Reference No</TableCell>
                     <TableCell isHeader className="text-center px-4 py-2">Customer</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Item</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Unit</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Price</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Qty</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Total</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">vat(%)</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Total Amount (Non-Vat)</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Vat Amount</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Total Amount (Vat)</TableCell>
-                    {/* <TableCell isHeader className="text-center px-4 py-2">Received Amount</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Due Amount</TableCell> */}
+                    <TableCell isHeader className="text-center px-4 py-2">Amount (Bill)</TableCell>
+                    <TableCell isHeader className="text-center px-4 py-2">Amount (Paid)</TableCell>
+                    <TableCell isHeader className="text-center px-4 py-2">Amount (Due)</TableCell>
                   </TableRow>
                 </TableHeader>
 
@@ -142,63 +127,37 @@ export default function SaleReport() {
                         Loading data...
                       </TableCell>
                     </TableRow>
-                  ) : saleReports.length === 0 ? (
+                  ) : salePaymentReports.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center py-4 text-gray-500 dark:text-gray-300">
                         No data found.
                       </TableCell>
                     </TableRow>
                   ) : (
-                    saleReports.map((item, index) => (
+                    salePaymentReports.map((invoice, index) => (
                           
                           <TableRow>
                             <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                                 {index + 1}
                             </TableCell>
                             <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                {item.invoice?.date}
+                                {invoice?.date}
                             </TableCell>
                             <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                {item.container?.containerNo}
+                                {invoice.invoiceNo}
                             </TableCell>
                             <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                {item.invoice?.party?.name}
+                                {invoice.party?.name}
                             </TableCell>
               
                             <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                {item.name}
+                                {invoice.grandTotal}
                             </TableCell>
                             <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                {item.unit}
+                                {invoice.totalPaidAmount}
                             </TableCell>
                             <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                {item.price}
-                            </TableCell>
-                            <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                {item.quantity}
-                            </TableCell>
-                            
-                            
-                            <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                {item.price * item.quantity}
-                            </TableCell>
-
-                            <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                {item.invoice?.vatPercentage}
-                            </TableCell>
-
-                            <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                {item.invoice?.isVat === false ? item.price * item.quantity : 0}
-                            </TableCell>
-
-                            
-
-                            <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                { (item.quantity * item.price * Number(item.invoice?.vatPercentage))/ 100}
-                            </TableCell>
-
-                            <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                {item.invoice?.isVat === true ? item.price * item.quantity + (item.price * Number(item.invoice?.vatPercentage))/ 100 : 0}
+                                {Number(invoice.grandTotal) - Number(invoice.totalPaidAmount)}
                             </TableCell>
 
                           </TableRow>
@@ -209,12 +168,12 @@ export default function SaleReport() {
                 </TableBody>
                 <TableFooter className="border border-gray-100 dark:border-white/[0.05] bg-gray-200 text-black text-sm dark:bg-gray-800 dark:text-gray-400">
                   <TableRow>
-                    <TableCell isHeader colSpan={8} className="text-center px-4 py-2">Total Summany:</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">{totalSaleReports.total}</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">{""}</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">{totalSaleReports.nonVatTotal}</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">{totalSaleReports.totalVatAmount}</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">{totalSaleReports.vatTotal}</TableCell>
+                    <TableCell isHeader colSpan={4} className="text-center px-4 py-2">Total Summany:</TableCell>
+                    <TableCell isHeader className="text-center px-4 py-2">{totalSaleReports.billAmount}</TableCell>
+                    <TableCell isHeader className="text-center px-4 py-2">{totalSaleReports.paidAmount}</TableCell>
+                    <TableCell isHeader className="text-center px-4 py-2">{totalSaleReports.billAmount - totalSaleReports.paidAmount}</TableCell>
+                    {/* <TableCell isHeader className="text-center px-4 py-2">Received Amount</TableCell>
+                    <TableCell isHeader className="text-center px-4 py-2">Due Amount</TableCell> */}
                   </TableRow>
                 </TableFooter>
               </Table>

@@ -274,19 +274,17 @@ export default function BusinessEditForm() {
                 placeholder="Enter TRN No"
                 value={formData.trnNo}
                 onChange={handleChange}
-                required
               />
             </div>
 
             <div>
               <Label>Vat (%)</Label>
               <Input
-                type="text"
+                type="number"
                 name="vatPercentage"
                 placeholder="Enter Vat"
                 value={formData.vatPercentage}
                 onChange={handleChange}
-                required
               />
             </div>
 

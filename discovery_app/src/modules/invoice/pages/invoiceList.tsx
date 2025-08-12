@@ -40,7 +40,7 @@ export default function InvoiceList() {
 
   const invoices = useSelector(selectAllInvoiceByType(invoiceType));
   const status = useSelector(selectInvoiceStatus);
-console.log("invoices- ", invoices);
+
   const [filterText, setFilterText] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);

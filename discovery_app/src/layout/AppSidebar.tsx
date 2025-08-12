@@ -130,17 +130,17 @@ const AppSidebar: React.FC<any> = () => {
       name: "Reports",
       icon: <ListIcon />,
       subItems: [
-        { name: "Stock Report", path: "/report/stock/container-wise" },
-        { name: "Sale Report", path: "/report/sale/container-wise" },
-        { name: "Payment Report", path: "/report/payment" }
+        { name: "Stock Report", path: "/report/stock" },
+        { name: "Sale Report", path: "/report/sale" },
+        { name: "Payment Report", path: "/report/sale/payment" }
       ],
     },
     {
       name: "Invoice",
       icon: <ListIcon />,
       subItems: [
-        { name: "Invoice List", path: "/invoice/0/list", pro: false },
-        { name: "Invoice Add", path: "/invoice/create", pro: false }
+        { name: "Invoice List", path: "/invoice/all/0/list", pro: false },
+        { name: "Invoice Add", path: "/invoice/all/create", pro: false }
       ],
     },
   ];

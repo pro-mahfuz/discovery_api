@@ -10,6 +10,9 @@ export const selectAllInvoice = (state: RootState): Invoice[] => state.invoice.d
 
 export const selectInvoiceAll = (state: RootState): Invoice[] => state.invoice.data || [];
 
+export const selectAllSaleReport = (state: RootState): Item[] => state.invoice.saleReport || [];
+export const selectAllSalePaymentReport = (state: RootState): Invoice[] => state.invoice.salePaymentReport || [];
+
 export const selectSaleReport = (containerId: number) => (state: RootState): Invoice[] => {
   return containerId > 0 ? 
   state.invoice.data

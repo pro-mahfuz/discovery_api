@@ -31,9 +31,11 @@ export const getAllPayment = async () => {
 
   const paymentData = data.map(payment => {
     const paymentRefNo = payment.prefix + "-" + String(payment.id).padStart(6, '0');
+    const invoiceRefNo = payment.invoice.prefix + "-" + String(payment.invoice.id).padStart(6, '0');
     return {
       ...payment.toJSON(),
       paymentRefNo,
+      invoiceRefNo,
       createdByUser: payment.createdByUser?.name ?? null,
       updatedByUser: payment.updatedByUser?.name ?? null,
     };

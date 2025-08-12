@@ -83,9 +83,9 @@ export default function StockReport() {
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                         Address: {user?.business?.address} , Email: {user?.business?.email} , Phone: {(user?.business?.phoneCode ?? '') + user?.business?.phoneNumber}
                     </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                        
-                    </p>
+                    <h6 className="border border-gray-500 p-1 rounded text-sm font-semibold text-gray-800 dark:text-white/90 mt-5">
+                        Stock Report
+                    </h6>
                   </div>
                 </div>
               </div>

@@ -160,7 +160,7 @@ console.log("payments- ", payments);
                         {payment.paymentType}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {payment.invoiceRefId}
+                        {payment.invoiceRefNo}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {payment.paymentDate}

@@ -136,17 +136,22 @@ export default function PaymentCreateForm() {
                     <Label>Select Invoice Ref (if have)</Label>
                     <Select
                         options={invoices.map((i) => ({
-                            label: String(i.id),
-                            value: Number(i.id),
-                            partyId: Number(i.partyId)
+                            label: `#${i.invoiceNo}`,
+                            value: i.id,
+                            invoiceType: i.invoiceType,
+                            categoryId: i.categoryId,
+                            partyId: i.partyId
                         }))}
                         placeholder="Select invoice type"
 
                         onChange={(selectedOption) => {
                             setFormData(prev => ({
                                 ...prev,
-                                invoiceId: selectedOption!.value ?? null,
-                                partyId: selectedOption?.partyId,
+                                invoiceId: Number(selectedOption!.value),
+                                invoiceType: selectedOption?.invoiceType,
+                                categoryId: Number(selectedOption?.categoryId),
+                                partyId: Number(selectedOption?.partyId)
+                                
                             }));
                         }}
                         styles={selectStyles}

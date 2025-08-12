@@ -20,6 +20,7 @@ export interface Invoice {
   isVat?: boolean;
   vatPercentage?: number;
   grandTotal?: number;
+  totalPaidAmount?: number;
   category?: Category;
   items: Item[]; 
   currency: string;
@@ -33,7 +34,8 @@ export interface Invoice {
 
 export interface InvoiceState {
   data: Invoice[];
-  report: Item[];
+  saleReport: Item[];
+  salePaymentReport: Invoice[],
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }

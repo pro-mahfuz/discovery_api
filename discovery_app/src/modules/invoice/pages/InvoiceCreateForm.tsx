@@ -189,12 +189,15 @@ export default function InvoiceCreateForm() {
 
     // Auto calculate totalAmount from items, separate from formData
     useEffect(() => {
+        console.log("check: ", formData.isVat);
         const total = formData.items.reduce( (sum, item) => sum + item.price * item.quantity, 0 );
 
         const discount = Number(formData.discount) || 0;
         const discountedTotal = Math.max(0, total - discount);
         const vatAmount = formData.isVat === true ? discountedTotal * (Number(user?.business?.vatPercentage) / 100) : 0;
         const grandTotal = discountedTotal + vatAmount;
+
+        console.log("grandTotal: ", grandTotal);
 
         setFormData((prev) => ({
             ...prev,
@@ -338,6 +341,7 @@ export default function InvoiceCreateForm() {
                             label={`Is Vated`}
                             checked={!!formData.isVat}
                             onChange={(checked: boolean) => {
+                                //console.log("checked: ", checked)
                                 setFormData((prev) => ({
                                     ...prev!,
                                     isVat: checked,

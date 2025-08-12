@@ -179,7 +179,7 @@ export default function StockEditForm() {
                         styles={selectStyles}
                         classNamePrefix="react-select"
                     />
-                    </div>
+                </div>
 
 
                 {/* Invoice Type */}

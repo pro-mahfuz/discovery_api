@@ -1,4 +1,4 @@
-import { Invoice, InvoiceItem, User, Stock, Ledger, Category, Party, sequelize } from "../../models/model.js";
+import { Invoice, InvoiceItem, User, Payment, Item, Container, Ledger, Category, Party, sequelize } from "../../models/model.js";
 
 export const getAllInvoice = async () => {
     const data = await Invoice.findAll({
@@ -47,50 +47,67 @@ export const getAllInvoice = async () => {
 }
 
 export const getSaleReport = async () => {
-    const data = await Invoice.findAll({
+    const data = await InvoiceItem.findAll({
         include: [
             {
-                model: InvoiceItem,
-                as: "items",
+                model: Invoice,
+                as: "invoice",
+                where: { invoiceType: "sale" },
+                include: [{ model: Party, as: "party"}]
             },
             {
-                model: Category,
-                as: "category",
+                model: Item,
+                as: "item",
             },
             {
-                model: Party,
-                as: "party",
-            },
-            {
-                model: User,
-                as: "createdByUser",
-            },
-            {
-                model: User,
-                as: "updatedByUser",
+                model: Container,
+                as: "container",
             },
         ],
     });
 
     if (!data || data.length === 0) throw { status: 400, message: "No Invoice found" };
 
-
-    const invoiceData = data
-    .map(invoice => {
-        let invoiceNo = '';
-        invoiceNo = invoice.prefix + "-" + String(invoice.id).padStart(6, '0');
-       
-
-        return {
-            ...invoice.toJSON(),
-            invoiceNo,
-            createdByUser: invoice.createdByUser?.name ?? null,
-            updatedByUser: invoice.updatedByUser?.name ?? null,
-        };
-    });
-    
-    return invoiceData;
+    return data.filter(
+    (invoiceItem) =>
+      invoiceItem.invoice &&
+      invoiceItem.invoice.invoiceType === "sale"
+    );
 }
+
+export const getSalePaymentReport = async () => {
+  const data = await Invoice.findAll({
+    where: { invoiceType: "sale" },
+    include: [
+      { model: Party, as: "party" },
+      { model: Payment, as: "payments" },
+    ],
+  });
+
+  if (!data || data.length === 0) {
+    throw { status: 400, message: "No Invoice found" };
+  }
+
+  // Add totalPaidAmount to each invoice
+  const result = data.map(invoice => {
+
+    const invoiceNo = invoice.prefix + "-" + String(invoice.id).padStart(6, '0');
+
+    const totalPaidAmount = invoice.payments?.reduce(
+      (sum, payment) => sum + (Number(payment.amountPaid) || 0),
+      0
+    ) || 0;
+
+    return {
+      ...invoice.toJSON(),
+      invoiceNo,
+      totalPaidAmount,
+    };
+  });
+
+  return result;
+};
+
 
 export const createInvoice = async (req) => {
     const { items, ...invoiceData } = req.body;

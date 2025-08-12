@@ -11,6 +11,26 @@ export const getAllInvoice = async (req, res, next) =>{
     }
 }
 
+export const getSaleReport = async (req, res, next) =>{
+    try {
+        const data = await InvoiceService.getSaleReport();
+        return success(res, data, "Response successful");
+
+    } catch (err) {
+        return error(res, err.message, err.status || 500);
+    }
+}
+
+export const getSalePaymentReport = async (req, res, next) =>{
+    try {
+        const data = await InvoiceService.getSalePaymentReport();
+        return success(res, data, "Response successful");
+
+    } catch (err) {
+        return error(res, err.message, err.status || 500);
+    }
+}
+
 export const createInvoice = async (req, res, next) => {
     try {
         console.log("Invoice create Request: ", req.body);

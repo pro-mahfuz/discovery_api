@@ -28,6 +28,7 @@ export interface Payment {
   invoiceRefId?: string;
   partyId?: number;
   paymentRefNo?: string;
+  invoiceRefNo?: string;
   paymentType: string;
   paymentDate: string;
   note?: string;

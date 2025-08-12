@@ -20,10 +20,25 @@ export const fetchAllInvoice = createAsyncThunk<Invoice[], void, { rejectValue: 
 );
 
 export const getSaleReport = createAsyncThunk<Item[], void, { rejectValue: string }>(
-  'sale/getSaleReport', async (_, thunkAPI) => {
+  'invoice/getSaleReport', async (_, thunkAPI) => {
     try {
 
       const data = await invoiceAPI.getSaleReport();
+      return data;
+      
+    } catch (err) {
+
+      const error = err as AxiosError<{ message?: string }>;
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message || 'Failed to fetch');
+    }
+  }
+);
+
+export const getSalePaymentReport = createAsyncThunk<Invoice[], void, { rejectValue: string }>(
+  'invoice/getSalePaymentReport', async (_, thunkAPI) => {
+    try {
+
+      const data = await invoiceAPI.getSalePaymentReport();
       return data;
       
     } catch (err) {

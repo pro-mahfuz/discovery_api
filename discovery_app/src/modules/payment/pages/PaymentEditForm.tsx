@@ -149,18 +149,34 @@ export default function PaymentEditForm() {
                 {/* Invoice Type */}
                 <div>
                     <Label>Select Invoice Ref (if have)</Label>
-                    <Select<OptionNumberType>
+                    <Select
                         options={invoices.map((i) => ({
-                            label: String(i.id),
-                            value: Number(i.id)
+                            label: `#${i.id} | ${i.party?.name ?? "No name"}`,
+                            value: i.id,
+                            invoiceType: i.invoiceType,
+                            categoryId: i.categoryId,
+                            partyId: i.partyId
                         }))}
                         placeholder="Select invoice type"
-
+                        value={
+                            invoices
+                            .map((i) => ({
+                                label: `#${i.invoiceNo}`,
+                                value: i.id,
+                                invoiceType: i.invoiceType,
+                                categoryId: i.categoryId,
+                                partyId: i.partyId
+                            }))
+                            .find((option) => option.value === formData.invoiceId) || null
+                        }
                         onChange={(selectedOption) => {
-                            setFormData(prev => ({
-                                ...prev,
-                                invoiceId: selectedOption!.value ?? null,
-                            }));
+                        setFormData((prev) => ({
+                            ...prev,
+                            invoiceId: Number(selectedOption!.value),
+                            invoiceType: selectedOption?.invoiceType,
+                            categoryId: Number(selectedOption?.categoryId),
+                            partyId: Number(selectedOption?.partyId)
+                        }));
                         }}
                         styles={selectStyles}
                         classNamePrefix="react-select"

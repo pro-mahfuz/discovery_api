@@ -57,6 +57,7 @@ import StockListForm from "./modules/stock/pages/StockList";
 import StockEditForm from "./modules/stock/pages/StockEditForm";
 import StockReport from "./modules/report/pages/StockReport";
 import SaleReport from "./modules/report/pages/SaleReport";
+import SalePaymentReport from "./modules/report/pages/SalePaymentReport";
 
 
 export default function App() {
@@ -216,15 +217,21 @@ export default function App() {
             />
 
             {/* Report */}
-            <Route index path="/report/stock/container-wise" element={
+            <Route index path="/report/stock" element={
               <PrivateRoute permissions={['manage_ledger']}>
                 <StockReport />
               </PrivateRoute>} 
             />
 
-            <Route index path="/report/sale/container-wise" element={
+            <Route index path="/report/sale" element={
               <PrivateRoute permissions={['manage_ledger']}>
                 <SaleReport />
+              </PrivateRoute>} 
+            />
+
+            <Route index path="/report/sale/payment" element={
+              <PrivateRoute permissions={['manage_ledger']}>
+                <SalePaymentReport />
               </PrivateRoute>} 
             />
 
