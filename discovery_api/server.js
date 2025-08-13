@@ -1,15 +1,19 @@
 import app from "./app.js";
 import { sequelize } from "./models/model.js";
 
+// app.listen(PORT, () => {
+//   console.log(`Server running ...`);
+// });
+
 const PORT = process.env.PORT || 3000;
 
 (async () => {
   try {
-    await sequelize.sync({ alter: false });
+    // await sequelize.sync({ alter: false });
     app.listen(PORT, () => {
-      console.log(`🚀 Server running at http://localhost:${PORT}`);
+      console.log(`Server running at http://localhost:${PORT}`);
     });
   } catch (err) {
-    console.error("❌ DB connection error:", err);
+    console.error("DB connection error:", err);
   }
 })();

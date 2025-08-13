@@ -23,10 +23,10 @@ app.use(express.json());
 app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
-app.use(cors({
-  origin: 'http://localhost:5173', // allow your Vite frontend
-  credentials: true            // if you're using cookies or auth headers
-}));
+// app.use(cors({
+//   origin: 'http://localhost:5173', // allow your Vite frontend
+//   credentials: true            // if you're using cookies or auth headers
+// }));
 
 
 // Middleware to parse JSON bodies from incoming requests

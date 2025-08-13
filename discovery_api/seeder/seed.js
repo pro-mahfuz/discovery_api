@@ -1,7 +1,7 @@
 import { hash } from "bcryptjs";
 import dotenv from "dotenv";
 dotenv.config();
-import { sequelize, Permission, Role } from "../models/model.js"; // Adjust the path as needed
+import { sequelize, Permission } from "../models/model.js"; // Adjust the path as needed
 import { faker } from '@faker-js/faker';
 
 import { shmSeed } from "./shm.js";
@@ -92,15 +92,9 @@ async function seed() {
     { name: "Ledger Delete", action: "delete_ledger" },
   ]);
 
-  const [root, admin, manager, sale] = await Promise.all([
-    Role.create({ name: "Root", action: "root", isActive: true }),
-    Role.create({ name: "Admin", action: "admin", isActive: true }),
-    Role.create({ name: "Manager", action: "manager", isActive: true }),
-    Role.create({ name: "Sale Person", action: "sale", isActive: true }),
-  ]);
 
-  //await discoverySeed(permissions, root, admin, manager, sale);
-  await shmSeed(permissions, root, admin, manager, sale);
+  //await discoverySeed(permissions);
+  await shmSeed(permissions);
 
   console.log("Seed complete");
   process.exit();

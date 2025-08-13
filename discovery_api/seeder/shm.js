@@ -1,13 +1,14 @@
 import { hash } from "bcryptjs";
 import dotenv from "dotenv";
 dotenv.config();
-import { Business, User, Bank, Warehouse, Category, Item } from "../models/model.js"; // Adjust the path as needed
+import { Business, Role, User, Bank, Warehouse, Category, Item } from "../models/model.js"; // Adjust the path as needed
 import { faker } from '@faker-js/faker';
 
-export async function shmSeed(permissions, root, admin, manager, sale) {
+export async function shmSeed(permissions) {
   
 
   { /* SHM Gold */ }
+  
   // Business
   const [SHMGold] = await Promise.all([
     Business.create({
@@ -25,6 +26,15 @@ export async function shmSeed(permissions, root, admin, manager, sale) {
       isActive: true,
     }),
   ]);
+  
+  // Role
+  const [root, admin, manager, sale] = await Promise.all([
+    Role.create({ businessId: SHMGold.id, name: "Root", action: "root", isActive: true }),
+    Role.create({ businessId: SHMGold.id, name: "Admin", action: "admin", isActive: true }),
+    Role.create({ businessId: SHMGold.id, name: "Manager", action: "manager", isActive: true }),
+    Role.create({ businessId: SHMGold.id, name: "Sale Person", action: "sale", isActive: true }),
+  ]);
+  
 
   // Category
   const [Currency, Gold] = await Promise.all([

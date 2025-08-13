@@ -1,10 +1,10 @@
 import { hash } from "bcryptjs";
 import dotenv from "dotenv";
 dotenv.config();
-import { Business, User, Container, Bank, Warehouse, Category, Item } from "../models/model.js"; // Adjust the path as needed
+import { Business, Role, User, Container, Bank, Warehouse, Category, Item } from "../models/model.js"; // Adjust the path as needed
 import { faker } from '@faker-js/faker';
 
-export async function discoverySeed(permissions, root, admin, manager, sale) {
+export async function discoverySeed(permissions) {
   
 
   { /* Discovery */ }
@@ -24,6 +24,14 @@ export async function discoverySeed(permissions, root, admin, manager, sale) {
       postalCode: "00000",
       isActive: true,
     })
+  ]);
+  
+  // Role
+  const [root, admin, manager, sale] = await Promise.all([
+    Role.create({ businessId: Discovery.id, name: "Root", action: "root", isActive: true }),
+    Role.create({ businessId: Discovery.id, name: "Admin", action: "admin", isActive: true }),
+    Role.create({ businessId: Discovery.id, name: "Manager", action: "manager", isActive: true }),
+    Role.create({ businessId: Discovery.id, name: "Sale Person", action: "sale", isActive: true }),
   ]);
 
   // Category
