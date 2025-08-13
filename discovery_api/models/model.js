@@ -2,12 +2,17 @@ import Sequelize from 'sequelize';
 import dotenv from 'dotenv';
 dotenv.config();
 
-// const sequelize = new Sequelize(process.env.DB_URI);
+//const sequelize = new Sequelize(process.env.DB_URI);
+console.log(process.env.DB_NAME);
+console.log(process.env.DB_USER);
+console.log(process.env.DB_PASSWORD);
+console.log(process.env.DB_HOST);
+console.log(process.env.DB_PORT);
 
 const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
-  process.env.DB_PASS,
+  process.env.DB_PASSWORD,
   {
     host: process.env.DB_HOST,
     dialect: 'mysql',
@@ -38,26 +43,26 @@ import defineStock from './stock.js';
 
 // define your model here...
 const Business = defineBusiness(sequelize, Sequelize.DataTypes);
+const Category = defineCategory(sequelize, Sequelize.DataTypes);
+const Item = defineItem(sequelize, Sequelize.DataTypes);
+const Bank = defineBank(sequelize, Sequelize.DataTypes);
+const Warehouse = defineWarehouse(sequelize, Sequelize.DataTypes);
+const Container = defineContainer(sequelize, Sequelize.DataTypes);
+const Permission = definePermission(sequelize, Sequelize.DataTypes);
+const Role = defineRole(sequelize, Sequelize.DataTypes);
 const User = defineUser(sequelize, Sequelize.DataTypes);
 const Profile = defineProfile(sequelize, Sequelize.DataTypes);
-const Role = defineRole(sequelize, Sequelize.DataTypes);
-const Permission = definePermission(sequelize, Sequelize.DataTypes);
 const RolePermission = defineRolePermission(sequelize, Sequelize.DataTypes);
 const TokenStore = defineTokenStore(sequelize, Sequelize.DataTypes);
 const Party = defineParty(sequelize, Sequelize.DataTypes);
-const Category = defineCategory(sequelize, Sequelize.DataTypes);
-const Item = defineItem(sequelize, Sequelize.DataTypes);
-const Container = defineContainer(sequelize, Sequelize.DataTypes);
 const Invoice = defineInvoice(sequelize, Sequelize.DataTypes);
 const InvoiceItem = defineInvoiceItem(sequelize, Sequelize.DataTypes);
 const Payment = definePayment(sequelize, Sequelize.DataTypes);
-const Ledger = defineLedger(sequelize, Sequelize.DataTypes);
-const Warehouse = defineWarehouse(sequelize, Sequelize.DataTypes);
-const Bank = defineBank(sequelize, Sequelize.DataTypes);
 const Stock = defineStock(sequelize, Sequelize.DataTypes);
+const Ledger = defineLedger(sequelize, Sequelize.DataTypes);
 
 // define your model for associate relations here...
-const models = { Business, User, Profile, Role, Permission, RolePermission, TokenStore, Party, Category, Item, Container, Invoice, InvoiceItem, Payment, Ledger, Warehouse, Bank, Stock };
+const models = { Business, Role, Permission, RolePermission, User, Profile,  TokenStore, Party, Category, Item, Container, Invoice, InvoiceItem, Payment, Warehouse, Bank, Stock, Ledger };
 // Call associate on each model if defined
 Object.values(models).forEach((model) => {
   if (model.associate) {

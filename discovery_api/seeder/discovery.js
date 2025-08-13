@@ -96,7 +96,7 @@ export async function discoverySeed(permissions) {
   // Account
   await Bank.bulkCreate([
     {
-      business: Discovery.id,
+      businessId: Discovery.id,
       accountName: "Cash In Hand",
       accountNo: "cash-in-hand",
       address: "",
@@ -107,14 +107,16 @@ export async function discoverySeed(permissions) {
   // User
   const [Mahfuz, Admin] = await Promise.all([
     User.create({
-      businessId: Discovery.id,
+      businessId: SHMGold.id,
+      roleId: root.id,
       name: "Root Admin",
       email: "root@gmail.com",
       password: await hash("password123", 10),
       isActive: true,
     }),
     User.create({
-      businessId: Discovery.id,
+      businessId: SHMGold.id,
+      roleId: admin.id,
       name: "Admin",
       email: "admin@gmail.com",
       password: await hash("password123", 10),

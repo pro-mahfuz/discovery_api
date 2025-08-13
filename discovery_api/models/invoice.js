@@ -1,19 +1,18 @@
+// models/Invoice.js
 export default (sequelize, DataTypes) => {
   const Invoice = sequelize.define("Invoice", {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     businessId: {
       type: DataTypes.INTEGER,
-      references: {
-        model: 'Businesses', // name of Target model
-        key: 'id' // key in Target model that we're referencing
-      }
+      allowNull: false,
     },
     categoryId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'Categories', // Ensure this matches the actual table name
-        key: 'id',
-      },
     },
     invoiceRefId: {
       type: DataTypes.INTEGER,
@@ -24,17 +23,12 @@ export default (sequelize, DataTypes) => {
       allowNull: false,
     },
     invoiceType: {
-      type: DataTypes.ENUM,
-      values: ['purchase', 'sale', 'saleReturn'],
+      type: DataTypes.ENUM('purchase', 'sale', 'saleReturn'),
       allowNull: false,
     },
     partyId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'Parties', // Correct model name — assuming your Party table is named 'Parties'
-        key: 'id',
-      },
     },
     date: {
       type: DataTypes.DATEONLY,
@@ -43,24 +37,22 @@ export default (sequelize, DataTypes) => {
     totalAmount: {
       type: DataTypes.FLOAT,
       allowNull: false,
-      validate: {
-        min: 0,
-      },
+      validate: { min: 0 },
     },
     isVat: {
       type: DataTypes.BOOLEAN,
-      allowNull: false,
       defaultValue: false,
+      allowNull: false,
     },
     vatPercentage: {
       type: DataTypes.FLOAT,
-      allowNull: false,
       defaultValue: 0,
+      allowNull: false,
     },
     discount: {
       type: DataTypes.FLOAT,
-      allowNull: true,
       defaultValue: 0,
+      allowNull: true,
     },
     grandTotal: {
       type: DataTypes.FLOAT,
@@ -77,82 +69,37 @@ export default (sequelize, DataTypes) => {
     createdBy: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'Users',
-        key: 'id',
-      },
     },
     updatedBy: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'Users',
-        key: 'id',
-      },
     },
     isDeleted: {
       type: DataTypes.BOOLEAN,
-      allowNull: true,
+      defaultValue: false,
     },
     deletedBy: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'Users',
-        key: 'id',
-      },
     },
   }, {
     tableName: "invoices",
-    timestamps: true, // createdAt & updatedAt
-    underscored: false, // if you prefer snake_case in DB columns
+    timestamps: true,
+    underscored: false,
   });
 
   Invoice.associate = (models) => {
-    Invoice.belongsTo(models.Category, {
-      foreignKey: "categoryId",
-      as: "category",
-    });
+    Invoice.belongsTo(models.Category, { foreignKey: "categoryId", as: "category", onDelete: "CASCADE", onUpdate: "CASCADE" });
+    Invoice.belongsTo(models.Party, { foreignKey: "partyId", as: "party" });
+    Invoice.belongsTo(models.Business, { foreignKey: "businessId", as: "business" });
 
-    Invoice.belongsTo(models.Party, {
-      foreignKey: 'partyId',
-      as: 'party',
-    });
+    Invoice.hasMany(models.InvoiceItem, { foreignKey: "invoiceId", as: "items", onDelete: "CASCADE" });
+    Invoice.hasMany(models.Payment, { foreignKey: "invoiceId", as: "payments" });
+    Invoice.hasMany(models.Stock, { foreignKey: "invoiceId", as: "stocks" });
 
-    Invoice.hasMany(models.InvoiceItem, {
-      foreignKey: 'invoiceId',
-      as: 'items',
-    });
-
-    Invoice.belongsTo(models.Business, {
-      foreignKey: "businessId",
-      as: "business"
-    });
-
-    Invoice.hasMany(models.Payment, {
-      foreignKey: "invoiceId",
-      as: "payments",
-    });
-
-    Invoice.hasMany(models.Stock, {
-      foreignKey: "invoiceId",
-      as: "stocks",
-    });
-
-    Invoice.belongsTo(models.User, {
-      foreignKey: "createdBy",
-      as: "createdByUser"
-    });
-
-    Invoice.belongsTo(models.User, {
-      foreignKey: "updatedBy",
-      as: "updatedByUser"
-    });
-
-    Invoice.belongsTo(models.User, {
-      foreignKey: "deletedBy",
-      as: "deletedByUser"
-    });
+    Invoice.belongsTo(models.User, { foreignKey: "createdBy", as: "createdByUser" });
+    Invoice.belongsTo(models.User, { foreignKey: "updatedBy", as: "updatedByUser" });
+    Invoice.belongsTo(models.User, { foreignKey: "deletedBy", as: "deletedByUser" });
   };
 
   return Invoice;

@@ -1,19 +1,18 @@
+// models/Ledger.js
 export default (sequelize, DataTypes) => {
-  const Ledger = sequelize.define("Ledger", {
+  const Ledger = sequelize.define('Ledger', {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     businessId: {
       type: DataTypes.INTEGER,
-      references: {
-        model: 'Businesses', // name of Target model
-        key: 'id' // key in Target model that we're referencing
-      }
+      allowNull: true,
     },
     categoryId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'Categories', // Ensure this matches the actual table name
-        key: 'id',
-      },
     },
     transactionType: {
       type: DataTypes.STRING(50),
@@ -34,34 +33,18 @@ export default (sequelize, DataTypes) => {
     invoiceId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'Invoices',
-        key: 'id'
-      }
     },
     paymentId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'Payments',
-        key: 'id'
-      }
     },
     stockId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'stocks',  // <-- Problem likely here
-        key: 'id'
-      }
     },
     bankId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'banks',  // <-- Problem likely here
-        key: 'id'
-      }
     },
     description: {
       type: DataTypes.TEXT,
@@ -94,78 +77,36 @@ export default (sequelize, DataTypes) => {
     createdBy: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'Users',
-        key: 'id',
-      },
     },
     updatedBy: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'Users',
-        key: 'id',
-      },
     },
     isDeleted: {
       type: DataTypes.BOOLEAN,
-      allowNull: true,
+      defaultValue: false,
     },
     deletedBy: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'Users',
-        key: 'id',
-      },
     },
   }, {
-    tableName: "ledgers",
-    timestamps: true, // createdAt & updatedAt
-    underscored: false, // if you prefer snake_case in DB columns
+    tableName: 'ledgers',
+    timestamps: true,
+    underscored: false,
   });
 
   Ledger.associate = (models) => {
-    // Optional: If you have Party model
-    Ledger.belongsTo(models.Category, {
-      foreignKey: "categoryId",
-      as: "category",
-    });
-
-    Ledger.belongsTo(models.Party, {
-      foreignKey: 'partyId',
-      as: 'party',
-    });
-
-    Ledger.belongsTo(models.Business, {
-      foreignKey: "businessId",
-      as: "business"
-    });
-
-    // Optional associations depending on transactionType
+    Ledger.belongsTo(models.Category, { foreignKey: 'categoryId', as: 'category' });
+    Ledger.belongsTo(models.Party, { foreignKey: 'partyId', as: 'party' });
+    Ledger.belongsTo(models.Business, { foreignKey: 'businessId', as: 'business' });
     Ledger.belongsTo(models.Invoice, { foreignKey: 'invoiceId', as: 'invoice' });
     Ledger.belongsTo(models.Payment, { foreignKey: 'paymentId', as: 'payment' });
     Ledger.belongsTo(models.Stock, { foreignKey: 'stockId', as: 'stock' });
-
-    Ledger.belongsTo(models.User, {
-      foreignKey: "createdBy",
-      as: "createdByUser"
-    });
-
-    Ledger.belongsTo(models.User, {
-      foreignKey: "updatedBy",
-      as: "updatedByUser"
-    });
-
-    Ledger.belongsTo(models.User, {
-      foreignKey: "deletedBy",
-      as: "deletedByUser"
-    });
-
-    Ledger.belongsTo(models.Bank, {
-      foreignKey: "bankId",
-      as: "bank"
-    });
+    Ledger.belongsTo(models.Bank, { foreignKey: 'bankId', as: 'bank' });
+    Ledger.belongsTo(models.User, { foreignKey: 'createdBy', as: 'createdByUser' });
+    Ledger.belongsTo(models.User, { foreignKey: 'updatedBy', as: 'updatedByUser' });
+    Ledger.belongsTo(models.User, { foreignKey: 'deletedBy', as: 'deletedByUser' });
   };
 
   return Ledger;

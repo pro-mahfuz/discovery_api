@@ -1,5 +1,14 @@
 export default (sequelize, DataTypes) => {
   const Container = sequelize.define('Container', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    businessId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
     date: {
       type: DataTypes.DATEONLY,
       allowNull: false,
@@ -66,6 +75,10 @@ export default (sequelize, DataTypes) => {
   });
 
   Container.associate = (models) => {
+    Container.belongsTo(models.Business, {
+      foreignKey: 'businessId',
+      as: 'business',
+    });
 
     Container.hasMany(models.Stock, {
       foreignKey: 'containerId',

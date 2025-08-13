@@ -1,5 +1,10 @@
 export default (sequelize, DataTypes) => {
   const Profile = sequelize.define("Profile", {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
     fullName: { type: DataTypes.STRING },
     birthDate: { type: DataTypes.DATE },
     gender: { type: DataTypes.STRING },
@@ -13,8 +18,8 @@ export default (sequelize, DataTypes) => {
     country: { type: DataTypes.STRING },
     postalCode: { type: DataTypes.STRING },
     profilePicture: { 
-        type: DataTypes.STRING, 
-        allowNull: true 
+      type: DataTypes.STRING, 
+      allowNull: true 
     },
     userId: {
       type: DataTypes.INTEGER,

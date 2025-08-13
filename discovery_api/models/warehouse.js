@@ -1,11 +1,13 @@
 export default (sequelize, DataTypes) => {
   const Warehouse = sequelize.define("Warehouse", {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
     businessId: {
       type: DataTypes.INTEGER,
-      references: {
-        model: 'Businesses', // name of Target model
-        key: 'id' // key in Target model that we're referencing
-      }
+      allowNull: false, 
     },
     name: {
       type: DataTypes.STRING,
@@ -23,14 +25,6 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
-    createdAt: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
   }, {
     tableName: "warehouses",
     timestamps: true,
@@ -40,7 +34,7 @@ export default (sequelize, DataTypes) => {
   Warehouse.associate = (models) => {
     Warehouse.hasMany(models.Stock, {
       foreignKey: "warehouseId",
-      as: "stock",
+      as: "stocks",
     });
 
     Warehouse.belongsTo(models.Business, {

@@ -1,11 +1,14 @@
+// models/Payment.js
 export default (sequelize, DataTypes) => {
   const Payment = sequelize.define("Payment", {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     businessId: {
       type: DataTypes.INTEGER,
-      references: {
-        model: 'Businesses', // name of Target model
-        key: 'id' // key in Target model that we're referencing
-      }
+      allowNull: true,
     },
     partyId: {
       type: DataTypes.INTEGER,
@@ -14,10 +17,6 @@ export default (sequelize, DataTypes) => {
     categoryId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'Categories', // Ensure this matches the actual table name
-        key: 'id',
-      },
     },
     prefix: {
       type: DataTypes.STRING,
@@ -46,9 +45,7 @@ export default (sequelize, DataTypes) => {
     amountPaid: {
       type: DataTypes.DECIMAL(12, 2),
       allowNull: false,
-      validate: {
-        min: 0,
-      },
+      validate: { min: 0 },
     },
     paymentMethod: {
       type: DataTypes.STRING,
@@ -61,72 +58,33 @@ export default (sequelize, DataTypes) => {
     createdBy: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'Users',
-        key: 'id',
-      },
     },
     updatedBy: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'Users',
-        key: 'id',
-      },
     },
     isDeleted: {
       type: DataTypes.BOOLEAN,
-      allowNull: true,
+      defaultValue: false,
     },
     deletedBy: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'Users',
-        key: 'id',
-      },
     },
   }, {
     tableName: "payments",
-    timestamps: true, // createdAt & updatedAt
-    underscored: false, // if you prefer snake_case in DB columns
+    timestamps: true,
+    underscored: false,
   });
 
   Payment.associate = (models) => {
-    Payment.belongsTo(models.Party, {
-      foreignKey: "partyId",
-      as: "party",
-    });
-
-    Payment.belongsTo(models.Category, {
-      foreignKey: "categoryId",
-      as: "category",
-    });
-
-    Payment.belongsTo(models.Invoice, {
-      foreignKey: "invoiceId",
-      as: "invoice",
-    });
-
-    Payment.belongsTo(models.Business, {
-      foreignKey: "businessId",
-      as: "business"
-    });
-
-    Payment.belongsTo(models.User, {
-      foreignKey: "createdBy",
-      as: "createdByUser"
-    });
-
-    Payment.belongsTo(models.User, {
-      foreignKey: "updatedBy",
-      as: "updatedByUser"
-    });
-
-    Payment.belongsTo(models.User, {
-      foreignKey: "deletedBy",
-      as: "deletedByUser"
-    });
+    Payment.belongsTo(models.Party, { foreignKey: "partyId", as: "party" });
+    Payment.belongsTo(models.Category, { foreignKey: "categoryId", as: "category" });
+    Payment.belongsTo(models.Invoice, { foreignKey: "invoiceId", as: "invoice" });
+    Payment.belongsTo(models.Business, { foreignKey: "businessId", as: "business" });
+    Payment.belongsTo(models.User, { foreignKey: "createdBy", as: "createdByUser" });
+    Payment.belongsTo(models.User, { foreignKey: "updatedBy", as: "updatedByUser" });
+    Payment.belongsTo(models.User, { foreignKey: "deletedBy", as: "deletedByUser" });
   };
 
   return Payment;

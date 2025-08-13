@@ -1,51 +1,54 @@
 export default (sequelize, DataTypes) => {
-  const Bank = sequelize.define("Bank", {
-    businessId: {
-      type: DataTypes.INTEGER,
-      references: {
-        model: 'Businesses', // name of Target model
-        key: 'id' // key in Target model that we're referencing
-      }
+  const Bank = sequelize.define(
+    "Bank",
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      businessId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      accountName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      accountNo: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      address: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      isActive: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+      },
     },
-    accountName: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    accountNo: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    address: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    isActive: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
-  }, {
-    tableName: "banks",
-    timestamps: true,
-    underscored: false,
-  });
+    {
+      tableName: "banks",
+      timestamps: true,
+      underscored: false,
+    }
+  );
 
   Bank.associate = (models) => {
     Bank.hasMany(models.Payment, {
       foreignKey: "bankId",
-      as: "payment",
+      as: "payments", // plural for clarity
     });
 
     Bank.hasMany(models.Stock, {
       foreignKey: "bankId",
-      as: "stock"
+      as: "stocks", // plural for clarity
+    });
+
+    Bank.belongsTo(models.Business, {
+      foreignKey: "businessId",
+      as: "business",
     });
   };
 

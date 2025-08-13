@@ -1,36 +1,27 @@
 export default (sequelize, DataTypes) => {
   const Category = sequelize.define("Category", {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
     businessId: {
       type: DataTypes.INTEGER,
-      references: {
-        model: 'Businesses', // name of Target model
-        key: 'id' // key in Target model that we're referencing
-      }
+      allowNull: false
     },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
+    name: DataTypes.STRING,
     isActive: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true,
-    },
+      defaultValue: true
+    }
   }, {
     tableName: "categories",
-    timestamps: true, // createdAt & updatedAt
-    underscored: false, // set to true if using snake_case (e.g., created_at)
+    timestamps: true
   });
 
   Category.associate = (models) => {
-    Category.hasMany(models.Item, {
-      foreignKey: "categoryId",
-      as: "items", 
-    });
-
-    Category.belongsTo(models.Business, {
-      foreignKey: "businessId",
-      as: "business"
-    });
+    Category.belongsTo(models.Business, { foreignKey: "businessId", as: "business" });
+    Category.hasMany(models.Item, { foreignKey: "categoryId", as: "items" });
   };
 
   return Category;

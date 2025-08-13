@@ -1,40 +1,43 @@
 export default (sequelize, DataTypes) => {
   const Item = sequelize.define("Item", {
-    code: {
-      type: DataTypes.STRING,
-      allowNull: true,
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
     },
+    businessId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    code: DataTypes.STRING,
     name: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
     },
     categoryId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'Categories', // Ensure this matches the actual table name
-        key: 'id',
-      },
+      allowNull: false
     },
     isActive: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true,
-    },
+      defaultValue: true
+    }
   }, {
     tableName: "items",
-    timestamps: true, // createdAt & updatedAt
-    underscored: false, // set to true if using snake_case (e.g., created_at)
+    timestamps: true
   });
 
   Item.associate = (models) => {
     Item.belongsTo(models.Category, {
       foreignKey: "categoryId",
-      as: "category", // refers to related Category
+      as: "category",
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE"
     });
-
-    Item.hasMany(models.InvoiceItem, {
-      foreignKey: "itemId",
-      as: "invoiceItems", // refers to related InvoiceItems
+    
+    Item.belongsTo(models.Business, {
+      foreignKey: "businessId",
+      as: "business"
     });
   };
 

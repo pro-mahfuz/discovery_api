@@ -1,12 +1,14 @@
+// models/Stock.js
 export default (sequelize, DataTypes) => {
   const Stock = sequelize.define('Stock', {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     businessId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'businesses',
-        key: 'id',
-      },
     },
     date: {
       type: DataTypes.DATEONLY,
@@ -23,10 +25,6 @@ export default (sequelize, DataTypes) => {
     partyId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'parties',
-        key: 'id',
-      },
     },
     movementType: {
       type: DataTypes.ENUM('stock_in', 'stock_out', 'damaged'),
@@ -47,121 +45,55 @@ export default (sequelize, DataTypes) => {
     warehouseId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'warehouses',
-        key: 'id',
-      },
     },
     bankId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'banks',
-        key: 'id',
-      },
     },
     categoryId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'categories',
-        key: 'id',
-      },
     },
     containerId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'containers', // must match tableName exactly
-        key: 'id',
-      }
     },
     itemId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'items',
-        key: 'id',
-      },
     },
     createdBy: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'Users',
-        key: 'id',
-      },
     },
     updatedBy: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'Users',
-        key: 'id',
-      },
     },
     isDeleted: {
       type: DataTypes.BOOLEAN,
-      allowNull: true,
+      defaultValue: false,
     },
     deletedBy: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'Users',
-        key: 'id',
-      },
     },
   }, {
     tableName: 'stocks',
     timestamps: true,
+    underscored: false,
   });
 
   Stock.associate = (models) => {
-    Stock.belongsTo(models.Item, {
-      foreignKey: 'itemId',
-      as: 'item',
-    });
-
-    Stock.belongsTo(models.Invoice, {
-      foreignKey: 'invoiceId',
-      as: 'invoice',
-    });
-
-    Stock.belongsTo(models.Warehouse, {
-      foreignKey: 'warehouseId',
-      as: 'warehouse',
-    });
-
-    Stock.belongsTo(models.Bank, {
-      foreignKey: 'bankId',
-      as: 'bank',
-    });
-
-    Stock.belongsTo(models.Business, {
-      foreignKey: 'businessId',
-      as: 'business',
-    });
-
-    Stock.belongsTo(models.Container, {
-      foreignKey: 'containerId',
-      as: 'container',
-    });
-
-    Stock.belongsTo(models.User, {
-      foreignKey: "createdBy",
-      as: "createdByUser"
-    });
-
-    Stock.belongsTo(models.User, {
-      foreignKey: "updatedBy",
-      as: "updatedByUser"
-    });
-
-    Stock.belongsTo(models.User, {
-      foreignKey: "deletedBy",
-      as: "deletedByUser"
-    });
+    Stock.belongsTo(models.Item, { foreignKey: 'itemId', as: 'item' });
+    Stock.belongsTo(models.Invoice, { foreignKey: 'invoiceId', as: 'invoice' });
+    Stock.belongsTo(models.Warehouse, { foreignKey: 'warehouseId', as: 'warehouse' });
+    Stock.belongsTo(models.Bank, { foreignKey: 'bankId', as: 'bank' });
+    Stock.belongsTo(models.Business, { foreignKey: 'businessId', as: 'business' });
+    Stock.belongsTo(models.Container, { foreignKey: 'containerId', as: 'container' });
+    Stock.belongsTo(models.User, { foreignKey: 'createdBy', as: 'createdByUser' });
+    Stock.belongsTo(models.User, { foreignKey: 'updatedBy', as: 'updatedByUser' });
+    Stock.belongsTo(models.User, { foreignKey: 'deletedBy', as: 'deletedByUser' });
   };
 
   return Stock;

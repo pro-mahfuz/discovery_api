@@ -81,7 +81,7 @@ export async function shmSeed(permissions) {
       businessId: SHMGold.id,
       name: "SHM Store",
       details: "SHM store",
-      details: "SHM Store",
+      location: "SHM store",
       isActive: true,
     }
   ]);
@@ -89,14 +89,14 @@ export async function shmSeed(permissions) {
   // Account
   await Bank.bulkCreate([
     {
-      business: SHMGold.id,
+      businessId: SHMGold.id,
       accountName: "DS: Cash In Hand",
       accountNo: "ds-cash-in-hand",
       address: "",
       isActive: true,
     },
     {
-      business: SHMGold.id,
+      businessId: SHMGold.id,
       accountName: "BD: Cash In Hand",
       accountNo: "bdcash-in-hand",
       address: "",
@@ -108,6 +108,7 @@ export async function shmSeed(permissions) {
   const [Mahfuz, Admin] = await Promise.all([
     User.create({
       businessId: SHMGold.id,
+      roleId: root.id,
       name: "Root Admin",
       email: "root@gmail.com",
       password: await hash("password123", 10),
@@ -115,6 +116,7 @@ export async function shmSeed(permissions) {
     }),
     User.create({
       businessId: SHMGold.id,
+      roleId: admin.id,
       name: "Admin",
       email: "admin@gmail.com",
       password: await hash("password123", 10),
