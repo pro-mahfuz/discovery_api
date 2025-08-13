@@ -1,99 +1,15 @@
 import { hash } from "bcryptjs";
 import dotenv from "dotenv";
 dotenv.config();
-import { sequelize, Business, User, Role, Permission, Category, Item } from "../models/model.js"; // Adjust the path as needed
+import { sequelize, Permission, Role } from "../models/model.js"; // Adjust the path as needed
 import { faker } from '@faker-js/faker';
+
+import { shmSeed } from "./shm.js";
+import { discoverySeed } from "./discovery.js";
 
 async function seed() {
   await sequelize.sync({ force: true });
 
-  await Category.bulkCreate([
-    {
-      name: "Currency",
-      isActive: true,
-    },
-    {
-      name: "Gold",
-      isActive: true,
-    }
-  ]);
-
-  await Item.bulkCreate([
-    {
-      code: "001",
-      name: "Orange",
-      categoryId: 1,
-      isActive: true,
-    },
-    {
-      code: "002",
-      name: "Carrot",
-      categoryId: 2,
-      isActive: true,
-    }
-  ]);
-
-  const [root, admin, manager, sale] = await Promise.all([
-    Role.create({ name: "Root", action: "root", isActive: true }),
-    Role.create({ name: "Admin", action: "admin", isActive: true }),
-    Role.create({ name: "Manager", action: "manager", isActive: true }),
-    Role.create({ name: "Sale Person", action: "sale", isActive: true }),
-  ]);
-
-
-  const [Discovery, SHMGold] = await Promise.all([
-    Business.create({
-      businessName: "Discovery Foodstuff Trading Co.",
-      businessLicenseNo: "A123456",
-      ownerName: "Mr. Aftab",
-      email: "discovery@gmail.com",
-      countryCode: "AE",
-      phoneCode: "+971",
-      phoneNumber: "555555555",
-      address: "Ras Al Khor",
-      city: "Dubai",
-      Country: "UAE",
-      postalCode: "00000",
-      isActive: true,
-    }),
-    Business.create({
-      businessName: "Mahfuz Trading",
-      businessLicenseNo: "A123457",
-      ownerName: "Mr. Abdul Hoque",
-      email: "mollahin3@gmail.com",
-      countryCode: "AE",
-      phoneCode: "+971",
-      phoneNumber: "555555566",
-      address: "Deira Dubai",
-      city: "Dubai",
-      Country: "UAE",
-      postalCode: "00000",
-      isActive: true,
-    }),
-  ]);
-
-  const [Mahfuz, Mollah] = await Promise.all([
-    User.create({
-      businessId: null,
-      name: "Root Admin",
-      email: "root@gmail.com",
-      password: await hash("password123", 10),
-      isActive: true,
-    }),
-    User.create({
-      businessId: SHMGold.id,
-      name: "Admin",
-      email: "admin@gmail.com",
-      password: await hash("password123", 10),
-      isActive: true,
-    })
-  ]);
-
-  // Assign role to user
-  await Mahfuz.setRole(root); 
-  await Mollah.setRole(admin);
-
-  // Assign permission to user
   const permissions = await Permission.bulkCreate([
     { name: "Role Manage", action: "manage_roles" },
     { name: "Permission Manage", action: "manage_permissions" },
@@ -176,16 +92,18 @@ async function seed() {
     { name: "Ledger Delete", action: "delete_ledger" },
   ]);
 
-  await root.setPermissions(permissions);
-  await admin.setPermissions(permissions);
-  
+  const [root, admin, manager, sale] = await Promise.all([
+    Role.create({ name: "Root", action: "root", isActive: true }),
+    Role.create({ name: "Admin", action: "admin", isActive: true }),
+    Role.create({ name: "Manager", action: "manager", isActive: true }),
+    Role.create({ name: "Sale Person", action: "sale", isActive: true }),
+  ]);
 
-  
+  //await discoverySeed(permissions, root, admin, manager, sale);
+  await shmSeed(permissions, root, admin, manager, sale);
 
   console.log("Seed complete");
   process.exit();
 }
 
 seed();
-// This script seeds the database with initial roles and permissions.
-// It creates two roles: admin and user, and assigns permissions to them.

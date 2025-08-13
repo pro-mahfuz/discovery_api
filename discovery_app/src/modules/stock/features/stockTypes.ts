@@ -2,6 +2,8 @@ import { Container } from "../../container/features/containerTypes";
 import { Warehouse } from "../../warehouse/features/warehouseTypes";
 import { Item } from "../../item/features/itemTypes";
 import { Business } from "../../business/features/businessTypes";
+import { Bank } from "../../bank/features/bankTypes";
+import { Invoice } from "../../invoice/features/invoiceTypes";
 
 export interface Stock {
   id?: number;
@@ -9,6 +11,8 @@ export interface Stock {
   container?: Container;
   item?: Item;
   warehouse?: Warehouse;
+  bank?: Bank;
+  invoice?: Invoice;
 
   businessId?: number;
   date: string;

@@ -51,8 +51,8 @@ export const destroy = async (id: number) => {
     const res = await axiosInstance.post(`protected/payment/${id}/delete`);
     return res.data.data;
 
-  } catch {
-    throw new Error('Failed to delete');
+  } catch (error: any) {
+    throw new Error(error.response.data.message);
   }
 };
 

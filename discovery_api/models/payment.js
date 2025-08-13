@@ -74,6 +74,18 @@ export default (sequelize, DataTypes) => {
         key: 'id',
       },
     },
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
+    deletedBy: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Users',
+        key: 'id',
+      },
+    },
   }, {
     tableName: "payments",
     timestamps: true, // createdAt & updatedAt
@@ -109,6 +121,11 @@ export default (sequelize, DataTypes) => {
     Payment.belongsTo(models.User, {
       foreignKey: "updatedBy",
       as: "updatedByUser"
+    });
+
+    Payment.belongsTo(models.User, {
+      foreignKey: "deletedBy",
+      as: "deletedByUser"
     });
   };
 

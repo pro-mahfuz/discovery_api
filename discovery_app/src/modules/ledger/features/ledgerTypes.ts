@@ -1,5 +1,6 @@
 import { Party } from "../../party/features/partyTypes.ts";
 import { Bank } from "../../bank/features/bankTypes.ts";
+import { Invoice } from "../../invoice/features/invoiceTypes.ts";
 
 export interface Category {
   id: number;
@@ -18,7 +19,8 @@ export interface Ledger {
   paymentId?: number; 
   stockId?: number; 
   paymentRefNo?: string;
-  invoiceRefNo: string;       
+  invoiceRefNo: string;  
+  invoice?: Invoice;     
   description: string; 
   currency: string;
   debit: number;

@@ -119,7 +119,7 @@ export default function StockList() {
                   <TableCell isHeader className="text-center px-4 py-2">Movement Type</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Container</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Item</TableCell>
-                  <TableCell isHeader className="text-center px-4 py-2">Warehouse</TableCell>
+                  <TableCell isHeader className="text-center px-4 py-2">Location</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Qty</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Unit</TableCell>
                   <TableCell isHeader className="text-center px-4 py-2">Created By</TableCell>
@@ -148,7 +148,7 @@ export default function StockList() {
                         {(currentPage - 1) * itemsPerPage + index + 1}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {stock.invoiceId}
+                        {stock.invoice?.invoiceNo}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {stock.date}
@@ -163,13 +163,13 @@ export default function StockList() {
                         {stock.item?.name}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {stock.warehouse?.name}
+                        {stock.warehouse?.name ?? stock.bank?.accountName}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {stock.quantity}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {stock.unit.toUpperCase()}
+                        {stock.unit ? stock.unit.toUpperCase() : ''}
                       </TableCell>
                       <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                         {stock.createdByUser}

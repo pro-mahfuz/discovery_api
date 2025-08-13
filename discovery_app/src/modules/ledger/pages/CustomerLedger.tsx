@@ -18,6 +18,7 @@ import VoucherInvoice from "./VoucherInvoice.tsx";
 import VoucherPayment from "./VoucherPayment.tsx";
 import ConfirmationModal from "../../../components/ui/modal/ConfirmationModal.tsx";
 import { useModal } from "../../../hooks/useModal.ts";
+import { toast } from "react-toastify";
 
 import { Ledger } from "../features/ledgerTypes.ts";
 import { useDispatch, useSelector } from "react-redux";
@@ -95,21 +96,27 @@ export default function CustomerLedger() {
   // Delete handler
   const handleDelete = async () => {
 
-    if(editingLedgerId) {
-      await dispatch(destroy(editingLedgerId));
-    }
+    try{
 
-    if(editingPaymentId) {
-      await dispatch(PaymentDestroy(editingPaymentId));
-    }
+      let response;
 
-    if(editingStockId) {
-      await dispatch(StockDestroy(editingStockId));
-    }
+      if(editingLedgerId) {
+        response = await dispatch(destroy(editingLedgerId)).unwrap();
+      }
 
-    closeAndResetModal();
-    window.location.reload();
-    //navigate("/customers/ledger");
+      if(editingPaymentId) {
+        await dispatch(PaymentDestroy(editingPaymentId));
+      }
+
+      if(editingStockId) {
+        await dispatch(StockDestroy(editingStockId));
+      }
+    } catch (error: any){
+      toast.error(error);
+    }
+      closeAndResetModal();
+      window.location.reload();
+      //navigate("/customers/ledger");
   };
 
   const closeAndResetModal = () => {
@@ -168,7 +175,7 @@ export default function CustomerLedger() {
 
   const ledgerTotalsByCurrency = useMemo(() => {
     return sortedLedgers.reduce<Record<string, CurrencyTotals>>((totals, ledger) => {
-      const currency = ledger.currency || 'UNKNOWN';
+      const currency = ledger.currency || ledger.invoice?.items[0].name || 'UNKNOWN';
       const debit = Number(ledger.debit) || 0;
       const credit = Number(ledger.credit) || 0;
       const debitQty = Number(ledger.debitQty) || 0;
@@ -233,13 +240,13 @@ export default function CustomerLedger() {
       <TabGroup selectedIndex={selectedTab} onChange={setSelectedTab}>
         <TabList className="flex gap-4 mb-2">
           <Tab className="rounded-full px-3 py-1 text-sm font-semibold text-black bg-gray-300 data-selected:bg-sky-500 data-selected:text-white">
-            Add/Edit Purchase/Sale
+            Purchase/Sale
           </Tab>
           <Tab className="rounded-full px-3 py-1 text-sm font-semibold text-black bg-gray-300 data-selected:bg-sky-500 data-selected:text-white">
-            Add/Edit Payment
+            Payment
           </Tab>
           <Tab className="rounded-full px-3 py-1 text-sm font-semibold text-black bg-gray-300 data-selected:bg-sky-500 data-selected:text-white">
-            Add/Edit Stock
+            Stock
           </Tab>
         </TabList>
 
@@ -247,7 +254,7 @@ export default function CustomerLedger() {
           {/* PURCHASE/SALE PANEL */}
           <TabPanel className="space-y-6">
             <div className="p-4 mb-4 border border-gray-300 rounded-lg bg-white dark:bg-gray-800 space-y-4">
-              <h2 className="text-lg font-semibold">Add/Edit Purchase/Sale</h2>
+              <h2 className="text-lg font-semibold">Purchase/Sale</h2>
               <VoucherInvoice editingLedgerId={editingLedgerId ?? 0} ledgerPartyId={partyID}/>
             </div>
           </TabPanel>
@@ -255,14 +262,14 @@ export default function CustomerLedger() {
           {/* PAYMENT PANEL */}
           <TabPanel>
             <div className="p-4 mb-4 border border-gray-300 rounded-lg bg-white dark:bg-gray-800 space-y-4">
-              <h2 className="text-lg font-semibold">Add/Edit Payment</h2>
+              <h2 className="text-lg font-semibold">Payment</h2>
               <VoucherPayment editingPaymentId={editingPaymentId ?? 0} paymentPartyId={partyID}/>
             </div>
           </TabPanel>
 
           <TabPanel>
             <div className="p-4 mb-4 border border-gray-300 rounded-lg bg-white dark:bg-gray-800 space-y-4">
-              <h2 className="text-lg font-semibold">Add/Edit Stock</h2>
+              <h2 className="text-lg font-semibold">Stock</h2>
               <VoucherStock editingStockId={editingStockId ?? 0} stockPartyId={partyID}/>
             </div>
           </TabPanel>

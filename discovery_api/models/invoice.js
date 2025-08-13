@@ -90,6 +90,18 @@ export default (sequelize, DataTypes) => {
         key: 'id',
       },
     },
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
+    deletedBy: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Users',
+        key: 'id',
+      },
+    },
   }, {
     tableName: "invoices",
     timestamps: true, // createdAt & updatedAt
@@ -122,6 +134,11 @@ export default (sequelize, DataTypes) => {
       as: "payments",
     });
 
+    Invoice.hasMany(models.Stock, {
+      foreignKey: "invoiceId",
+      as: "stocks",
+    });
+
     Invoice.belongsTo(models.User, {
       foreignKey: "createdBy",
       as: "createdByUser"
@@ -130,6 +147,11 @@ export default (sequelize, DataTypes) => {
     Invoice.belongsTo(models.User, {
       foreignKey: "updatedBy",
       as: "updatedByUser"
+    });
+
+    Invoice.belongsTo(models.User, {
+      foreignKey: "deletedBy",
+      as: "deletedByUser"
     });
   };
 

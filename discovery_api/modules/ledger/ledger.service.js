@@ -1,4 +1,4 @@
-import { Ledger, Payment, User, Bank, Invoice, Stock, Party, Category } from "../../models/model.js";
+import { Ledger, Payment, User, Bank, Invoice, Stock, InvoiceItem, Party, Category } from "../../models/model.js";
 
 export const getAllLedger = async () => {
     const data = await Ledger.findAll({
@@ -17,6 +17,7 @@ export const getAllLedger = async () => {
             },
             {
                 model: Invoice,
+                include: [ {model: InvoiceItem, as: "items"}],
                 as: 'invoice',
             },
             {

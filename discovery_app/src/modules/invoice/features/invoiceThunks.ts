@@ -110,8 +110,8 @@ export const destroy = createAsyncThunk<any, number, { rejectValue: string }>(
   'invoice/delete', async (id, thunkAPI) => {
     try {
 
-      await invoiceAPI.destroy(id);
-      return id;
+      const response = await invoiceAPI.destroy(id);
+      return response;
       
     } catch (err) {
 

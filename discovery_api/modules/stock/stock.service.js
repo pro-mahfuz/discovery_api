@@ -1,5 +1,5 @@
 import invoice from "../../models/invoice.js";
-import { Stock, Business, User, Item, Category, Container, Ledger, Warehouse, sequelize } from "../../models/model.js";
+import { Stock, Business, User, Invoice, Item, Bank, Category, Container, Ledger, Warehouse, sequelize } from "../../models/model.js";
 import { fn, col, literal } from "sequelize";
 
 
@@ -11,8 +11,16 @@ export const getAllStock = async () => {
                 as: "business",
             },
             {
+                model: Invoice,
+                as: "invoice",
+            },
+            {
                 model: Item,
                 as: "item",
+            },
+            {
+                model: Bank,
+                as: "bank",
             },
             {
                 model: Container,
@@ -35,8 +43,14 @@ export const getAllStock = async () => {
     if (!data || data.length === 0) throw { status: 400, message: "No stock found" };
 
     const stockData = data.map((stock) => {
+        let invoiceNo = '';
+        let stockNo = '';
+        invoiceNo = stock.invoice.prefix + "-" + String(stock.invoice.id).padStart(6, '0');
+        stockNo = stock.invoice.prefix + "-" + String(stock.invoice.id).padStart(6, '0');
         return {
             ...stock.toJSON(),
+            invoiceNo,
+            stockNo,
             createdByUser: stock.createdByUser?.name ?? null,
             updatedByUser: stock.updatedByUser?.name ?? null,
         };

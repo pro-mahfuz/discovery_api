@@ -97,11 +97,11 @@ export default function StockReport() {
                     <TableCell isHeader className="text-center px-4 py-2">Sl</TableCell>
                     <TableCell isHeader className="text-center px-4 py-2">Container</TableCell>
                     <TableCell isHeader className="text-center px-4 py-2">Item</TableCell>
+                    <TableCell isHeader className="text-center px-4 py-2">Unit</TableCell>
                     <TableCell isHeader className="text-center px-4 py-2">Stock In</TableCell>
                     <TableCell isHeader className="text-center px-4 py-2">Stock Out</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Stock Adjustment</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Current Stock</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Unit</TableCell>
+                    <TableCell isHeader className="text-center px-4 py-2">Stock</TableCell>
+                    <TableCell isHeader className="text-center px-4 py-2">Remarks</TableCell>
                   </TableRow>
                 </TableHeader>
 
@@ -131,6 +131,9 @@ export default function StockReport() {
                         <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                           {stock.item?.name}
                         </TableCell>
+                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                          {stock.unit?.toUpperCase()}
+                        </TableCell>
                         
                         <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                           {stock.totalIn}
@@ -138,14 +141,13 @@ export default function StockReport() {
                         <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                           {stock.totalOut}
                         </TableCell>
-                        <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          {stock.totalDamaged}
-                        </TableCell>
+                        
                         <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                           {stock.totalIn - stock.totalOut - stock.totalDamaged}
                         </TableCell>
+                        
                         <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          {stock.unit?.toUpperCase()}
+                          Adjustment: {stock.totalDamaged}
                         </TableCell>
                       </TableRow>
                     ))

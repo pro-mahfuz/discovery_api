@@ -52,18 +52,18 @@ export default function SaleReport() {
   return saleReports.reduce(
     (acc, item) => {
       const total = Number(item.price) * Number(item.quantity) || 0;
-      const vatTotal = (total * Number(item.invoice?.vatPercentage)) / 100 ;
+      const vatAmount = (total * Number(item.invoice?.vatPercentage)) / 100 ;
 
-      acc.total += total;
+      const totalBill = total + vatAmount;
+
+      acc.totalBill += totalBill;
+
       acc.nonVatTotal += item.invoice?.isVat === false ? (total) : 0;
-
-      acc.totalVatAmount += vatTotal;
-
-      acc.vatTotal += item.invoice?.isVat === true ? (total + vatTotal) : 0;
+      acc.vatTotal += item.invoice?.isVat === true ? (total + vatAmount) : 0;
 
       return acc;
     },
-    { total: 0, nonVatTotal: 0, vatTotal: 0, totalVatAmount: 0 } // initial accumulator
+    { totalBill: 0, nonVatTotal: 0, vatTotal: 0, } // initial accumulator
   );
 }, [saleReports]);
 
@@ -125,10 +125,9 @@ export default function SaleReport() {
                     <TableCell isHeader className="text-center px-4 py-2">Unit</TableCell>
                     <TableCell isHeader className="text-center px-4 py-2">Price</TableCell>
                     <TableCell isHeader className="text-center px-4 py-2">Qty</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Total</TableCell>
                     <TableCell isHeader className="text-center px-4 py-2">vat(%)</TableCell>
+                    <TableCell isHeader className="text-center px-4 py-2">Total</TableCell>
                     <TableCell isHeader className="text-center px-4 py-2">Total Amount (Non-Vat)</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">Vat Amount</TableCell>
                     <TableCell isHeader className="text-center px-4 py-2">Total Amount (Vat)</TableCell>
                     {/* <TableCell isHeader className="text-center px-4 py-2">Received Amount</TableCell>
                     <TableCell isHeader className="text-center px-4 py-2">Due Amount</TableCell> */}
@@ -177,28 +176,21 @@ export default function SaleReport() {
                             <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                                 {item.quantity}
                             </TableCell>
-                            
-                            
-                            <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                {item.price * item.quantity}
-                            </TableCell>
-
                             <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                                 {item.invoice?.vatPercentage}
                             </TableCell>
-
+                            
+                            
+                            <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                                {(item.price * item.quantity) + ((item.price * item.quantity) * Number(item.invoice?.vatPercentage) / 100)}
+                            </TableCell>
                             <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                                 {item.invoice?.isVat === false ? item.price * item.quantity : 0}
                             </TableCell>
 
-                            
 
                             <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                { (item.quantity * item.price * Number(item.invoice?.vatPercentage))/ 100}
-                            </TableCell>
-
-                            <TableCell className="text-center px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                {item.invoice?.isVat === true ? item.price * item.quantity + (item.price * Number(item.invoice?.vatPercentage))/ 100 : 0}
+                                {item.invoice?.isVat === true ? item.price * item.quantity + (item.price * item.quantity * Number(item.invoice?.vatPercentage))/ 100 : 0}
                             </TableCell>
 
                           </TableRow>
@@ -210,10 +202,9 @@ export default function SaleReport() {
                 <TableFooter className="border border-gray-100 dark:border-white/[0.05] bg-gray-200 text-black text-sm dark:bg-gray-800 dark:text-gray-400">
                   <TableRow>
                     <TableCell isHeader colSpan={8} className="text-center px-4 py-2">Total Summany:</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">{totalSaleReports.total}</TableCell>
                     <TableCell isHeader className="text-center px-4 py-2">{""}</TableCell>
+                    <TableCell isHeader className="text-center px-4 py-2">{totalSaleReports.totalBill}</TableCell>
                     <TableCell isHeader className="text-center px-4 py-2">{totalSaleReports.nonVatTotal}</TableCell>
-                    <TableCell isHeader className="text-center px-4 py-2">{totalSaleReports.totalVatAmount}</TableCell>
                     <TableCell isHeader className="text-center px-4 py-2">{totalSaleReports.vatTotal}</TableCell>
                   </TableRow>
                 </TableFooter>

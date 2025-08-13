@@ -324,31 +324,7 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
               />
               {errors.invoiceType && <p className="text-red-500 text-sm">{errors.invoiceType}</p>}
             </div>
-
             
-
-            <div>
-              <Label>Select Currency</Label>
-              <Select<OptionStringType>
-                options={CurrencyOptions}
-                placeholder="Select Currency"
-                value={
-                  form
-                    ? CurrencyOptions.find((option) => option.value === form.currency)
-                    : null
-                }
-                onChange={(selectedOption) => {
-                  setForm((prev) => ({
-                    ...prev!,
-                    currency: selectedOption!.value,
-                  }));
-                }}
-                styles={selectStyles}
-                classNamePrefix="react-select"
-              />
-              {errors.currency && <p className="text-red-500 text-sm">{errors.currency}</p>}
-            </div>
-
             <div>
               <Label>Search Item Name</Label>
               <Select
@@ -375,9 +351,46 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
               />
               {errors.itemId && <p className="text-red-500 text-sm">{errors.itemId}</p>}
             </div>
+
+            <div>
+              <Label>Quantity</Label>
+              <Input
+                type="text"
+                name="quantity"
+                value={currentItem.quantity}
+                onChange={handleCurrentItemChange}
+                required
+              />
+              {errors.quantity && <p className="text-red-500 text-sm">{errors.quantity}</p>}
+            </div>
           </div>
 
+          
+          
+
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mt-4">
+            <div>
+            <Label>Select Currency</Label>
+            <Select<OptionStringType>
+              options={CurrencyOptions}
+              placeholder="Select Currency"
+              value={
+                form
+                  ? CurrencyOptions.find((option) => option.value === form.currency)
+                  : null
+              }
+              onChange={(selectedOption) => {
+                setForm((prev) => ({
+                  ...prev!,
+                  currency: selectedOption!.value,
+                }));
+              }}
+              styles={selectStyles}
+              classNamePrefix="react-select"
+            />
+            {errors.currency && <p className="text-red-500 text-sm">{errors.currency}</p>}
+          </div>
+          
             <div>
               <Label>Rate</Label>
               <Input
@@ -391,17 +404,7 @@ export default function VoucherInvoice({ editingLedgerId, ledgerPartyId }: Curre
               {errors.price && <p className="text-red-500 text-sm">{errors.price}</p>}
             </div>
 
-            <div>
-              <Label>Quantity</Label>
-              <Input
-                type="text"
-                name="quantity"
-                value={currentItem.quantity}
-                onChange={handleCurrentItemChange}
-                required
-              />
-              {errors.quantity && <p className="text-red-500 text-sm">{errors.quantity}</p>}
-            </div>
+            
 
             <div>
               <Label>Total Amount</Label>

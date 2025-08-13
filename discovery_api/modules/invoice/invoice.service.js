@@ -1,4 +1,4 @@
-import { Invoice, InvoiceItem, User, Payment, Item, Container, Ledger, Category, Party, sequelize } from "../../models/model.js";
+import { Invoice, InvoiceItem, User, Payment, Item, Container, Stock, Ledger, Category, Party, sequelize } from "../../models/model.js";
 
 export const getAllInvoice = async () => {
     const data = await Invoice.findAll({
@@ -179,12 +179,36 @@ export const createInvoice = async (req) => {
                 currency: req.body.currency,
                 debit: debitAmount,
                 credit: creditAmount,
-                debitQty: ["currency", "gold"].includes(category.name.toLowerCase()) ? debitQty : 0,
-                creditQty: ["currency", "gold"].includes(category.name.toLowerCase()) ? creditQty : 0,
                 createdBy: invoice.createdBy,
             }, 
             { transaction: t }
         );
+
+        if( ["currency", "gold"].includes(category.name.toLowerCase()) ) {
+       
+            await Ledger.create(
+                {
+                    businessId: invoice.businessId,
+                    categoryId: invoice.categoryId,
+                    transactionType: invoice.invoiceType,
+                    partyId: invoice.partyId,
+                    date: invoice.date,
+                    invoiceId: invoice.id,
+                    description: Array.isArray(items)
+                    ? `${items
+                        .map((item) => `${item.name} x${item.quantity} @${item.price}`)
+                        .join(', ')}${invoice.note ? `<br />Note: ${invoice.note}` : ''}`
+                    : '',
+                    currency: items[0].name,
+                    debitQty: ["currency", "gold"].includes(category.name.toLowerCase()) ? debitQty : 0,
+                    creditQty: ["currency", "gold"].includes(category.name.toLowerCase()) ? creditQty : 0,
+                    createdBy: invoice.createdBy,
+                }, 
+                { transaction: t }
+            )
+        }
+
+        
 
         await t.commit();
 
@@ -287,15 +311,36 @@ export const updateInvoice = async (req) => {
             creditQty = items[0].quantity;
         }
 
-        const ledger = await Ledger.findOne({
+        const category = await Category.findByPk(req.body.categoryId);
+
+        await Ledger.destroy({
             where: { invoiceId: invoice.id },
             transaction: t,
         });
 
-        const category = await Category.findByPk(req.body.categoryId);
+        await Ledger.create(
+            {
+                businessId: invoice.businessId,
+                categoryId: invoice.categoryId,
+                transactionType: invoice.invoiceType,
+                partyId: invoice.partyId,
+                date: invoice.date,
+                invoiceId: invoice.id,
+                description: Array.isArray(items)
+                ? `${items
+                    .map((item) => `${item.name} x${item.quantity} @${item.price}`)
+                    .join(', ')}${invoice.note ? `<br />Note: ${invoice.note}` : ''}`
+                : '',
+                currency: req.body.currency,
+                debit: debitAmount,
+                credit: creditAmount,
+                createdBy: invoice.createdBy,
+            }, 
+            { transaction: t }
+        );
 
-        if (ledger) {
-            await ledger.update(
+        if( ["currency", "gold"].includes(category.name.toLowerCase()) ) {
+            await Ledger.create(
                 {
                     businessId: invoice.businessId,
                     categoryId: invoice.categoryId,
@@ -308,16 +353,15 @@ export const updateInvoice = async (req) => {
                         .map((item) => `${item.name} x${item.quantity} @${item.price}`)
                         .join(', ')}${invoice.note ? `<br />Note: ${invoice.note}` : ''}`
                     : '',
-                    currency: req.body.currency,
-                    debit: debitAmount,
-                    credit: creditAmount,
+                    currency: items[0].name,
                     debitQty: ["currency", "gold"].includes(category.name.toLowerCase()) ? debitQty : 0,
                     creditQty: ["currency", "gold"].includes(category.name.toLowerCase()) ? creditQty : 0,
-                    updatedBy: invoice.updatedBy,
-                },
+                    createdBy: invoice.createdBy,
+                }, 
                 { transaction: t }
-            );
+            )
         }
+
 
         await t.commit();
 
@@ -351,31 +395,36 @@ export const deleteInvoice = async (req) => {
   const t = await sequelize.transaction();
 
   try {
-    // Check if invoice exists
-    const invoice = await Invoice.findByPk(id, { transaction: t });
+    const invoice = await Invoice.findByPk(id, {
+      include: [
+        { model: Payment, as: "payments" }, // include payments
+        { model: Stock, as: "stocks" },     // include stocks
+      ],
+      transaction: t,
+    });
+
     if (!invoice) {
       throw new Error("Invoice not found");
     }
 
-    // Delete the ledger
+    if (invoice.payments && invoice.payments.length > 0) {
+      throw new Error("You cannot delete this invoice because it has payment references");
+    }
+
+    if (invoice.stocks && invoice.stocks.length > 0) {
+      throw new Error("You cannot delete this invoice because it has stock references");
+    }
+
     await Ledger.destroy({
       where: { invoiceId: id },
       transaction: t,
     });
 
-    // Delete the stock
-    // await Stock.destroy({
-    //   where: { invoiceId: id },
-    //   transaction: t,
-    // });
-
-    // Delete related invoice items first
     await InvoiceItem.destroy({
       where: { invoiceId: id },
       transaction: t,
     });
 
-    // Delete the invoice itself
     await Invoice.destroy({
       where: { id },
       transaction: t,
@@ -387,10 +436,10 @@ export const deleteInvoice = async (req) => {
       success: true,
       message: "Invoice and its items deleted successfully",
     };
-
   } catch (error) {
     await t.rollback();
     console.error("Failed to delete invoice:", error);
     throw error;
   }
 };
+

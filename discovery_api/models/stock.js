@@ -100,6 +100,18 @@ export default (sequelize, DataTypes) => {
         key: 'id',
       },
     },
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
+    deletedBy: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Users',
+        key: 'id',
+      },
+    },
   }, {
     tableName: 'stocks',
     timestamps: true,
@@ -109,6 +121,11 @@ export default (sequelize, DataTypes) => {
     Stock.belongsTo(models.Item, {
       foreignKey: 'itemId',
       as: 'item',
+    });
+
+    Stock.belongsTo(models.Invoice, {
+      foreignKey: 'invoiceId',
+      as: 'invoice',
     });
 
     Stock.belongsTo(models.Warehouse, {
@@ -139,6 +156,11 @@ export default (sequelize, DataTypes) => {
     Stock.belongsTo(models.User, {
       foreignKey: "updatedBy",
       as: "updatedByUser"
+    });
+
+    Stock.belongsTo(models.User, {
+      foreignKey: "deletedBy",
+      as: "deletedByUser"
     });
   };
 
