@@ -1,4 +1,4 @@
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/shmggxcp/public_html/descovery_api/
+    - export DEPLOYPATH=/home/shmggxcp/descovery_api/
     - /bin/cp -r ./* $DEPLOYPATH
