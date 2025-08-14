@@ -20,7 +20,7 @@ const app = express();
 app.use(express.json());
 
 // Static file middleware
-app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/test/api/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 // app.use(cors({
@@ -36,7 +36,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Route Initialization
-app.use("/api", defineRoute());
+app.use("/test/api", defineRoute());
 
 // Error Handling Middleware
 // This middleware catches errors from the routes and sends a standardized error response.
